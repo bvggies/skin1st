@@ -31,8 +31,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }){
       }catch(e: any){ 
         // Silently ignore auth errors (user not logged in)
         // 405/401 errors are expected when no refresh token exists (first visit)
-        // Only log unexpected errors
-        if (e?.response?.status !== 405 && e?.response?.status !== 401) {
+        // This is normal behavior - user is not authenticated yet
+        // Only log unexpected errors (not 405, 401, or 404)
+        const status = e?.response?.status
+        if (status && status !== 405 && status !== 401 && status !== 404) {
           console.error('Unexpected auth error:', e)
         }
       }
