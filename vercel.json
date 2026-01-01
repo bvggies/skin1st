@@ -1,27 +1,14 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build",
-        "installCommand": "cd .. && npm install",
-        "buildCommand": "npm run build"
-      }
-    },
-    {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/build",
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3.0.0"
     }
-  ],
-  "routes": [
-    { "src": "/api/auth/refresh", "dest": "/api/auth/refresh.ts", "methods": ["POST", "OPTIONS"] },
-    { "src": "/api/auth/login", "dest": "/api/auth/login.ts", "methods": ["POST", "OPTIONS"] },
-    { "src": "/api/auth/logout", "dest": "/api/auth/logout.ts", "methods": ["POST", "OPTIONS"] },
-    { "src": "/api/auth/me", "dest": "/api/auth/me.ts", "methods": ["GET", "OPTIONS"] },
-    { "src": "/api/auth/register", "dest": "/api/auth/register.ts", "methods": ["POST", "OPTIONS"] },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/client/index.html" }
+  },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" }
   ]
 }
