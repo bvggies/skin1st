@@ -191,7 +191,18 @@ export default function Header() {
             </Box>
             <Button
               component={Link}
-              to="/orders"
+              to="/dashboard"
+              startIcon={<Person />}
+              fullWidth
+              variant="outlined"
+              size="small"
+              onClick={handleDrawerToggle}
+            >
+              My Account
+            </Button>
+            <Button
+              component={Link}
+              to="/dashboard?tab=orders"
               startIcon={<ShoppingBag />}
               fullWidth
               variant="outlined"
@@ -202,7 +213,7 @@ export default function Header() {
             </Button>
             <Button
               component={Link}
-              to="/wishlist"
+              to="/dashboard?tab=wishlist"
               startIcon={<Favorite />}
               fullWidth
               variant="outlined"
@@ -473,15 +484,15 @@ export default function Header() {
                               {user.email}
                             </Typography>
                           </Box>
-                          <MenuItem component={Link} to="/profile">
+                          <MenuItem component={Link} to="/dashboard">
                             <ListItemIcon><Person fontSize="small" /></ListItemIcon>
-                            My Profile
+                            My Account
                           </MenuItem>
-                          <MenuItem component={Link} to="/orders">
+                          <MenuItem component={Link} to="/dashboard?tab=orders">
                             <ListItemIcon><ShoppingBag fontSize="small" /></ListItemIcon>
                             My Orders
                           </MenuItem>
-                          <MenuItem component={Link} to="/wishlist">
+                          <MenuItem component={Link} to="/dashboard?tab=wishlist">
                             <ListItemIcon><Favorite fontSize="small" /></ListItemIcon>
                             Wishlist
                           </MenuItem>

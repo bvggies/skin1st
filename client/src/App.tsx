@@ -5,12 +5,14 @@ import Shop from './pages/Shop'
 import Product from './pages/Product'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
+import OrderConfirmation from './pages/OrderConfirmation'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MyOrders from './pages/MyOrders'
 import OrderTrack from './pages/OrderTrack'
+import Dashboard from './pages/Dashboard'
 import AdminOrders from './pages/admin/Orders'
 import AdminOrderDetail from './pages/admin/OrderDetail'
 import AdminProducts from './pages/admin/Products'
@@ -69,11 +71,13 @@ function PublicRoutes() {
         <Route path="/product/:slug" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Product /></Container>} />
         <Route path="/cart" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Cart /></Container>} />
         <Route path="/checkout" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Checkout /></Container>} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Profile /></Container>} />
         <Route path="/orders" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><MyOrders /></Container>} />
-        <Route path="/orders/track" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><OrderTrack /></Container>} />
+        <Route path="/orders/track" element={<OrderTrack />} />
         <Route path="/wishlist" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Wishlist /></Container>} />
         <Route path="/contact" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Contact /></Container>} />
         <Route path="/faq" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><FAQ /></Container>} />

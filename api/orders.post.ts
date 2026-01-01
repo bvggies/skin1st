@@ -14,9 +14,18 @@ const OrderSchema = z.object({
   landmark: z.string().optional(),
   deliveryAddr: z.string().min(5),
   deliveryNotes: z.string().optional(),
+  guestEmail: z.string().email().optional(),
   items: z.array(z.object({ variantId: z.string(), quantity: z.number().int().min(1) })),
   coupon: z.string().optional()
 })
+
+// Generate unique tracking code for guests
+function generateTrackingCode(): string {
+  const prefix = 'TRK'
+  const timestamp = Date.now().toString(36).toUpperCase()
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase()
+  return `${prefix}-${timestamp}-${random}`
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -27,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const parse = OrderSchema.safeParse(req.body || {})
   if (!parse.success) return res.status(400).json({ error: parse.error.errors })
 
-  const { name, phone, alternativePhone, region, city, area, landmark, deliveryAddr, deliveryNotes, items, coupon } = parse.data
+  const { name, phone, alternativePhone, region, city, area, landmark, deliveryAddr, deliveryNotes, guestEmail, items, coupon } = parse.data
 
   // validate variants and compute total
   const variantIds = items.map(i => i.variantId)
@@ -78,8 +87,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // create order code
+  // create order code and tracking code
   const code = 'ORD-' + Math.random().toString(36).slice(2, 9).toUpperCase()
+  const trackingCode = generateTrackingCode()
 
   // Use transaction to ensure stock is decremented atomically
   const order = await prisma.$transaction(async (tx) => {
@@ -96,6 +106,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const newOrder = await tx.order.create({ 
       data: { 
         code, 
+        trackingCode,
         status: 'PENDING_CONFIRMATION', 
         total, 
         customerName: name, 
@@ -106,8 +117,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         area: area || null,
         landmark: landmark || null,
         deliveryAddr, 
-        deliveryNotes, 
-        items: { create: orderItemsData }, 
+        deliveryNotes,
+        guestEmail: guestEmail || null,
+        items: { create: orderItemsData },
+        statusHistory: {
+          create: {
+            status: 'PENDING_CONFIRMATION',
+            note: 'Order placed successfully'
+          }
+        },
         createdAt: new Date(), 
         updatedAt: new Date() 
       } 
@@ -149,9 +167,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     order: { 
       id: order.id, 
       code: order.code, 
+      trackingCode: order.trackingCode,
       status: order.status,
       total: order.total
     },
+    trackingCode: order.trackingCode,
+    isGuestOrder: !order.userId,
     couponApplied: coupon ? true : false,
     discount: couponDiscount > 0 ? couponDiscount : 0
   })

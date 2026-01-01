@@ -5,7 +5,30 @@ import { z } from 'zod'
 import { sendWhatsappNotification } from '../../utils/notifications'
 import { sendEmail, orderStatusUpdateEmail } from '../../utils/email'
 
-const StatusSchema = z.object({ status: z.enum(['PENDING_CONFIRMATION','CONFIRMED','OUT_FOR_DELIVERY','DELIVERED','PAID','COMPLETED','CANCELLED']) })
+const StatusSchema = z.object({ 
+  status: z.enum(['PENDING_CONFIRMATION','CONFIRMED','OUT_FOR_DELIVERY','DELIVERED','PAID','COMPLETED','CANCELLED']),
+  note: z.string().optional(),
+  location: z.string().optional()
+})
+
+function getDefaultStatusNote(status: string): string {
+  switch (status) {
+    case 'CONFIRMED':
+      return 'Order has been confirmed and is being processed'
+    case 'OUT_FOR_DELIVERY':
+      return 'Package is out for delivery'
+    case 'DELIVERED':
+      return 'Package has been delivered'
+    case 'PAID':
+      return 'Payment has been received'
+    case 'COMPLETED':
+      return 'Order has been completed successfully'
+    case 'CANCELLED':
+      return 'Order has been cancelled'
+    default:
+      return 'Status updated'
+  }
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await authGuard(req, res)
@@ -23,7 +46,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const prev = await prisma.order.findUnique({ where: { id } })
   if (!prev) return res.status(404).json({ error: 'Order not found' })
 
-  const order = await prisma.order.update({ where: { id }, data: { status: parse.data.status } })
+  const { status, note, location } = parse.data
+  
+  // Update order status and add to status history
+  const order = await prisma.order.update({ 
+    where: { id }, 
+    data: { 
+      status,
+      // Set delivered date if status is DELIVERED
+      ...(status === 'DELIVERED' && { deliveredAt: new Date() }),
+      statusHistory: {
+        create: {
+          status,
+          note: note || getDefaultStatusNote(status),
+          location: location || null
+        }
+      }
+    } 
+  })
 
   // record event tracking
   try{

@@ -6,7 +6,9 @@ import { sanitizeString, sanitizeEmail } from '../utils/sanitize'
 
 const ProfileSchema = z.object({
   name: z.string().optional(),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  emailNotifications: z.boolean().optional(),
+  smsNotifications: z.boolean().optional(),
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -20,7 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         email: user.email,
         name: user.name,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        emailNotifications: user.emailNotifications,
+        smsNotifications: user.smsNotifications,
       }
     })
   }
@@ -36,6 +40,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (parse.data.phone !== undefined) {
       updateData.phone = sanitizeString(parse.data.phone) || null
     }
+    if (parse.data.emailNotifications !== undefined) {
+      updateData.emailNotifications = parse.data.emailNotifications
+    }
+    if (parse.data.smsNotifications !== undefined) {
+      updateData.smsNotifications = parse.data.smsNotifications
+    }
 
     const updated = await prisma.user.update({
       where: { id: user.id },
@@ -45,7 +55,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         email: true,
         name: true,
         phone: true,
-        role: true
+        role: true,
+        emailNotifications: true,
+        smsNotifications: true,
       }
     })
 

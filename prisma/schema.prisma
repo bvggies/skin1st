@@ -31,20 +31,23 @@ enum GuaranteeStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  phone     String?
-  name      String?
-  password  String
-  role      Role     @default(CUSTOMER)
-  enabled   Boolean  @default(true)
-  orders    Order[]
-  reviews   Review[]
-  cart      Cart?
+  id            String   @id @default(cuid())
+  email         String   @unique
+  phone         String?
+  name          String?
+  password      String
+  role          Role     @default(CUSTOMER)
+  enabled       Boolean  @default(true)
+  orders        Order[]
+  reviews       Review[]
+  cart          Cart?
   refreshTokens RefreshToken[]
-  wishlist  Wishlist[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  wishlist      Wishlist[]
+  savedAddresses SavedAddress[]
+  emailNotifications Boolean @default(true)
+  smsNotifications   Boolean @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Category {
@@ -152,8 +155,10 @@ model CartItem {
 model Order {
   id                String       @id @default(cuid())
   code              String       @unique
+  trackingCode      String?      @unique  // Guest tracking code (optional for legacy orders)
   user              User?        @relation(fields: [userId], references: [id])
   userId            String?
+  guestEmail        String?      // Email for guest order notifications
   status            OrderStatus  @default(PENDING_CONFIRMATION)
   total             Int
   customerName      String?
@@ -165,8 +170,11 @@ model Order {
   landmark          String?      // Nearby landmark
   deliveryAddr      String       // Full address (legacy, can be used as fallback)
   deliveryNotes     String?
+  estimatedDelivery DateTime?    // Estimated delivery date
+  deliveredAt       DateTime?    // Actual delivery date
   items             OrderItem[]
   guaranteeClaims   GuaranteeClaim[]
+  statusHistory     OrderStatusHistory[]
   events            EventTracking[]
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -189,6 +197,38 @@ model EventTracking {
   order     Order?   @relation(fields: [orderId], references: [id])
   orderId   String?
   createdAt DateTime @default(now())
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  order     Order       @relation(fields: [orderId], references: [id])
+  orderId   String
+  status    OrderStatus
+  note      String?     // Optional note (e.g., "Package handed to courier")
+  location  String?     // Optional location update
+  createdAt DateTime    @default(now())
+  
+  @@index([orderId])
+}
+
+model SavedAddress {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  label         String   // e.g., "Home", "Office"
+  isDefault     Boolean  @default(false)
+  recipientName String
+  phone         String
+  alternativePhone String?
+  region        String
+  city          String
+  area          String?
+  landmark      String?
+  fullAddress   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
 }
 
 model GuaranteeClaim {

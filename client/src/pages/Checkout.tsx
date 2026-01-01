@@ -46,6 +46,7 @@ const GHANA_REGIONS = [
 
 const Schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email').optional().or(z.literal('')),
   phone: z.string().min(10, 'Please enter a valid phone number'),
   alternativePhone: z.string().optional(),
   region: z.string().min(1, 'Please select your region'),
@@ -149,6 +150,7 @@ export default function Checkout() {
         name: data.name,
         phone: data.phone,
         alternativePhone: data.alternativePhone || undefined,
+        guestEmail: data.email || undefined,
         region: data.region,
         city: data.city,
         area: data.area,
@@ -159,14 +161,18 @@ export default function Checkout() {
         coupon: appliedCoupon?.coupon?.code || undefined,
       })
 
-      toast.success(`Order placed successfully! Order code: ${res.data.order.code}`)
-      
       // Only clear cart if not using Buy Now
       if (!buyNowItem) {
         cart.clear()
       }
       
-      navigate(`/orders/track?code=${res.data.order.code}`)
+      // Navigate to order confirmation page with order details
+      navigate('/order-confirmation', {
+        state: {
+          order: res.data.order,
+          isGuestOrder: res.data.isGuestOrder
+        }
+      })
     } catch (e: any) {
       console.error(e)
       const errorMsg = e.response?.data?.error || 'Failed to place order'
@@ -234,7 +240,7 @@ export default function Checkout() {
                 </Typography>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   {...register('name')}
                   label="Full Name *"
@@ -242,6 +248,18 @@ export default function Checkout() {
                   fullWidth
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('email')}
+                  label="Email Address"
+                  placeholder="your@email.com"
+                  type="email"
+                  fullWidth
+                  error={!!errors.email}
+                  helperText={errors.email?.message || 'Optional - for order updates'}
                 />
               </Grid>
 

@@ -5,7 +5,15 @@ import useCart from '../store/cart'
 import api from '../api/axios'
 import { setAccessToken, clearAccessToken } from '../api/authClient'
 
-type User = { id: string; email: string; name?: string; role?: string } | null
+type User = { 
+  id: string; 
+  email: string; 
+  name?: string; 
+  phone?: string;
+  role?: string;
+  emailNotifications?: boolean;
+  smsNotifications?: boolean;
+} | null
 
 const AuthContext = React.createContext<any>(null)
 
