@@ -16,7 +16,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (brand) where.brand = { slug: brand }
   if (search) where.OR = [{ name: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }]
 
-  const orderBy: any = { createdAt: 'desc' }
+  // Order by updatedAt desc so new products and recently updated products appear first
+  const orderBy: any = { updatedAt: 'desc' }
   if (sort === 'price_asc') orderBy['variants'] = { _min: { price: 'asc' } }
   if (sort === 'price_desc') orderBy['variants'] = { _max: { price: 'desc' } }
 
