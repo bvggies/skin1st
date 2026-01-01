@@ -45,10 +45,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
 } from 'recharts'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
