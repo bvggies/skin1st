@@ -31,6 +31,11 @@ import {
   WaterDrop,
   Sanitizer,
   AutoAwesome,
+  ShoppingCart,
+  TrackChanges,
+  Payment,
+  Store,
+  AddShoppingCart,
 } from '@mui/icons-material'
 import api from '../api/axios'
 import Newsletter from '../components/Newsletter'
@@ -777,6 +782,268 @@ export default function Home() {
               </Grid>
             ))}
           </Grid>
+        </Container>
+      </Box>
+
+      {/* How It Works - Purchase Process */}
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#fafafa' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <Typography
+              variant="overline"
+              sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em', fontSize: '0.9rem' }}
+            >
+              Simple & Easy
+            </Typography>
+            <Typography variant="h3" fontWeight={700} sx={{ mt: 1, mb: 2 }}>
+              How It Works
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+              Get your favorite beauty products delivered to your doorstep in just a few simple steps
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              flexWrap: { sm: 'wrap', lg: 'nowrap' },
+              gap: 3,
+              justifyContent: 'center',
+            }}
+          >
+            {[
+              {
+                step: 1,
+                icon: <Store sx={{ fontSize: 40 }} />,
+                title: 'Browse & Select',
+                description: 'Explore our wide range of premium beauty products and add your favorites to cart',
+                color: '#6366f1',
+                link: '/shop',
+              },
+              {
+                step: 2,
+                icon: <AddShoppingCart sx={{ fontSize: 40 }} />,
+                title: 'Add to Cart',
+                description: 'Review your selected items and proceed to checkout when ready',
+                color: '#10b981',
+                link: '/cart',
+              },
+              {
+                step: 3,
+                icon: <Payment sx={{ fontSize: 40 }} />,
+                title: 'Place Order',
+                description: 'Fill in your delivery details and confirm your order. No payment required upfront!',
+                color: '#f59e0b',
+                link: '/checkout',
+              },
+              {
+                step: 4,
+                icon: <TrackChanges sx={{ fontSize: 40 }} />,
+                title: 'Track Order',
+                description: 'Use your unique tracking code to monitor your order status in real-time',
+                color: '#ec4899',
+                link: '/orders/track',
+              },
+              {
+                step: 5,
+                icon: <LocalShipping sx={{ fontSize: 40 }} />,
+                title: 'Receive & Pay',
+                description: 'Get your products delivered to your door and pay securely with cash on delivery',
+                color: '#e94560',
+                link: null,
+              },
+            ].map((item, index) => (
+              <Box
+                key={item.step}
+                sx={{
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(33.333% - 16px)', lg: '1 1 0' },
+                  minWidth: { xs: '100%', sm: '280px', lg: '200px' },
+                  maxWidth: { lg: '240px' },
+                }}
+              >
+                <Card
+                  component={item.link ? Link : Box}
+                  to={item.link || undefined}
+                  sx={{
+                    height: '100%',
+                    p: 4,
+                    textAlign: 'center',
+                    borderRadius: 4,
+                    border: '1px solid',
+                    borderColor: 'grey.200',
+                    bgcolor: 'white',
+                    position: 'relative',
+                    overflow: 'visible',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: item.link ? 'pointer' : 'default',
+                    animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                    '@keyframes fadeInUp': {
+                      from: { opacity: 0, transform: 'translateY(30px)' },
+                      to: { opacity: 1, transform: 'translateY(0)' },
+                    },
+                    '&:hover': {
+                      transform: 'translateY(-12px)',
+                      boxShadow: `0 20px 60px ${item.color}30`,
+                      borderColor: item.color,
+                      '& .step-number': {
+                        transform: 'scale(1.1) rotate(5deg)',
+                        bgcolor: item.color,
+                      },
+                      '& .step-icon': {
+                        transform: 'scale(1.15)',
+                        color: item.color,
+                      },
+                    },
+                    textDecoration: 'none',
+                  }}
+                >
+                  {/* Step Number Badge */}
+                  <Box
+                    className="step-number"
+                    sx={{
+                      position: 'absolute',
+                      top: -20,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      bgcolor: `${item.color}15`,
+                      color: item.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: '1.25rem',
+                      border: `3px solid white`,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      transition: 'all 0.3s ease',
+                      zIndex: 2,
+                    }}
+                  >
+                    {item.step}
+                  </Box>
+
+                  {/* Icon */}
+                  <Box
+                    className="step-icon"
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: 3,
+                      bgcolor: `${item.color}10`,
+                      color: item.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mx: 'auto',
+                      mb: 3,
+                      mt: 2,
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    {item.icon}
+                  </Box>
+
+                  {/* Content */}
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{
+                      mb: 1.5,
+                      color: 'text.primary',
+                      fontSize: { xs: '1rem', md: '1.1rem' },
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      lineHeight: 1.6,
+                      fontSize: { xs: '0.85rem', md: '0.9rem' },
+                    }}
+                  >
+                    {item.description}
+                  </Typography>
+
+                  {/* Arrow (except last item) */}
+                  {item.step < 5 && (
+                    <Box
+                      sx={{
+                        display: { xs: 'none', lg: 'block' },
+                        position: 'absolute',
+                        right: -24,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: item.color,
+                        opacity: 0.3,
+                      }}
+                    >
+                      <ArrowForward sx={{ fontSize: 32 }} />
+                    </Box>
+                  )}
+                </Card>
+              </Box>
+            ))}
+          </Box>
+
+          {/* CTA Section */}
+          <Box sx={{ textAlign: 'center', mt: 6 }}>
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              Ready to Get Started?
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
+              Start shopping now and enjoy free delivery on all orders. Pay when you receive your products!
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+              <Button
+                component={Link}
+                to="/shop"
+                variant="contained"
+                size="large"
+                startIcon={<Store />}
+                sx={{
+                  bgcolor: 'primary.main',
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                  },
+                }}
+              >
+                Browse Products
+              </Button>
+              <Button
+                component={Link}
+                to="/orders/track"
+                variant="outlined"
+                size="large"
+                startIcon={<TrackChanges />}
+                sx={{
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  '&:hover': {
+                    borderColor: 'primary.dark',
+                    bgcolor: 'primary.lighter',
+                    transform: 'translateY(-2px)',
+                  },
+                }}
+              >
+                Track Order
+              </Button>
+            </Stack>
+          </Box>
         </Container>
       </Box>
 
