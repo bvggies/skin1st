@@ -1,6 +1,6 @@
 import React from 'react'
-import { Box, Typography, Paper, Tabs, Tab, Container, Link } from '@mui/material'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Box, Typography, Paper, Tabs, Tab, Container } from '@mui/material'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 
 const adminRoutes = [
   { path: '/admin/analytics', label: 'Analytics' },
