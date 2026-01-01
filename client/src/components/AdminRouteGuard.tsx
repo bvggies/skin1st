@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { useAuth } from '../context/AuthContext'
 
@@ -9,6 +9,7 @@ interface AdminRouteGuardProps {
 
 export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [isChecking, setIsChecking] = React.useState(true)
 
   React.useEffect(() => {
@@ -18,6 +19,20 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     }, 1000)
     return () => clearTimeout(timer)
   }, [])
+
+  React.useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isChecking && user === null) {
+      navigate('/login', { replace: true })
+      return
+    }
+
+    // Redirect to home if not admin
+    if (!isChecking && user && user.role !== 'ADMIN') {
+      navigate('/', { replace: true })
+      return
+    }
+  }, [user, isChecking, navigate])
 
   // Show loading while checking authentication
   if (isChecking || user === undefined) {
@@ -40,14 +55,9 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     )
   }
 
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-
-  // Redirect to home if not admin
-  if (user.role !== 'ADMIN') {
-    return <Navigate to="/" replace />
+  // Don't render if redirecting
+  if (!user || user.role !== 'ADMIN') {
+    return null
   }
 
   return <>{children}</>
