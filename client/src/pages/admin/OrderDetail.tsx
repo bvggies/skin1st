@@ -16,7 +16,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material'
-import { ExpandMore } from '@mui/icons-material'
+import { ExpandMore, Download, Print } from '@mui/icons-material'
 import { getOrder, updateOrderStatus } from '../../api/admin'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
@@ -76,12 +76,45 @@ export default function OrderDetail() {
 
   const onChangeStatus = (status: string) => mutation.mutate(status)
 
+  const handleDownloadPDF = () => {
+    window.open(`/api/admin/orders/${id}/delivery-pdf`, '_blank')
+  }
+
+  const handlePrintPDF = () => {
+    const printWindow = window.open(`/api/admin/orders/${id}/delivery-pdf`, '_blank')
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    }
+  }
+
   return (
     <AdminLayout>
       <Stack spacing={3}>
-        <Typography variant="h5" component="h2" fontWeight={600}>
-          Order {order.code}
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Typography variant="h5" component="h2" fontWeight={600}>
+            Order {order.code}
+          </Typography>
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={<Download />}
+              onClick={handleDownloadPDF}
+              color="primary"
+            >
+              Download PDF
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Print />}
+              onClick={handlePrintPDF}
+              color="primary"
+            >
+              Print
+            </Button>
+          </Stack>
+        </Box>
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>

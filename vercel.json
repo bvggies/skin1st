@@ -20,6 +20,10 @@
       "destination": "/api/admin/orders.[id].status?id=:id"
     },
     {
+      "source": "/api/admin/orders/:id/delivery-pdf",
+      "destination": "/api/admin/orders.[id].delivery-pdf?id=:id"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
