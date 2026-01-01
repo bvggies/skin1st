@@ -271,17 +271,18 @@ export default function Analytics() {
               {statusChartData.length > 0 ? (
                 <Box sx={{ height: 300, mt: 2 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={statusChartData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" />
-                      <YAxis 
+                    <BarChart data={statusChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
                         dataKey="name" 
-                        type="category" 
-                        width={150}
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: 11 }}
+                        angle={-20}
+                        textAnchor="end"
+                        height={60}
                       />
+                      <YAxis />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </Box>
