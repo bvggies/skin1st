@@ -73,17 +73,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Generate tracking code for legacy orders that don't have one
-  let trackingCode = order.trackingCode
-  if (!trackingCode) {
+  let orderTrackingCode = order.trackingCode
+  if (!orderTrackingCode) {
     const prefix = 'TRK'
     const timestamp = Date.now().toString(36).toUpperCase()
     const random = Math.random().toString(36).slice(2, 6).toUpperCase()
-    trackingCode = `${prefix}-${timestamp}-${random}`
+    orderTrackingCode = `${prefix}-${timestamp}-${random}`
     
     // Update order with new tracking code
     await prisma.order.update({
       where: { id: order.id },
-      data: { trackingCode }
+      data: { trackingCode: orderTrackingCode }
     })
   }
 
@@ -92,7 +92,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     order: {
       id: order.id,
       code: order.code,
-      trackingCode,
+      trackingCode: orderTrackingCode,
       status: order.status,
       total: order.total,
       customerName: order.customerName,
