@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../../db'
+import prisma from '../db'
 import { authGuard } from '../middleware/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { page = '1', pageSize = '20', status } = req.query as any
   const p = Math.max(1, Number(page) || 1)
-  const ps = Math.min(100, Math.max(1, Number(pageSize) || 20)))
+  const ps = Math.min(100, Math.max(1, Number(pageSize) || 20))
 
   const where: any = {}
   if (status) where.status = status
