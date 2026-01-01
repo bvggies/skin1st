@@ -174,8 +174,14 @@ export default function Product() {
       title: 'Packages & Pricing',
       content: (
         <Box>
+          {data.pricingPackaging && (
+            <Typography variant="body1" sx={{ mb: 3, whiteSpace: 'pre-line' }}>
+              {data.pricingPackaging}
+            </Typography>
+          )}
           <Typography variant="body1" sx={{ mb: 3 }}>
-            Choose from our available package sizes to suit your needs:
+            {!data.pricingPackaging && 'Choose from our available package sizes to suit your needs:'}
+            {data.pricingPackaging && data.variants?.length > 0 && 'Available sizes:'}
           </Typography>
           <Grid container spacing={2}>
             {data.variants?.map((v: any) => {
@@ -216,23 +222,29 @@ export default function Product() {
           <Typography variant="h6" fontWeight={600} gutterBottom>
             Usage Instructions
           </Typography>
-          <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Cleanse your skin thoroughly before application" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Apply a small amount to the affected area" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Gently massage in circular motions until absorbed" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Use twice daily (morning and evening) for best results" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Store in a cool, dry place away from direct sunlight" />
-            </ListItem>
-          </List>
+          {data.howToUse ? (
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+              {data.howToUse}
+            </Typography>
+          ) : (
+            <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Cleanse your skin thoroughly before application" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Apply a small amount to the affected area" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Gently massage in circular motions until absorbed" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Use twice daily (morning and evening) for best results" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Store in a cool, dry place away from direct sunlight" />
+              </ListItem>
+            </List>
+          )}
           <Alert severity="warning" sx={{ mt: 2 }}>
             <strong>Note:</strong> If you experience any irritation, discontinue use and consult a dermatologist.
           </Alert>
@@ -247,23 +259,31 @@ export default function Product() {
           <Typography variant="h6" fontWeight={600} gutterBottom>
             Product Composition
           </Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            This product contains carefully selected ingredients for optimal skin care:
-          </Typography>
-          <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Natural botanical extracts" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Vitamin E for skin nourishment" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Hyaluronic acid for hydration" />
-            </ListItem>
-            <ListItem sx={{ display: 'list-item', pl: 1 }}>
-              <ListItemText primary="Gentle, non-comedogenic formula" />
-            </ListItem>
-          </List>
+          {data.ingredients ? (
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+              {data.ingredients}
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                This product contains carefully selected ingredients for optimal skin care:
+              </Typography>
+              <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+                <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                  <ListItemText primary="Natural botanical extracts" />
+                </ListItem>
+                <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                  <ListItemText primary="Vitamin E for skin nourishment" />
+                </ListItem>
+                <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                  <ListItemText primary="Hyaluronic acid for hydration" />
+                </ListItem>
+                <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                  <ListItemText primary="Gentle, non-comedogenic formula" />
+                </ListItem>
+              </List>
+            </>
+          )}
           <Alert severity="info" sx={{ mt: 2 }}>
             <strong>Allergen Information:</strong> Please check the product label for a complete list of ingredients.
             If you have known allergies, consult with a healthcare professional before use.
@@ -276,52 +296,78 @@ export default function Product() {
       title: 'FAQs',
       content: (
         <Stack spacing={3}>
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              How long does shipping take?
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              We deliver within 1-3 business days across Ghana. Delivery times may vary based on your location.
-            </Typography>
-          </Box>
-          <Divider />
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              Is this product suitable for all skin types?
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              This product is formulated for most skin types. However, if you have sensitive skin or known allergies,
-              we recommend doing a patch test first or consulting with a dermatologist.
-            </Typography>
-          </Box>
-          <Divider />
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              Can I return this product?
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Yes! We offer a money-back guarantee. If you're not satisfied with your purchase, you can return it
-              within 30 days for a full refund.
-            </Typography>
-          </Box>
-          <Divider />
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              What payment methods do you accept?
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              We accept Cash on Delivery (COD). You pay when you receive your order.
-            </Typography>
-          </Box>
-          <Divider />
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              How should I store this product?
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed when not in use.
-            </Typography>
-          </Box>
+          {data.faq && (() => {
+            try {
+              const faqs = JSON.parse(data.faq)
+              if (Array.isArray(faqs) && faqs.length > 0) {
+                return faqs.map((faq: any, idx: number) => (
+                  <React.Fragment key={idx}>
+                    {idx > 0 && <Divider />}
+                    <Box>
+                      <Typography variant="h6" fontWeight={600} gutterBottom>
+                        {faq.question}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {faq.answer}
+                      </Typography>
+                    </Box>
+                  </React.Fragment>
+                ))
+              }
+              return null
+            } catch {
+              return null
+            }
+          })() || (
+            <>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  How long does shipping take?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  We deliver within 1-3 business days across Ghana. Delivery times may vary based on your location.
+                </Typography>
+              </Box>
+              <Divider />
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Is this product suitable for all skin types?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  This product is formulated for most skin types. However, if you have sensitive skin or known allergies,
+                  we recommend doing a patch test first or consulting with a dermatologist.
+                </Typography>
+              </Box>
+              <Divider />
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Can I return this product?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Yes! We offer a money-back guarantee. If you're not satisfied with your purchase, you can return it
+                  within 30 days for a full refund.
+                </Typography>
+              </Box>
+              <Divider />
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  What payment methods do you accept?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  We accept Cash on Delivery (COD). You pay when you receive your order.
+                </Typography>
+              </Box>
+              <Divider />
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  How should I store this product?
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed when not in use.
+                </Typography>
+              </Box>
+            </>
+          )}
         </Stack>
       ),
     },
@@ -330,44 +376,52 @@ export default function Product() {
       title: 'Delivery & Returns',
       content: (
         <Stack spacing={3}>
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              Delivery Information
+          {data.deliveryReturns ? (
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+              {data.deliveryReturns}
             </Typography>
-            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Free delivery within 1-3 business days across Ghana" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Cash on Delivery (COD) available" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="We'll contact you before delivery to confirm your address" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Delivery times may vary during holidays or peak seasons" />
-              </ListItem>
-            </List>
-          </Box>
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              Returns Policy
-            </Typography>
-            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="30-day money-back guarantee" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Products must be unopened and in original packaging" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Contact us via WhatsApp or email to initiate a return" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Refunds will be processed within 5-7 business days" />
-              </ListItem>
-            </List>
-          </Box>
+          ) : (
+            <>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Delivery Information
+                </Typography>
+                <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Free delivery within 1-3 business days across Ghana" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Cash on Delivery (COD) available" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="We'll contact you before delivery to confirm your address" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Delivery times may vary during holidays or peak seasons" />
+                  </ListItem>
+                </List>
+              </Box>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Returns Policy
+                </Typography>
+                <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="30-day money-back guarantee" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Products must be unopened and in original packaging" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Contact us via WhatsApp or email to initiate a return" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Refunds will be processed within 5-7 business days" />
+                  </ListItem>
+                </List>
+              </Box>
+            </>
+          )}
           <Alert severity="success">
             <strong>Need Help?</strong> Contact us via WhatsApp at {process.env.REACT_APP_WHATSAPP_NUMBER} or email us
             for assistance with delivery or returns.

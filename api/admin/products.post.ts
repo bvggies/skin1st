@@ -12,6 +12,12 @@ const ProductSchema = z.object({
   isNew: z.boolean().optional(),
   isBestSeller: z.boolean().optional(),
   moneyBackGuarantee: z.boolean().optional(),
+  // New fields
+  howToUse: z.string().optional(),
+  ingredients: z.string().optional(),
+  pricingPackaging: z.string().optional(),
+  faq: z.string().optional(),
+  deliveryReturns: z.string().optional(),
   images: z.array(z.object({ url: z.string(), alt: z.string().optional() })).optional(),
   variants: z.array(z.object({
     sku: z.string(),
@@ -32,7 +38,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const parse = ProductSchema.safeParse(req.body || {})
   if (!parse.success) return res.status(400).json({ error: parse.error.errors })
 
-  const { name, slug, description, categoryId, brandId, isNew, isBestSeller, moneyBackGuarantee, images, variants } = parse.data
+  const { 
+    name, slug, description, categoryId, brandId, 
+    isNew, isBestSeller, moneyBackGuarantee, 
+    howToUse, ingredients, pricingPackaging, faq, deliveryReturns,
+    images, variants 
+  } = parse.data
 
   // Check if slug already exists
   const existing = await prisma.product.findUnique({ where: { slug } })
@@ -48,6 +59,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       isNew: isNew || false,
       isBestSeller: isBestSeller || false,
       moneyBackGuarantee: moneyBackGuarantee || false,
+      howToUse: howToUse || null,
+      ingredients: ingredients || null,
+      pricingPackaging: pricingPackaging || null,
+      faq: faq || null,
+      deliveryReturns: deliveryReturns || null,
       images: images ? {
         create: images.map(img => ({ url: img.url, alt: img.alt || null }))
       } : undefined,
@@ -71,4 +87,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(201).json({ product })
 }
-

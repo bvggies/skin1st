@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { page = '1', pageSize = '20', q } = req.query as any
   const p = Math.max(1, Number(page) || 1)
-  const ps = Math.min(100, Math.max(1, Number(pageSize) || 20)))
+  const ps = Math.min(100, Math.max(1, Number(pageSize) || 20))
 
   const where: any = {}
   if (q) {

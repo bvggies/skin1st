@@ -68,6 +68,11 @@ model Product {
   name         String
   slug         String        @unique
   description  String
+  howToUse     String?
+  ingredients  String?
+  pricingPackaging String?
+  faq          String?       // JSON stringified array of {question, answer}
+  deliveryReturns String?
   category     Category?     @relation(fields: [categoryId], references: [id])
   categoryId   String?
   brand        Brand?        @relation(fields: [brandId], references: [id])
