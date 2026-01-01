@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import Product from './pages/Product'
@@ -32,7 +32,8 @@ import WhatsAppFloat from './components/WhatsAppFloat'
 
 import { Container, Box } from '@mui/material'
 
-export default function App() {
+// Layout for public pages (with Header and Footer)
+function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <Box 
       sx={{ 
@@ -50,38 +51,67 @@ export default function App() {
           width: '100%',
         }}
       >
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 } }}><Shop /></Container>} />
-          <Route path="/product/:slug" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Product /></Container>} />
-          <Route path="/cart" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Cart /></Container>} />
-          <Route path="/checkout" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Checkout /></Container>} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Profile /></Container>} />
-          <Route path="/orders" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><MyOrders /></Container>} />
-          <Route path="/orders/track" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><OrderTrack /></Container>} />
-          <Route path="/wishlist" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Wishlist /></Container>} />
-          <Route path="/contact" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Contact /></Container>} />
-          <Route path="/faq" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><FAQ /></Container>} />
-          <Route path="/about" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><About /></Container>} />
-          <Route path="/terms" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Terms /></Container>} />
-          <Route path="/privacy" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Privacy /></Container>} />
-          <Route path="/guarantee/claim" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><GuaranteeClaim /></Container>} />
-
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
-          <Route path="/admin/brands" element={<AdminBrands />} />
-          <Route path="/admin/coupons" element={<AdminCoupons />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
-        </Routes>
+        {children}
       </Box>
       <Footer />
       <WhatsAppFloat />
     </Box>
   )
+}
+
+// Public routes component
+function PublicRoutes() {
+  return (
+    <PublicLayout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/shop" element={<Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 } }}><Shop /></Container>} />
+        <Route path="/product/:slug" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Product /></Container>} />
+        <Route path="/cart" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Cart /></Container>} />
+        <Route path="/checkout" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Checkout /></Container>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Profile /></Container>} />
+        <Route path="/orders" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><MyOrders /></Container>} />
+        <Route path="/orders/track" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><OrderTrack /></Container>} />
+        <Route path="/wishlist" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Wishlist /></Container>} />
+        <Route path="/contact" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Contact /></Container>} />
+        <Route path="/faq" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><FAQ /></Container>} />
+        <Route path="/about" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><About /></Container>} />
+        <Route path="/terms" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Terms /></Container>} />
+        <Route path="/privacy" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Privacy /></Container>} />
+        <Route path="/guarantee/claim" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><GuaranteeClaim /></Container>} />
+      </Routes>
+    </PublicLayout>
+  )
+}
+
+// Admin routes (no Header/Footer - AdminLayout handles its own layout)
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route path="/admin/orders" element={<AdminOrders />} />
+      <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
+      <Route path="/admin/analytics" element={<AdminAnalytics />} />
+      <Route path="/admin/products" element={<AdminProducts />} />
+      <Route path="/admin/categories" element={<AdminCategories />} />
+      <Route path="/admin/brands" element={<AdminBrands />} />
+      <Route path="/admin/coupons" element={<AdminCoupons />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
+      <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
+    </Routes>
+  )
+}
+
+export default function App() {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+
+  // Render admin routes without the public layout
+  if (isAdminRoute) {
+    return <AdminRoutes />
+  }
+
+  // Render public routes with Header/Footer
+  return <PublicRoutes />
 }
