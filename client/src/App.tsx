@@ -28,6 +28,7 @@ import About from './pages/About'
 import Wishlist from './pages/Wishlist'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
+import WhatsAppFloat from './components/WhatsAppFloat'
 
 import { Container, Box } from '@mui/material'
 
@@ -67,6 +68,7 @@ export default function App() {
         </Routes>
       </Box>
       <Footer />
+      <WhatsAppFloat />
     </Box>
   )
 }
