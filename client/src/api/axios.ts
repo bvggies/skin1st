@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getAccessToken } from './authClient'
+import { getAccessToken, clearAccessToken } from './authClient'
 
 const baseURL = process.env.REACT_APP_API_URL || '/api'
 
@@ -23,7 +23,6 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Clear token and redirect to login
-      const { clearAccessToken } = require('./authClient')
       clearAccessToken()
       // Only redirect if not already on login/register page
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
