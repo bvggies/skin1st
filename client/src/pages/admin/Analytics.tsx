@@ -18,6 +18,7 @@ import {
   TableRow,
   Stack,
 } from '@mui/material'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 
@@ -52,42 +53,17 @@ export default function Analytics() {
       )
     }
 
-    try {
-      const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = require('recharts')
-
-      return (
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={ordersByStatus}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="status" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#6366f1" />
-          </BarChart>
-        </ResponsiveContainer>
-      )
-    } catch (e) {
-      return (
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Count</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {ordersByStatus.map((item: any, idx: number) => (
-                <TableRow key={idx}>
-                  <TableCell>{item.status}</TableCell>
-                  <TableCell align="right">{item.count}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )
-    }
+    return (
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={ordersByStatus}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="status" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" fill="#6366f1" />
+        </BarChart>
+      </ResponsiveContainer>
+    )
   }
 
   return (
