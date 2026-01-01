@@ -92,14 +92,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const trackingCode = generateTrackingCode()
 
   // Get user from auth if available (optional for guest orders)
-  let userId: string | null = null
-  try {
-    const { requireAuth } = await import('./middleware/auth')
-    const user = await requireAuth(req, res)
-    userId = user?.id || null
-  } catch (e) {
-    // Guest order - userId remains null
-  }
+  // requireAuth returns null if no token or invalid token, so we can use it directly
+  const { requireAuth } = await import('./middleware/auth')
+  const user = await requireAuth(req, res)
+  const userId = user?.id || null
 
   // Use transaction to ensure stock is decremented atomically
   const order = await prisma.$transaction(async (tx) => {
