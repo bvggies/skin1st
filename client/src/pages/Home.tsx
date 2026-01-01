@@ -488,18 +488,6 @@ export default function Home() {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box sx={{ animation: 'slideInLeft 0.8s ease-out', '@keyframes slideInLeft': { from: { opacity: 0, transform: 'translateX(-40px)' }, to: { opacity: 1, transform: 'translateX(0)' } } }}>
-                {/* Logo in Hero */}
-                <Box
-                  component="img"
-                  src="/skin1st.png"
-                  alt="Skin1st"
-                  sx={{
-                    height: 60,
-                    width: 'auto',
-                    mb: 3,
-                    filter: 'brightness(0) invert(1)',
-                  }}
-                />
                 <Typography
                   variant="h1"
                   sx={{

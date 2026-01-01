@@ -135,7 +135,7 @@ export default function Register() {
             >
               <Box
                 component="img"
-                src="/skin1st.png"
+                src="/assets/skin1st.png"
                 alt="Skin1st"
                 sx={{ height: 50, width: 'auto', objectFit: 'contain' }}
               />

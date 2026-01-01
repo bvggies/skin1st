@@ -114,7 +114,7 @@ export default function Header() {
         <Box component={Link} to="/" onClick={handleDrawerToggle}>
           <Box
             component="img"
-            src="/skin1st.png"
+            src="/assets/skin1st.png"
             alt="Skin1st"
             sx={{ height: 40, width: 'auto', objectFit: 'contain' }}
           />
@@ -303,7 +303,7 @@ export default function Header() {
               >
                 <Box
                   component="img"
-                  src="/skin1st.png"
+                  src="/assets/skin1st.png"
                   alt="Skin1st Beauty Therapy"
                   sx={{
                     height: { xs: 36, md: 44 },

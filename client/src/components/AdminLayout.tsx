@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Box
               component="img"
-              src="/skin1st.png"
+              src="/assets/skin1st.png"
               alt="Skin1st Beauty Therapy"
               sx={{
                 height: 50,
