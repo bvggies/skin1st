@@ -19,6 +19,7 @@ import {
 import { ExpandMore } from '@mui/icons-material'
 import { getOrder, updateOrderStatus } from '../../api/admin'
 import AdminLayout from '../../components/AdminLayout'
+import toast from 'react-hot-toast'
 
 const statusColors: Record<string, 'warning' | 'info' | 'secondary' | 'success' | 'primary' | 'default' | 'error'> = {
   PENDING_CONFIRMATION: 'warning',
@@ -41,7 +42,14 @@ export default function OrderDetail() {
   const mutation = useMutation(
     (status: string) => updateOrderStatus(id as string, status),
     {
-      onSuccess: () => qc.invalidateQueries(['admin:orders']),
+      onSuccess: (data) => {
+        qc.invalidateQueries(['admin:orders'])
+        qc.invalidateQueries(['admin:order', id])
+        toast.success(`Order status updated to ${data.order.status}`)
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.error || 'Failed to update order status')
+      },
     }
   )
 
