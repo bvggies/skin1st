@@ -15,13 +15,6 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
-    { "source": "/api/auth.refresh", "destination": "/api/auth.refresh" },
-    { "source": "/api/auth.login", "destination": "/api/auth.login" },
-    { "source": "/api/auth.logout", "destination": "/api/auth.logout" },
-    { "source": "/api/auth.me", "destination": "/api/auth.me" },
-    { "source": "/api/auth.register", "destination": "/api/auth.register" }
-  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/client/index.html" }

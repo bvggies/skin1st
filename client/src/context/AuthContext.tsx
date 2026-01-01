@@ -18,11 +18,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }){
     // try to refresh access token using HttpOnly refresh cookie, then fetch user and cart
     (async ()=>{
       try{
-        const r = await api.post('/auth.refresh')
+        const r = await api.post('/auth/refresh')
         const accessToken = r.data.accessToken
         if (accessToken) setAccessToken(accessToken)
         // fetch user
-        const me = await api.get('/auth.me')
+        const me = await api.get('/auth/me')
         setUser(me.data.user)
         // fetch cart (server will return guest or user cart)
         const cartRes = await api.get('/cart')
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }){
   }
 
   async function logout(){
-    try{ await api.post('/auth.logout') }catch(e){}
+    try{ await api.post('/auth/logout') }catch(e){}
     clearAccessToken()
     setUser(null)
     // fetch guest cart created on logout (if any)
