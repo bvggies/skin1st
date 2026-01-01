@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../../db'
+import prisma from './db'
 import { z } from 'zod'
-import { requireAuth } from '../../middleware/auth'
+import { requireAuth } from './middleware/auth'
 
 const ReviewSchema = z.object({ 
   rating: z.number().min(1).max(5), 
@@ -56,3 +56,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
