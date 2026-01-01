@@ -4,6 +4,40 @@ import prisma from './db'
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
+  // Parse URL to check if this is a single product request
+  // For /api/products/mooyam-turmeric-face-cream
+  const url = req.url || ''
+  const pathMatch = url.match(/\/api\/products\/([^/?]+)/)
+  
+  if (pathMatch && pathMatch[1] && pathMatch[1] !== 'related') {
+    const slug = pathMatch[1]
+    
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      include: { 
+        images: true, 
+        variants: true, 
+        reviews: { 
+          include: { 
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        }, 
+        brand: true, 
+        category: true 
+      }
+    })
+    if (!product) return res.status(404).json({ error: 'Product not found' })
+    return res.status(200).json({ product })
+  }
+
+  // Otherwise, return product list
   const page = Math.max(1, parseInt((req.query.page as string) || '1'))
   const perPage = Math.min(100, Math.max(1, parseInt((req.query.perPage as string) || '12')))
   const category = req.query.category as string | undefined

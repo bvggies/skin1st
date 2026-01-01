@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from '../../db'
 import { z } from 'zod'
-import { authGuard, requireAuth } from '../../middleware/auth'
+import { requireAuth } from '../../middleware/auth'
 
 const ReviewSchema = z.object({ 
   rating: z.number().min(1).max(5), 
@@ -10,8 +10,15 @@ const ReviewSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { slug } = req.query
-  if (!slug || typeof slug !== 'string') return res.status(400).json({ error: 'Invalid slug' })
+  // Parse URL to get slug from path /api/products/:slug/reviews
+  const url = req.url || ''
+  const pathMatch = url.match(/\/api\/products\/([^/]+)\/reviews/)
+  
+  if (!pathMatch || !pathMatch[1]) {
+    return res.status(400).json({ error: 'Invalid slug' })
+  }
+  
+  const slug = pathMatch[1]
 
   if (req.method === 'GET') {
     const reviews = await prisma.review.findMany({ 
@@ -49,4 +56,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
-
