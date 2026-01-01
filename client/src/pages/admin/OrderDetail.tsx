@@ -286,7 +286,7 @@ export default function OrderDetail() {
                 </Button>
                 <Button
                   variant="contained"
-                  color="default"
+                  color="secondary"
                   onClick={() => onChangeStatus('COMPLETED')}
                   fullWidth
                   disabled={mutation.isLoading || order.status === 'COMPLETED'}
