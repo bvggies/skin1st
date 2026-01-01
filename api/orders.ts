@@ -3,6 +3,7 @@ import { z } from 'zod'
 import prisma from './db'
 import { orderRateLimit } from './middleware/rateLimit'
 import { sendEmail, orderConfirmationEmail } from './utils/email'
+import { requireAuth } from './middleware/auth'
 
 const OrderSchema = z.object({
   name: z.string().min(1),
