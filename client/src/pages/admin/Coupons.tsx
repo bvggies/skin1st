@@ -1,5 +1,30 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Stack,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material'
+import { Add, Delete, Close } from '@mui/icons-material'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
@@ -22,7 +47,7 @@ export default function Coupons() {
       },
       onError: () => {
         toast.error('Failed to delete coupon')
-      }
+      },
     }
   )
 
@@ -30,65 +55,85 @@ export default function Coupons() {
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Coupons</h2>
-          <button
+      <Stack spacing={3}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Coupons
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
             onClick={() => setShowCreateModal(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
-            + New Coupon
-          </button>
-        </div>
+            New Coupon
+          </Button>
+        </Box>
 
         {isLoading ? (
-          <div>Loading coupons...</div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="p-3 text-left text-sm font-medium">Code</th>
-                  <th className="p-3 text-left text-sm font-medium">Type</th>
-                  <th className="p-3 text-left text-sm font-medium">Value</th>
-                  <th className="p-3 text-left text-sm font-medium">Expiry</th>
-                  <th className="p-3 text-left text-sm font-medium">Max Uses</th>
-                  <th className="p-3 text-left text-sm font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: 'grey.100' }}>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Value</TableCell>
+                  <TableCell>Expiry</TableCell>
+                  <TableCell>Max Uses</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {coupons.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-6 text-center text-gray-500">
-                      No coupons found. Create your first coupon!
-                    </td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        No coupons found. Create your first coupon!
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   coupons.map((coupon: any) => (
-                    <tr key={coupon.id} className="border-t hover:bg-gray-50">
-                      <td className="p-3 font-medium">{coupon.code}</td>
-                      <td className="p-3 text-sm capitalize">{coupon.type}</td>
-                      <td className="p-3 text-sm">
-                        {coupon.type === 'percentage' ? `${coupon.value}%` : `₵${(coupon.value / 100).toFixed(2)}`}
-                      </td>
-                      <td className="p-3 text-sm">
+                    <TableRow key={coupon.id} hover>
+                      <TableCell>
+                        <Typography variant="body1" fontWeight={500}>
+                          {coupon.code}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                          {coupon.type}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {coupon.type === 'percentage'
+                          ? `${coupon.value}%`
+                          : `₵${(coupon.value / 100).toFixed(2)}`}
+                      </TableCell>
+                      <TableCell>
                         {coupon.expiry ? new Date(coupon.expiry).toLocaleDateString() : 'No expiry'}
-                      </td>
-                      <td className="p-3 text-sm">{coupon.maxUses || 'Unlimited'}</td>
-                      <td className="p-3">
-                        <button
+                      </TableCell>
+                      <TableCell>{coupon.maxUses || 'Unlimited'}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={<Delete />}
                           onClick={() => deleteMutation.mutate(coupon.id)}
-                          className="text-red-600 hover:underline text-sm"
                         >
                           Delete
-                        </button>
-                      </td>
-                    </tr>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
 
         {showCreateModal && (
@@ -100,7 +145,7 @@ export default function Coupons() {
             }}
           />
         )}
-      </div>
+      </Stack>
     </AdminLayout>
   )
 }
@@ -111,7 +156,7 @@ function CouponForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
     type: 'percentage' as 'percentage' | 'fixed',
     value: '',
     expiry: '',
-    maxUses: ''
+    maxUses: '',
   })
 
   const createMutation = useMutation(
@@ -123,7 +168,7 @@ function CouponForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
       },
       onError: (e: any) => {
         toast.error(e.response?.data?.error || 'Failed to create coupon')
-      }
+      },
     }
   )
 
@@ -134,97 +179,83 @@ function CouponForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
       type: formData.type,
       value: formData.type === 'percentage' ? parseInt(formData.value) : parseInt(formData.value) * 100,
       expiry: formData.expiry || null,
-      maxUses: formData.maxUses ? parseInt(formData.maxUses) : null
+      maxUses: formData.maxUses ? parseInt(formData.maxUses) : null,
     })
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Create Coupon</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Code *</label>
-            <input
-              type="text"
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">Create Coupon</Typography>
+          <IconButton onClick={onClose} size="small">
+            <Close />
+          </IconButton>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Stack spacing={3}>
+            <TextField
+              label="Code *"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              className="w-full border p-2 rounded"
               required
+              fullWidth
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Type *</label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as 'percentage' | 'fixed' })}
-              className="w-full border p-2 rounded"
-            >
-              <option value="percentage">Percentage</option>
-              <option value="fixed">Fixed Amount</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Value * {formData.type === 'percentage' ? '(%)' : '(₵)'}
-            </label>
-            <input
+            <FormControl fullWidth>
+              <InputLabel>Type *</InputLabel>
+              <Select
+                value={formData.type}
+                label="Type *"
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'percentage' | 'fixed' })}
+              >
+                <MenuItem value="percentage">Percentage</MenuItem>
+                <MenuItem value="fixed">Fixed Amount</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label={`Value * ${formData.type === 'percentage' ? '(%)' : '(₵)'}`}
               type="number"
               value={formData.value}
               onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-              className="w-full border p-2 rounded"
-              min="0"
-              max={formData.type === 'percentage' ? '100' : undefined}
               required
+              fullWidth
+              inputProps={{
+                min: 0,
+                max: formData.type === 'percentage' ? 100 : undefined,
+              }}
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Expiry Date (optional)</label>
-            <input
+            <TextField
+              label="Expiry Date (optional)"
               type="date"
               value={formData.expiry}
               onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-              className="w-full border p-2 rounded"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Max Uses (optional)</label>
-            <input
+            <TextField
+              label="Max Uses (optional)"
               type="number"
               value={formData.maxUses}
               onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
-              className="w-full border p-2 rounded"
-              min="1"
+              fullWidth
+              inputProps={{ min: 1 }}
             />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={createMutation.isLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {createMutation.isLoading ? 'Creating...' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Stack>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={createMutation.isLoading}
+        >
+          {createMutation.isLoading ? 'Creating...' : 'Create'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
-

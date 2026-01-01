@@ -1,9 +1,26 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  Stack,
+  Pagination,
+  CircularProgress,
+  Link,
+} from '@mui/material'
+import { Add } from '@mui/icons-material'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
-import toast from 'react-hot-toast'
-import { Link } from 'react-router-dom'
 import ProductForm from '../../components/admin/ProductForm'
 
 export default function Products() {
@@ -14,115 +31,118 @@ export default function Products() {
   const pageSize = 20
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['admin:products', page, search], async () => {
-    const params = new URLSearchParams()
-    params.set('page', String(page))
-    params.set('perPage', String(pageSize))
-    if (search) params.set('search', search)
-    const res = await api.get(`/products?${params.toString()}`)
-    return res.data
-  })
+  const { data, isLoading } = useQuery(
+    ['admin:products', page, search],
+    async () => {
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('perPage', String(pageSize))
+      if (search) params.set('search', search)
+      const res = await api.get(`/products?${params.toString()}`)
+      return res.data
+    }
+  )
 
   const products = data?.products || []
   const total = data?.meta?.total || 0
+  const totalPages = Math.ceil(total / pageSize)
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Products</h2>
-          <div className="flex gap-2">
-            <input
+      <Stack spacing={3}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Products
+          </Typography>
+          <Stack direction="row" spacing={2}>
+            <TextField
               placeholder="Search products..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              className="border p-2 rounded"
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+              size="small"
+              sx={{ width: 250 }}
             />
-            <button
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Add />}
               onClick={() => setShowCreateModal(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
             >
-              + New Product
-            </button>
-          </div>
-        </div>
+              New Product
+            </Button>
+          </Stack>
+        </Box>
 
         {isLoading ? (
-          <div>Loading products...</div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
           <>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-3 text-left text-sm font-medium">Name</th>
-                    <th className="p-3 text-left text-sm font-medium">Brand</th>
-                    <th className="p-3 text-left text-sm font-medium">Category</th>
-                    <th className="p-3 text-left text-sm font-medium">Variants</th>
-                    <th className="p-3 text-left text-sm font-medium">Status</th>
-                    <th className="p-3 text-left text-sm font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: 'grey.100' }}>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Brand</TableCell>
+                    <TableCell>Category</TableCell>
+                    <TableCell>Variants</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {products.map((p: any) => (
-                    <tr key={p.id} className="border-t hover:bg-gray-50">
-                      <td className="p-3">
-                        <div className="font-medium">{p.name}</div>
-                        <div className="text-xs text-gray-500">{p.slug}</div>
-                      </td>
-                      <td className="p-3 text-sm">{p.brand?.name || '-'}</td>
-                      <td className="p-3 text-sm">{p.category?.name || '-'}</td>
-                      <td className="p-3 text-sm">{p.variants?.length || 0} variants</td>
-                      <td className="p-3">
-                        <div className="flex gap-1">
-                          {p.isNew && <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">New</span>}
-                          {p.isBestSeller && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Best</span>}
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
+                    <TableRow key={p.id} hover>
+                      <TableCell>
+                        <Box>
+                          <Typography variant="body1" fontWeight={500}>
+                            {p.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {p.slug}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>{p.brand?.name || '-'}</TableCell>
+                      <TableCell>{p.category?.name || '-'}</TableCell>
+                      <TableCell>{p.variants?.length || 0} variants</TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
+                          {p.isNew && <Chip label="New" color="primary" size="small" />}
+                          {p.isBestSeller && <Chip label="Best" color="warning" size="small" />}
+                        </Stack>
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
                           <Link
-                            to={`/product/${p.slug}`}
-                            className="text-indigo-600 hover:underline text-sm"
+                            href={`/product/${p.slug}`}
                             target="_blank"
+                            rel="noopener noreferrer"
+                            underline="hover"
                           >
                             View
                           </Link>
-                          <button
-                            onClick={() => setEditingProduct(p)}
-                            className="text-blue-600 hover:underline text-sm"
-                          >
+                          <Button size="small" onClick={() => setEditingProduct(p)}>
                             Edit
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                          </Button>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+              <Typography variant="body2" color="text.secondary">
                 Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, total)} of {total} products
-              </div>
-              <div className="flex gap-2">
-                <button
-                  disabled={page <= 1}
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <button
-                  disabled={page >= Math.ceil(total / pageSize)}
-                  onClick={() => setPage(p => p + 1)}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+              </Typography>
+              <Pagination count={totalPages} page={page} onChange={(_, value) => setPage(value)} color="primary" />
+            </Box>
           </>
         )}
 
@@ -140,8 +160,7 @@ export default function Products() {
             }}
           />
         )}
-      </div>
+      </Stack>
     </AdminLayout>
   )
 }
-

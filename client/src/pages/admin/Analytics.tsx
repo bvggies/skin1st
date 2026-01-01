@@ -1,5 +1,23 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Stack,
+} from '@mui/material'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 
@@ -12,23 +30,31 @@ export default function Analytics() {
   })
 
   if (isLoading) {
-    return <AdminLayout><div>Loading analytics...</div></AdminLayout>
+    return (
+      <AdminLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
+    )
   }
 
   const stats = data?.stats || {}
   const ordersByStatus = data?.ordersByStatus || []
   const topProducts = data?.topProducts || []
 
-  // Dynamically load recharts to avoid build issues
   const renderChart = () => {
     if (!ordersByStatus || !Array.isArray(ordersByStatus) || ordersByStatus.length === 0) {
-      return <p className="text-gray-500">No data available</p>
+      return (
+        <Typography variant="body2" color="text.secondary">
+          No data available
+        </Typography>
+      )
     }
 
     try {
-      // Use require to avoid build-time import issues
       const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = require('recharts')
-      
+
       return (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={ordersByStatus}>
@@ -41,94 +67,136 @@ export default function Analytics() {
         </ResponsiveContainer>
       )
     } catch (e) {
-      // Fallback to table if recharts fails
       return (
-        <div className="space-y-2">
-          <p className="text-sm text-gray-500 mb-4">Chart unavailable. Showing as table:</p>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-2 font-semibold">Status</th>
-                <th className="text-right p-2 font-semibold">Count</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Count</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {ordersByStatus.map((item: any, idx: number) => (
-                <tr key={idx} className="border-b hover:bg-gray-50">
-                  <td className="p-2">{item.status}</td>
-                  <td className="text-right p-2">{item.count}</td>
-                </tr>
+                <TableRow key={idx}>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell align="right">{item.count}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )
     }
   }
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Analytics Dashboard</h2>
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </select>
-        </div>
+      <Stack spacing={3}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Analytics Dashboard
+          </Typography>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Period</InputLabel>
+            <Select value={period} label="Period" onChange={(e) => setPeriod(e.target.value)}>
+              <MenuItem value="7">Last 7 days</MenuItem>
+              <MenuItem value="30">Last 30 days</MenuItem>
+              <MenuItem value="90">Last 90 days</MenuItem>
+              <MenuItem value="365">Last year</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-600">Total Orders</div>
-            <div className="text-2xl font-bold">{stats.totalOrders || 0}</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-600">Total Revenue</div>
-            <div className="text-2xl font-bold">₵{((stats.totalRevenue || 0) / 100).toFixed(2)}</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-600">Total Users</div>
-            <div className="text-2xl font-bold">{stats.totalUsers || 0}</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-600">Average Order Value</div>
-            <div className="text-2xl font-bold">₵{((stats.averageOrderValue || 0) / 100).toFixed(2)}</div>
-          </div>
-        </div>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Total Orders
+              </Typography>
+              <Typography variant="h4" fontWeight={700}>
+                {stats.totalOrders || 0}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Total Revenue
+              </Typography>
+              <Typography variant="h4" fontWeight={700}>
+                ₵{((stats.totalRevenue || 0) / 100).toFixed(2)}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Total Users
+              </Typography>
+              <Typography variant="h4" fontWeight={700}>
+                {stats.totalUsers || 0}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Average Order Value
+              </Typography>
+              <Typography variant="h4" fontWeight={700}>
+                ₵{((stats.averageOrderValue || 0) / 100).toFixed(2)}
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
 
-        {/* Orders by Status */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="font-semibold mb-4">Orders by Status</h3>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" component="h3" gutterBottom fontWeight={600}>
+            Orders by Status
+          </Typography>
           {renderChart()}
-        </div>
+        </Paper>
 
-        {/* Top Products */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="font-semibold mb-4">Top Products</h3>
-          <div className="space-y-2">
-            {topProducts.length === 0 ? (
-              <p className="text-gray-500">No data available</p>
-            ) : (
-              topProducts.map((product: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                  <div>
-                    <div className="font-medium">{product.productName}</div>
-                    <div className="text-sm text-gray-500">{product.variantName}</div>
-                  </div>
-                  <div className="font-semibold">{product.quantity} sold</div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" component="h3" gutterBottom fontWeight={600}>
+            Top Products
+          </Typography>
+          {topProducts.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No data available
+            </Typography>
+          ) : (
+            <Stack spacing={1} sx={{ mt: 2 }}>
+              {topProducts.map((product: any, idx: number) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 2,
+                    '&:hover': { bgcolor: 'grey.50' },
+                    borderRadius: 1,
+                  }}
+                >
+                  <Box>
+                    <Typography variant="body1" fontWeight={500}>
+                      {product.productName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {product.variantName}
+                    </Typography>
+                  </Box>
+                  <Typography variant="h6" fontWeight={600}>
+                    {product.quantity} sold
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          )}
+        </Paper>
+      </Stack>
     </AdminLayout>
   )
 }

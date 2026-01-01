@@ -2,26 +2,40 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import {
+  Box,
+  Typography,
+  Paper,
+  Container,
+  Tabs,
+  Tab,
+  TextField,
+  Button,
+  Stack,
+  Link,
+} from '@mui/material'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link as RouterLink } from 'react-router-dom'
 
 const ProfileSchema = z.object({
   name: z.string().optional(),
   phone: z.string().optional(),
-  email: z.string().email().optional()
+  email: z.string().email().optional(),
 })
 
-const PasswordSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(8),
-  confirmPassword: z.string().min(8)
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"]
-})
+const PasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  })
 
 type ProfileForm = z.infer<typeof ProfileSchema>
 type PasswordForm = z.infer<typeof PasswordSchema>
@@ -29,19 +43,28 @@ type PasswordForm = z.infer<typeof PasswordSchema>
 export default function Profile() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'addresses'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'addresses'>(0)
 
-  const { register: registerProfile, handleSubmit: handleProfileSubmit, formState: { errors: profileErrors } } = useForm<ProfileForm>({
+  const {
+    register: registerProfile,
+    handleSubmit: handleProfileSubmit,
+    formState: { errors: profileErrors },
+  } = useForm<ProfileForm>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: {
       name: user?.name || '',
       phone: user?.phone || '',
-      email: user?.email || ''
-    }
+      email: user?.email || '',
+    },
   })
 
-  const { register: registerPassword, handleSubmit: handlePasswordSubmit, formState: { errors: passwordErrors }, reset: resetPassword } = useForm<PasswordForm>({
-    resolver: zodResolver(PasswordSchema)
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors },
+    reset: resetPassword,
+  } = useForm<PasswordForm>({
+    resolver: zodResolver(PasswordSchema),
   })
 
   const updateProfileMutation = useMutation(
@@ -53,7 +76,7 @@ export default function Profile() {
       },
       onError: (e: any) => {
         toast.error(e.response?.data?.error || 'Failed to update profile')
-      }
+      },
     }
   )
 
@@ -66,145 +89,143 @@ export default function Profile() {
       },
       onError: (e: any) => {
         toast.error(e.response?.data?.error || 'Failed to update password')
-      }
+      },
     }
   )
 
   if (!user) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-xl font-semibold mb-4">Please log in to view your profile</h2>
-        <Link to="/login" className="text-indigo-600 hover:underline">Login</Link>
-      </div>
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
+          Please log in to view your profile
+        </Typography>
+        <Button component={RouterLink} to="/login" variant="contained" color="primary" sx={{ mt: 2 }}>
+          Login
+        </Button>
+      </Box>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-6">My Account</h1>
+    <Container maxWidth="md">
+      <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+        My Account
+      </Typography>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="border-b">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`px-6 py-3 font-medium ${activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600'}`}
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => setActiveTab('password')}
-              className={`px-6 py-3 font-medium ${activeTab === 'password' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600'}`}
-            >
-              Change Password
-            </button>
-            <button
-              onClick={() => setActiveTab('addresses')}
-              className={`px-6 py-3 font-medium ${activeTab === 'addresses' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600'}`}
-            >
-              Addresses
-            </button>
-          </div>
-        </div>
+      <Paper sx={{ mt: 3 }}>
+        <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)}>
+          <Tab label="Profile" />
+          <Tab label="Change Password" />
+          <Tab label="Addresses" />
+        </Tabs>
 
-        <div className="p-6">
-          {activeTab === 'profile' && (
-            <form onSubmit={handleProfileSubmit((data) => updateProfileMutation.mutate(data))} className="space-y-4 max-w-md">
-              <div>
-                <label className="block text-sm font-medium mb-2">Full Name</label>
-                <input
+        <Box sx={{ p: 4 }}>
+          {activeTab === 0 && (
+            <Box component="form" onSubmit={handleProfileSubmit((data) => updateProfileMutation.mutate(data))} sx={{ maxWidth: 500 }}>
+              <Stack spacing={3}>
+                <TextField
                   {...registerProfile('name')}
-                  className="w-full border p-3 rounded-lg"
-                  placeholder="Your name"
+                  label="Full Name"
+                  fullWidth
+                  error={!!profileErrors.name}
+                  helperText={profileErrors.name?.message}
                 />
-                {profileErrors.name && <p className="text-sm text-red-500 mt-1">{profileErrors.name.message}</p>}
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
-                <input
+                <TextField
                   {...registerProfile('email')}
+                  label="Email"
                   type="email"
-                  className="w-full border p-3 rounded-lg"
+                  fullWidth
                   disabled
+                  helperText="Email cannot be changed"
                 />
-                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Phone</label>
-                <input
+                <TextField
                   {...registerProfile('phone')}
+                  label="Phone"
                   type="tel"
-                  className="w-full border p-3 rounded-lg"
-                  placeholder="Your phone number"
+                  fullWidth
+                  error={!!profileErrors.phone}
+                  helperText={profileErrors.phone?.message}
                 />
-                {profileErrors.phone && <p className="text-sm text-red-500 mt-1">{profileErrors.phone.message}</p>}
-              </div>
 
-              <button
-                type="submit"
-                disabled={updateProfileMutation.isLoading}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {updateProfileMutation.isLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </form>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={updateProfileMutation.isLoading}
+                  size="large"
+                >
+                  {updateProfileMutation.isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </Stack>
+            </Box>
           )}
 
-          {activeTab === 'password' && (
-            <form onSubmit={handlePasswordSubmit((data) => updatePasswordMutation.mutate({ currentPassword: data.currentPassword, newPassword: data.newPassword }))} className="space-y-4 max-w-md">
-              <div>
-                <label className="block text-sm font-medium mb-2">Current Password</label>
-                <input
+          {activeTab === 1 && (
+            <Box
+              component="form"
+              onSubmit={handlePasswordSubmit((data) =>
+                updatePasswordMutation.mutate({
+                  currentPassword: data.currentPassword,
+                  newPassword: data.newPassword,
+                })
+              )}
+              sx={{ maxWidth: 500 }}
+            >
+              <Stack spacing={3}>
+                <TextField
                   {...registerPassword('currentPassword')}
+                  label="Current Password"
                   type="password"
-                  className="w-full border p-3 rounded-lg"
+                  fullWidth
+                  error={!!passwordErrors.currentPassword}
+                  helperText={passwordErrors.currentPassword?.message}
                 />
-                {passwordErrors.currentPassword && <p className="text-sm text-red-500 mt-1">{passwordErrors.currentPassword.message}</p>}
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">New Password</label>
-                <input
+                <TextField
                   {...registerPassword('newPassword')}
+                  label="New Password"
                   type="password"
-                  className="w-full border p-3 rounded-lg"
+                  fullWidth
+                  error={!!passwordErrors.newPassword}
+                  helperText={passwordErrors.newPassword?.message}
                 />
-                {passwordErrors.newPassword && <p className="text-sm text-red-500 mt-1">{passwordErrors.newPassword.message}</p>}
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Confirm New Password</label>
-                <input
+                <TextField
                   {...registerPassword('confirmPassword')}
+                  label="Confirm New Password"
                   type="password"
-                  className="w-full border p-3 rounded-lg"
+                  fullWidth
+                  error={!!passwordErrors.confirmPassword}
+                  helperText={passwordErrors.confirmPassword?.message}
                 />
-                {passwordErrors.confirmPassword && <p className="text-sm text-red-500 mt-1">{passwordErrors.confirmPassword.message}</p>}
-              </div>
 
-              <button
-                type="submit"
-                disabled={updatePasswordMutation.isLoading}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {updatePasswordMutation.isLoading ? 'Updating...' : 'Update Password'}
-              </button>
-            </form>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={updatePasswordMutation.isLoading}
+                  size="large"
+                >
+                  {updatePasswordMutation.isLoading ? 'Updating...' : 'Update Password'}
+                </Button>
+              </Stack>
+            </Box>
           )}
 
-          {activeTab === 'addresses' && (
-            <div>
-              <p className="text-gray-600">Saved addresses will appear here. You can add addresses during checkout.</p>
-              <Link to="/orders" className="text-indigo-600 hover:underline mt-4 inline-block">
+          {activeTab === 2 && (
+            <Box>
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                Saved addresses will appear here. You can add addresses during checkout.
+              </Typography>
+              <Button component={RouterLink} to="/orders" variant="text" color="primary" sx={{ mt: 2 }}>
                 View Order History →
-              </Link>
-            </div>
+              </Button>
+            </Box>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Container>
   )
 }
-

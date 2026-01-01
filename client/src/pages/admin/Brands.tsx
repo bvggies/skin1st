@@ -1,5 +1,26 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Stack,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
+} from '@mui/material'
+import { Add, Edit, Delete, Close } from '@mui/icons-material'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
@@ -23,7 +44,7 @@ export default function Brands() {
       },
       onError: () => {
         toast.error('Failed to delete brand')
-      }
+      },
     }
   )
 
@@ -31,61 +52,78 @@ export default function Brands() {
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Brands</h2>
-          <button
+      <Stack spacing={3}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Brands
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
             onClick={() => setShowCreateModal(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
-            + New Brand
-          </button>
-        </div>
+            New Brand
+          </Button>
+        </Box>
 
         {isLoading ? (
-          <div>Loading brands...</div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="p-3 text-left text-sm font-medium">Name</th>
-                  <th className="p-3 text-left text-sm font-medium">Slug</th>
-                  <th className="p-3 text-left text-sm font-medium">Products</th>
-                  <th className="p-3 text-left text-sm font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: 'grey.100' }}>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Slug</TableCell>
+                  <TableCell>Products</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {brands.map((brand: any) => (
-                  <tr key={brand.id} className="border-t hover:bg-gray-50">
-                    <td className="p-3 font-medium">{brand.name}</td>
-                    <td className="p-3 text-sm text-gray-500">{brand.slug}</td>
-                    <td className="p-3 text-sm">{brand.products?.length || 0}</td>
-                    <td className="p-3">
-                      <div className="flex gap-2">
-                        <button
+                  <TableRow key={brand.id} hover>
+                    <TableCell>
+                      <Typography variant="body1" fontWeight={500}>
+                        {brand.name}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        {brand.slug}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{brand.products?.length || 0}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          size="small"
+                          startIcon={<Edit />}
                           onClick={() => setEditingBrand(brand)}
-                          className="text-blue-600 hover:underline text-sm"
                         >
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={<Delete />}
                           onClick={() => {
                             if (window.confirm('Are you sure you want to delete this brand?')) {
                               deleteMutation.mutate(brand.id)
                             }
                           }}
-                          className="text-red-600 hover:underline text-sm"
                         >
                           Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
 
         {(showCreateModal || editingBrand) && (
@@ -102,7 +140,7 @@ export default function Brands() {
             }}
           />
         )}
-      </div>
+      </Stack>
     </AdminLayout>
   )
 }
@@ -110,7 +148,7 @@ export default function Brands() {
 function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => void; onSuccess: () => void }) {
   const [formData, setFormData] = useState({
     name: brand?.name || '',
-    slug: brand?.slug || ''
+    slug: brand?.slug || '',
   })
 
   const createMutation = useMutation(
@@ -122,7 +160,7 @@ function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => 
       },
       onError: (e: any) => {
         toast.error(e.response?.data?.error || 'Failed to create brand')
-      }
+      },
     }
   )
 
@@ -135,7 +173,7 @@ function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => 
       },
       onError: (e: any) => {
         toast.error(e.response?.data?.error || 'Failed to update brand')
-      }
+      },
     }
   )
 
@@ -149,60 +187,54 @@ function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => 
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{brand ? 'Edit Brand' : 'Create Brand'}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Name *</label>
-            <input
-              type="text"
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">{brand ? 'Edit Brand' : 'Create Brand'}</Typography>
+          <IconButton onClick={onClose} size="small">
+            <Close />
+          </IconButton>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Stack spacing={3}>
+            <TextField
+              label="Name *"
               value={formData.name}
               onChange={(e) => {
                 const name = e.target.value
                 setFormData({
                   name,
-                  slug: brand ? formData.slug : name.toLowerCase().replace(/\s+/g, '-')
+                  slug: brand ? formData.slug : name.toLowerCase().replace(/\s+/g, '-'),
                 })
               }}
-              className="w-full border p-2 rounded"
               required
+              fullWidth
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Slug *</label>
-            <input
-              type="text"
+            <TextField
+              label="Slug *"
               value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-              className="w-full border p-2 rounded"
+              onChange={(e) =>
+                setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })
+              }
               required
+              fullWidth
             />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={createMutation.isLoading || updateMutation.isLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {createMutation.isLoading || updateMutation.isLoading ? 'Saving...' : (brand ? 'Update' : 'Create')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Stack>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={createMutation.isLoading || updateMutation.isLoading}
+        >
+          {createMutation.isLoading || updateMutation.isLoading ? 'Saving...' : brand ? 'Update' : 'Create'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
-

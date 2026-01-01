@@ -1,15 +1,38 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  Stack,
+  Pagination,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+} from '@mui/material'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
 
-const statusColors: Record<string, string> = {
-  SUBMITTED: 'bg-yellow-100 text-yellow-800',
-  UNDER_REVIEW: 'bg-blue-100 text-blue-800',
-  APPROVED: 'bg-green-100 text-green-800',
-  REJECTED: 'bg-red-100 text-red-800',
-  REFUNDED: 'bg-gray-100 text-gray-800'
+const statusColors: Record<
+  string,
+  'warning' | 'info' | 'success' | 'error' | 'default'
+> = {
+  SUBMITTED: 'warning',
+  UNDER_REVIEW: 'info',
+  APPROVED: 'success',
+  REJECTED: 'error',
+  REFUNDED: 'default',
 }
 
 export default function GuaranteeClaims() {
@@ -18,14 +41,17 @@ export default function GuaranteeClaims() {
   const pageSize = 20
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['admin:guarantee-claims', page, status], async () => {
-    const params = new URLSearchParams()
-    params.set('page', String(page))
-    params.set('pageSize', String(pageSize))
-    if (status) params.set('status', status)
-    const res = await api.get(`/admin/guarantee-claims?${params.toString()}`)
-    return res.data
-  })
+  const { data, isLoading } = useQuery(
+    ['admin:guarantee-claims', page, status],
+    async () => {
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('pageSize', String(pageSize))
+      if (status) params.set('status', status)
+      const res = await api.get(`/admin/guarantee-claims?${params.toString()}`)
+      return res.data
+    }
+  )
 
   const updateMutation = useMutation(
     ({ id, status }: { id: string; status: string }) =>
@@ -37,141 +63,157 @@ export default function GuaranteeClaims() {
       },
       onError: () => {
         toast.error('Failed to update claim status')
-      }
+      },
     }
   )
 
   const claims = data?.claims || []
   const total = data?.meta?.total || 0
+  const totalPages = Math.ceil(total / pageSize)
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Guarantee Claims</h2>
-          <select
-            value={status}
-            onChange={(e) => { setStatus(e.target.value); setPage(1) }}
-            className="border p-2 rounded"
-          >
-            <option value="">All Statuses</option>
-            <option value="SUBMITTED">Submitted</option>
-            <option value="UNDER_REVIEW">Under Review</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="REFUNDED">Refunded</option>
-          </select>
-        </div>
+      <Stack spacing={3}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            Guarantee Claims
+          </Typography>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={status}
+              label="Status"
+              onChange={(e) => {
+                setStatus(e.target.value)
+                setPage(1)
+              }}
+            >
+              <MenuItem value="">All Statuses</MenuItem>
+              <MenuItem value="SUBMITTED">Submitted</MenuItem>
+              <MenuItem value="UNDER_REVIEW">Under Review</MenuItem>
+              <MenuItem value="APPROVED">Approved</MenuItem>
+              <MenuItem value="REJECTED">Rejected</MenuItem>
+              <MenuItem value="REFUNDED">Refunded</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
         {isLoading ? (
-          <div>Loading claims...</div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
           <>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-3 text-left text-sm font-medium">Order Code</th>
-                    <th className="p-3 text-left text-sm font-medium">Customer</th>
-                    <th className="p-3 text-left text-sm font-medium">Reason</th>
-                    <th className="p-3 text-left text-sm font-medium">Status</th>
-                    <th className="p-3 text-left text-sm font-medium">Submitted</th>
-                    <th className="p-3 text-left text-sm font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: 'grey.100' }}>
+                    <TableCell>Order Code</TableCell>
+                    <TableCell>Customer</TableCell>
+                    <TableCell>Reason</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Submitted</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {claims.map((claim: any) => (
-                    <tr key={claim.id} className="border-t hover:bg-gray-50">
-                      <td className="p-3 text-sm font-medium">{claim.order?.code}</td>
-                      <td className="p-3 text-sm">
+                    <TableRow key={claim.id} hover>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={500}>
+                          {claim.order?.code}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
                         {claim.order?.user?.name || claim.order?.user?.email || 'Guest'}
-                      </td>
-                      <td className="p-3 text-sm max-w-xs truncate">{claim.reason}</td>
-                      <td className="p-3">
-                        <span className={`text-xs px-2 py-1 rounded ${statusColors[claim.status] || 'bg-gray-100 text-gray-800'}`}>
-                          {claim.status}
-                        </span>
-                      </td>
-                      <td className="p-3 text-sm text-gray-600">
-                        {new Date(claim.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ maxWidth: 300 }} noWrap>
+                          {claim.reason}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={claim.status}
+                          color={statusColors[claim.status] || 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" color="text.secondary">
+                          {new Date(claim.createdAt).toLocaleDateString()}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={1} flexWrap="wrap">
                           {claim.status === 'SUBMITTED' && (
                             <>
-                              <button
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="info"
                                 onClick={() => updateMutation.mutate({ id: claim.id, status: 'UNDER_REVIEW' })}
-                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
                               >
                                 Review
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
                                 onClick={() => updateMutation.mutate({ id: claim.id, status: 'REJECTED' })}
-                                className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200"
                               >
                                 Reject
-                              </button>
+                              </Button>
                             </>
                           )}
                           {claim.status === 'UNDER_REVIEW' && (
                             <>
-                              <button
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="success"
                                 onClick={() => updateMutation.mutate({ id: claim.id, status: 'APPROVED' })}
-                                className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
                               >
                                 Approve
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
                                 onClick={() => updateMutation.mutate({ id: claim.id, status: 'REJECTED' })}
-                                className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200"
                               >
                                 Reject
-                              </button>
+                              </Button>
                             </>
                           )}
                           {claim.status === 'APPROVED' && (
-                            <button
+                            <Button
+                              size="small"
+                              variant="outlined"
                               onClick={() => updateMutation.mutate({ id: claim.id, status: 'REFUNDED' })}
-                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
                             >
                               Mark Refunded
-                            </button>
+                            </Button>
                           )}
-                        </div>
-                      </td>
-                    </tr>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </TableContainer>
 
             {total > 0 && (
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                <Typography variant="body2" color="text.secondary">
                   Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, total)} of {total} claims
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    disabled={page <= 1}
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    disabled={page >= Math.ceil(total / pageSize)}
-                    onClick={() => setPage(p => p + 1)}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+                </Typography>
+                <Pagination count={totalPages} page={page} onChange={(_, value) => setPage(value)} color="primary" />
+              </Box>
             )}
           </>
         )}
-      </div>
+      </Stack>
     </AdminLayout>
   )
 }
-

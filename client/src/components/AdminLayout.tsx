@@ -1,23 +1,37 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Box, Typography, Paper, Tabs, Tab, Container } from '@mui/material'
+import { Link, useLocation } from 'react-router-dom'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }){
+const adminRoutes = [
+  { path: '/admin/analytics', label: 'Analytics' },
+  { path: '/admin/orders', label: 'Orders' },
+  { path: '/admin/products', label: 'Products' },
+  { path: '/admin/categories', label: 'Categories' },
+  { path: '/admin/brands', label: 'Brands' },
+  { path: '/admin/coupons', label: 'Coupons' },
+  { path: '/admin/users', label: 'Users' },
+  { path: '/admin/guarantee-claims', label: 'Guarantee Claims' },
+]
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const currentTab = adminRoutes.findIndex((route) => location.pathname.startsWith(route.path))
+
   return (
-    <div className="bg-white dark:bg-gray-900 p-4 rounded shadow">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">Admin</h1>
-        <nav className="flex gap-3 flex-wrap">
-          <Link to="/admin/analytics" className="text-sm hover:text-indigo-600">Analytics</Link>
-          <Link to="/admin/orders" className="text-sm hover:text-indigo-600">Orders</Link>
-          <Link to="/admin/products" className="text-sm hover:text-indigo-600">Products</Link>
-          <Link to="/admin/categories" className="text-sm hover:text-indigo-600">Categories</Link>
-          <Link to="/admin/brands" className="text-sm hover:text-indigo-600">Brands</Link>
-          <Link to="/admin/coupons" className="text-sm hover:text-indigo-600">Coupons</Link>
-          <Link to="/admin/users" className="text-sm hover:text-indigo-600">Users</Link>
-          <Link to="/admin/guarantee-claims" className="text-sm hover:text-indigo-600">Guarantee Claims</Link>
-        </nav>
-      </div>
-      <div>{children}</div>
-    </div>
+    <Container maxWidth="xl">
+      <Paper sx={{ p: 3, mt: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" component="h1" fontWeight={600}>
+            Admin
+          </Typography>
+        </Box>
+        <Tabs value={currentTab >= 0 ? currentTab : false} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+          {adminRoutes.map((route) => (
+            <Tab key={route.path} label={route.label} component={Link} to={route.path} />
+          ))}
+        </Tabs>
+        <Box>{children}</Box>
+      </Paper>
+    </Container>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Grid, Card, CardMedia, CardContent, Typography, Box } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import api from '../api/axios'
@@ -27,9 +28,8 @@ export default function RecentlyViewed() {
       if (productIds.length === 0) return { products: [] }
       const res = await api.get(`/products?perPage=${MAX_ITEMS}`)
       const allProducts = res.data.products || []
-      // Filter to only show products that are in recently viewed
       return {
-        products: allProducts.filter((p: any) => productIds.includes(p.id))
+        products: allProducts.filter((p: any) => productIds.includes(p.id)),
       }
     },
     { enabled: productIds.length > 0 }
@@ -38,38 +38,58 @@ export default function RecentlyViewed() {
   if (!productIds.length || !data?.products?.length) return null
 
   return (
-    <div className="mt-8">
-      <h2 className="text-xl font-semibold mb-4">Recently Viewed</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
+        Recently Viewed
+      </Typography>
+      <Grid container spacing={3} sx={{ mt: 1 }}>
         {data.products.map((p: any) => {
-          const minPrice = p.variants && p.variants.length > 0
-            ? Math.min(...p.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
-            : 0
+          const minPrice =
+            p.variants && p.variants.length > 0
+              ? Math.min(...p.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
+              : 0
           return (
-            <Link
-              key={p.id}
-              to={`/product/${p.slug}`}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition block overflow-hidden"
-            >
-              <div className="relative">
-                <img
-                  src={p.images?.[0]?.url || 'https://placehold.co/400x300'}
+            <Grid item xs={6} sm={3} key={p.id}>
+              <Card
+                component={Link}
+                to={`/product/${p.slug}`}
+                sx={{
+                  textDecoration: 'none',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 4,
+                  },
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  height="160"
+                  image={p.images?.[0]?.url || 'https://placehold.co/400x300'}
                   alt={p.name}
-                  className="w-full h-40 object-cover"
                 />
-              </div>
-              <div className="p-3">
-                <div className="font-medium text-sm mb-1">{p.name}</div>
-                <div className="text-xs text-gray-500 mb-2">{p.brand?.name}</div>
-                {minPrice > 0 && (
-                  <div className="text-sm font-semibold text-indigo-600">From ₵{minPrice.toFixed(2)}</div>
-                )}
-              </div>
-            </Link>
+                <CardContent>
+                  <Typography variant="subtitle1" component="div" noWrap fontWeight={500}>
+                    {p.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                    {p.brand?.name}
+                  </Typography>
+                  {minPrice > 0 && (
+                    <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                      From ₵{minPrice.toFixed(2)}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
           )
         })}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   )
 }
 
@@ -80,7 +100,7 @@ export function useTrackProductView(productId: string | undefined) {
 
     const stored = localStorage.getItem(STORAGE_KEY)
     let ids: string[] = []
-    
+
     if (stored) {
       try {
         ids = JSON.parse(stored)
@@ -89,14 +109,10 @@ export function useTrackProductView(productId: string | undefined) {
       }
     }
 
-    // Remove if already exists, then add to front
-    ids = ids.filter(id => id !== productId)
+    ids = ids.filter((id) => id !== productId)
     ids.unshift(productId)
-    
-    // Keep only MAX_ITEMS
     ids = ids.slice(0, MAX_ITEMS)
-    
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
   }, [productId])
 }
-
