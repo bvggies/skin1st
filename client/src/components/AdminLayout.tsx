@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Typography, Paper, Tabs, Tab, Container } from '@mui/material'
+import { Box, Typography, Paper, Tabs, Tab, Container, Link } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const adminRoutes = [
@@ -28,9 +28,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <Container maxWidth="xl">
       <Paper sx={{ p: 3, mt: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" component="h1" fontWeight={600}>
-            Admin
-          </Typography>
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+            }}
+          >
+            <Box
+              component="img"
+              src="/skin1st.png"
+              alt="Skin1st Beauty Therapy"
+              sx={{
+                height: 50,
+                width: 'auto',
+                maxWidth: 200,
+                mr: 2,
+              }}
+            />
+            <Typography variant="h5" component="h1" fontWeight={600} sx={{ color: 'text.primary' }}>
+              Admin Dashboard
+            </Typography>
+          </Box>
         </Box>
         <Tabs
           value={currentTab >= 0 ? currentTab : false}

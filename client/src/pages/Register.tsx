@@ -48,7 +48,29 @@ export default function Register() {
   return (
     <Container maxWidth="sm">
       <Paper sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+            }}
+          >
+            <Box
+              component="img"
+              src="/skin1st.png"
+              alt="Skin1st Beauty Therapy"
+              sx={{
+                height: 60,
+                width: 'auto',
+                maxWidth: 250,
+              }}
+            />
+          </Box>
+        </Box>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight={600} sx={{ textAlign: 'center' }}>
           Create account
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>

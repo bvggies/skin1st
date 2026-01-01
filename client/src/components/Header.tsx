@@ -40,19 +40,27 @@ export default function Header() {
     <AppBar position="sticky" color="default" elevation={2} sx={{ bgcolor: 'background.paper' }}>
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ py: 1 }}>
-          <Typography
+          <Box
             component={Link}
             to="/"
-            variant="h6"
             sx={{
-              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
               textDecoration: 'none',
-              color: 'text.primary',
               mr: 4,
             }}
           >
-            Skin1st Beauty Therapy
-          </Typography>
+            <Box
+              component="img"
+              src="/skin1st.png"
+              alt="Skin1st Beauty Therapy"
+              sx={{
+                height: { xs: 40, md: 50 },
+                width: 'auto',
+                maxWidth: { xs: 150, md: 200 },
+              }}
+            />
+          </Box>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
             <Box sx={{ width: 300 }}>

@@ -28,9 +28,26 @@ export default function Footer() {
 
         <Grid container spacing={4} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="h6" gutterBottom fontWeight={600}>
-              Skin1st Beauty Therapy
-            </Typography>
+            <Box
+              component={Link}
+              to="/"
+              sx={{
+                display: 'inline-block',
+                mb: 2,
+                textDecoration: 'none',
+              }}
+            >
+              <Box
+                component="img"
+                src="/skin1st.png"
+                alt="Skin1st Beauty Therapy"
+                sx={{
+                  height: { xs: 40, md: 50 },
+                  width: 'auto',
+                  maxWidth: { xs: 150, md: 200 },
+                }}
+              />
+            </Box>
             <Typography variant="body2" color="text.secondary">
               Premium beauty and skin therapy products. Quality you can trust.
             </Typography>
