@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Box, Button, IconButton, Typography, CircularProgress } from '@mui/material'
+import { Favorite, FavoriteBorder } from '@mui/icons-material'
 import api from '../api/axios'
 import useCart from '../store/cart'
 import { useAuth } from '../context/AuthContext'
@@ -8,7 +10,6 @@ import ImageGallery from '../components/ImageGallery'
 import Tabs from '../components/Tabs'
 import RelatedProducts from '../components/RelatedProducts'
 import { ReviewsList, ReviewForm } from '../components/Reviews'
-import { Heart } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useTrackProductView } from '../components/RecentlyViewed'
 import RecentlyViewed from '../components/RecentlyViewed'
@@ -51,7 +52,13 @@ export default function Product(){
   // Track product view for recently viewed
   useTrackProductView(data?.id)
 
-  if (isLoading || !data) return <div>Loading...</div>
+  if (isLoading || !data) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   const addToCart = ()=>{
     const vId = selectedVariant || data.variants?.[0]?.id
@@ -302,36 +309,44 @@ export default function Product(){
             </div>
           )}
 
-          <div className="mt-6 flex gap-3">
-            <button 
-              onClick={addToCart} 
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Button
+              onClick={addToCart}
               disabled={!selectedVariantData || selectedVariantData.stock <= 0}
-              className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition font-medium"
+              variant="contained"
+              color="primary"
+              fullWidth
+              size="large"
             >
               Add to Cart
-            </button>
+            </Button>
             {user && (
-              <button
+              <IconButton
                 onClick={() => wishlistMutation.mutate()}
-                className={`px-4 py-3 rounded-lg transition ${
-                  isInWishlist
-                    ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                color={isInWishlist ? 'error' : 'default'}
                 title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                sx={{
+                  bgcolor: isInWishlist ? 'error.light' : 'grey.100',
+                  '&:hover': {
+                    bgcolor: isInWishlist ? 'error.main' : 'grey.200',
+                  },
+                }}
               >
-                <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
-              </button>
+                {isInWishlist ? <Favorite /> : <FavoriteBorder />}
+              </IconButton>
             )}
-            <a 
-              href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${whatsappMessage}`} 
+            <Button
+              href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-medium text-center"
+              variant="contained"
+              color="success"
+              fullWidth
+              size="large"
             >
               Order via WhatsApp
-            </a>
-          </div>
+            </Button>
+          </Box>
         </div>
       </div>
 
