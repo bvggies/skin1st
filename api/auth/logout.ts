@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
-import { hashToken } from './utils/jwt'
+import prisma from '../db'
+import { hashToken } from '../utils/jwt'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -27,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const bearer = typeof authHeader === 'string' && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null
       if (!bearer) return null
       try{
-        const payload:any = require('./utils/jwt').verifyAccessToken(bearer)
+        const payload:any = require('../utils/jwt').verifyAccessToken(bearer)
         return payload.id
       }catch(e){ return null }
     })()

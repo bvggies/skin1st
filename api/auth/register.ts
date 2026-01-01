@@ -1,11 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
+import prisma from '../db'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
-import { signAccessToken, signRefreshToken, hashToken } from './utils/jwt'
-import { mergeCart } from './cart.utils'
-import { authRateLimit } from './middleware/rateLimit'
-import { sendEmail, welcomeEmail } from './utils/email'
+import { signAccessToken, signRefreshToken, hashToken } from '../utils/jwt'
+import { mergeCart } from '../cart.utils'
+import { authRateLimit } from '../middleware/rateLimit'
+import { sendEmail, welcomeEmail } from '../utils/email'
 
 const CartItem = z.object({ variantId: z.string(), quantity: z.number().min(1) })
 const RegisterSchema = z.object({

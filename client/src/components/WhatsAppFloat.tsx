@@ -3,12 +3,8 @@ import { Fab, Tooltip, Zoom } from '@mui/material'
 import { WhatsApp } from '@mui/icons-material'
 
 export default function WhatsAppFloat() {
-  const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER
-  const whatsappUrl = whatsappNumber
-    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello, I want to order')}`
-    : '#'
-
-  if (!whatsappNumber) return null
+  const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '+1234567890' // Fallback for development
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello, I want to order')}`
 
   return (
     <Tooltip

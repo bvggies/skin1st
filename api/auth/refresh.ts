@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
-import { verifyRefreshToken, signRefreshToken, signAccessToken, hashToken } from './utils/jwt'
+import prisma from '../db'
+import { verifyRefreshToken, signRefreshToken, signAccessToken, hashToken } from '../utils/jwt'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
