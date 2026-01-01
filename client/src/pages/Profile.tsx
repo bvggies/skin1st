@@ -43,7 +43,7 @@ type PasswordForm = z.infer<typeof PasswordSchema>
 export default function Profile() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'addresses'>(0)
+  const [activeTab, setActiveTab] = useState<number>(0)
 
   const {
     register: registerProfile,

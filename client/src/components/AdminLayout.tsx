@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Typography, Paper, Tabs, Tab, Container } from '@mui/material'
-import { Link, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const adminRoutes = [
   { path: '/admin/analytics', label: 'Analytics' },
@@ -15,7 +15,14 @@ const adminRoutes = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const currentTab = adminRoutes.findIndex((route) => location.pathname.startsWith(route.path))
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    if (newValue >= 0 && adminRoutes[newValue]) {
+      navigate(adminRoutes[newValue].path)
+    }
+  }
 
   return (
     <Container maxWidth="xl">
@@ -25,9 +32,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Admin
           </Typography>
         </Box>
-        <Tabs value={currentTab >= 0 ? currentTab : false} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={currentTab >= 0 ? currentTab : false}
+          onChange={handleTabChange}
+          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+        >
           {adminRoutes.map((route) => (
-            <Tab key={route.path} label={route.label} component={Link} to={route.path} />
+            <Tab key={route.path} label={route.label} sx={{ textTransform: 'none' }} />
           ))}
         </Tabs>
         <Box>{children}</Box>

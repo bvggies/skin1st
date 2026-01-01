@@ -109,13 +109,14 @@ export default function Wishlist() {
                 }}
               >
                 <Box sx={{ position: 'relative' }}>
-                  <CardMedia
-                    component={Link}
-                    to={`/product/${product.slug}`}
-                    image={product.images?.[0]?.url || 'https://placehold.co/400x300'}
-                    alt={product.name}
-                    sx={{ height: 192, cursor: 'pointer' }}
-                  />
+                  <Link to={`/product/${product.slug}`} style={{ display: 'block' }}>
+                    <CardMedia
+                      component="img"
+                      image={product.images?.[0]?.url || 'https://placehold.co/400x300'}
+                      alt={product.name}
+                      sx={{ height: 192, cursor: 'pointer' }}
+                    />
+                  </Link>
                   {product.isNew && (
                     <Chip
                       label="New"

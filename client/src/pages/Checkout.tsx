@@ -219,12 +219,12 @@ export default function Checkout() {
               )}
             </Stack>
             {couponError && (
-              <Alert severity="error" sx={{ mt: 1 }} size="small">
+              <Alert severity="error" sx={{ mt: 1 }}>
                 {couponError}
               </Alert>
             )}
             {appliedCoupon && (
-              <Alert severity="success" sx={{ mt: 1 }} size="small">
+              <Alert severity="success" sx={{ mt: 1 }}>
                 ✓ Coupon {appliedCoupon.coupon.code} applied! Save ₵{(appliedCoupon.discount / 100).toFixed(2)}
               </Alert>
             )}
