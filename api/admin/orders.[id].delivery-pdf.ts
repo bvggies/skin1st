@@ -2,7 +2,6 @@ import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from '../../db'
 import { authGuard } from '../middleware/auth'
 import PDFDocument from 'pdfkit'
-import { Readable } from 'stream'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await authGuard(req, res)
