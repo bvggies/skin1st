@@ -96,6 +96,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { requireAuth } = await import('./middleware/auth')
   const user = await requireAuth(req, res)
   const userId = user?.id || null
+  
+  // Log for debugging (remove in production)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Order creation - userId:', userId, 'user:', user?.email || 'none')
+  }
 
   // Use transaction to ensure stock is decremented atomically
   const order = await prisma.$transaction(async (tx) => {
