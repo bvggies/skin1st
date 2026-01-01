@@ -786,95 +786,141 @@ export default function Home() {
       </Box>
 
       {/* How It Works - Purchase Process */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#fafafa' }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography
-              variant="overline"
-              sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em', fontSize: '0.9rem' }}
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#fafafa', position: 'relative', overflow: 'hidden' }}>
+        {/* Background Decoration */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(circle at 20% 50%, rgba(233, 69, 96, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 50%)',
+            pointerEvents: 'none',
+          }}
+        />
+        
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}>
+            <Chip
+              label="Simple & Easy"
+              sx={{
+                bgcolor: 'primary.lighter',
+                color: 'primary.main',
+                fontWeight: 600,
+                px: 2,
+                py: 0.5,
+                mb: 2,
+                fontSize: '0.875rem',
+              }}
+            />
+            <Typography 
+              variant="h2" 
+              fontWeight={800} 
+              sx={{ 
+                mt: 2, 
+                mb: 2,
+                fontSize: { xs: '2rem', md: '3rem' },
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #e94560 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
             >
-              Simple & Easy
-            </Typography>
-            <Typography variant="h3" fontWeight={700} sx={{ mt: 1, mb: 2 }}>
               How It Works
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+            <Typography 
+              variant="h6" 
+              color="text.secondary" 
+              sx={{ 
+                maxWidth: 700, 
+                mx: 'auto',
+                fontWeight: 400,
+                lineHeight: 1.7,
+              }}
+            >
               Get your favorite beauty products delivered to your doorstep in just a few simple steps
             </Typography>
           </Box>
 
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              flexWrap: { sm: 'wrap', lg: 'nowrap' },
-              gap: 3,
-              justifyContent: 'center',
-            }}
-          >
+          <Grid container spacing={{ xs: 3, md: 4 }} sx={{ position: 'relative' }}>
+            {/* Connecting Line (Desktop Only) */}
+            <Box
+              sx={{
+                display: { xs: 'none', lg: 'block' },
+                position: 'absolute',
+                top: '120px',
+                left: '10%',
+                right: '10%',
+                height: 3,
+                background: 'linear-gradient(90deg, #6366f1 0%, #10b981 25%, #f59e0b 50%, #ec4899 75%, #e94560 100%)',
+                borderRadius: 2,
+                opacity: 0.2,
+                zIndex: 0,
+              }}
+            />
+
             {[
               {
                 step: 1,
-                icon: <Store sx={{ fontSize: 40 }} />,
+                icon: <Store sx={{ fontSize: 36 }} />,
                 title: 'Browse & Select',
                 description: 'Explore our wide range of premium beauty products and add your favorites to cart',
                 color: '#6366f1',
+                gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                 link: '/shop',
               },
               {
                 step: 2,
-                icon: <AddShoppingCart sx={{ fontSize: 40 }} />,
+                icon: <AddShoppingCart sx={{ fontSize: 36 }} />,
                 title: 'Add to Cart',
                 description: 'Review your selected items and proceed to checkout when ready',
                 color: '#10b981',
+                gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 link: '/cart',
               },
               {
                 step: 3,
-                icon: <Payment sx={{ fontSize: 40 }} />,
+                icon: <Payment sx={{ fontSize: 36 }} />,
                 title: 'Place Order',
                 description: 'Fill in your delivery details and confirm your order. No payment required upfront!',
                 color: '#f59e0b',
+                gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 link: '/checkout',
               },
               {
                 step: 4,
-                icon: <TrackChanges sx={{ fontSize: 40 }} />,
+                icon: <TrackChanges sx={{ fontSize: 36 }} />,
                 title: 'Track Order',
                 description: 'Use your unique tracking code to monitor your order status in real-time',
                 color: '#ec4899',
+                gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
                 link: '/orders/track',
               },
               {
                 step: 5,
-                icon: <LocalShipping sx={{ fontSize: 40 }} />,
+                icon: <LocalShipping sx={{ fontSize: 36 }} />,
                 title: 'Receive & Pay',
                 description: 'Get your products delivered to your door and pay securely with cash on delivery',
                 color: '#e94560',
+                gradient: 'linear-gradient(135deg, #e94560 0%, #c73e54 100%)',
                 link: null,
               },
             ].map((item, index) => (
-              <Box
-                key={item.step}
-                sx={{
-                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(33.333% - 16px)', lg: '1 1 0' },
-                  minWidth: { xs: '100%', sm: '280px', lg: '200px' },
-                  maxWidth: { lg: '240px' },
-                }}
-              >
+              <Grid item xs={12} sm={6} md={4} lg={2.4} key={item.step}>
                 <Card
                   component={item.link ? Link : Box}
                   to={item.link || undefined}
                   sx={{
                     height: '100%',
-                    p: 4,
+                    p: { xs: 3, md: 4 },
                     textAlign: 'center',
                     borderRadius: 4,
-                    border: '1px solid',
-                    borderColor: 'grey.200',
+                    border: 'none',
                     bgcolor: 'white',
                     position: 'relative',
                     overflow: 'visible',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: item.link ? 'pointer' : 'default',
                     animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
@@ -883,16 +929,17 @@ export default function Home() {
                       to: { opacity: 1, transform: 'translateY(0)' },
                     },
                     '&:hover': {
-                      transform: 'translateY(-12px)',
-                      boxShadow: `0 20px 60px ${item.color}30`,
-                      borderColor: item.color,
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 24px 48px ${item.color}25`,
                       '& .step-number': {
                         transform: 'scale(1.1) rotate(5deg)',
-                        bgcolor: item.color,
+                        background: item.gradient,
+                        color: 'white',
                       },
                       '& .step-icon': {
-                        transform: 'scale(1.15)',
-                        color: item.color,
+                        transform: 'scale(1.1) rotate(-5deg)',
+                        background: item.gradient,
+                        color: 'white',
                       },
                     },
                     textDecoration: 'none',
@@ -903,44 +950,54 @@ export default function Home() {
                     className="step-number"
                     sx={{
                       position: 'absolute',
-                      top: -20,
+                      top: -24,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      width: 48,
-                      height: 48,
+                      width: 56,
+                      height: 56,
                       borderRadius: '50%',
-                      bgcolor: `${item.color}15`,
-                      color: item.color,
+                      background: item.gradient,
+                      color: 'white',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 800,
-                      fontSize: '1.25rem',
-                      border: `3px solid white`,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      transition: 'all 0.3s ease',
+                      fontSize: '1.5rem',
+                      border: '4px solid white',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       zIndex: 2,
                     }}
                   >
                     {item.step}
                   </Box>
 
-                  {/* Icon */}
+                  {/* Icon Container */}
                   <Box
                     className="step-icon"
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: { xs: 72, md: 88 },
+                      height: { xs: 72, md: 88 },
                       borderRadius: 3,
-                      bgcolor: `${item.color}10`,
+                      background: `${item.color}10`,
                       color: item.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mx: 'auto',
                       mb: 3,
-                      mt: 2,
-                      transition: 'all 0.3s ease',
+                      mt: { xs: 3, md: 4 },
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        inset: -4,
+                        borderRadius: 3,
+                        background: `${item.color}08`,
+                        opacity: 0,
+                        transition: 'opacity 0.3s ease',
+                      },
                     }}
                   >
                     {item.icon}
@@ -953,7 +1010,7 @@ export default function Home() {
                     sx={{
                       mb: 1.5,
                       color: 'text.primary',
-                      fontSize: { xs: '1rem', md: '1.1rem' },
+                      fontSize: { xs: '1.1rem', md: '1.25rem' },
                     }}
                   >
                     {item.title}
@@ -962,87 +1019,143 @@ export default function Home() {
                     variant="body2"
                     color="text.secondary"
                     sx={{
-                      lineHeight: 1.6,
-                      fontSize: { xs: '0.85rem', md: '0.9rem' },
+                      lineHeight: 1.7,
+                      fontSize: { xs: '0.875rem', md: '0.95rem' },
+                      px: { xs: 1, md: 0 },
                     }}
                   >
                     {item.description}
                   </Typography>
 
-                  {/* Arrow (except last item) */}
+                  {/* Arrow Connector (Desktop Only) */}
                   {item.step < 5 && (
                     <Box
                       sx={{
-                        display: { xs: 'none', lg: 'block' },
+                        display: { xs: 'none', lg: 'flex' },
                         position: 'absolute',
-                        right: -24,
+                        right: { lg: -32, xl: -40 },
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        color: item.color,
-                        opacity: 0.3,
+                        alignItems: 'center',
+                        zIndex: 1,
                       }}
                     >
-                      <ArrowForward sx={{ fontSize: 32 }} />
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 2,
+                          background: item.gradient,
+                          borderRadius: 1,
+                          mr: 1,
+                        }}
+                      />
+                      <ArrowForward 
+                        sx={{ 
+                          fontSize: 28, 
+                          color: item.color,
+                          opacity: 0.6,
+                        }} 
+                      />
                     </Box>
                   )}
                 </Card>
-              </Box>
+              </Grid>
             ))}
-          </Box>
+          </Grid>
 
           {/* CTA Section */}
-          <Box sx={{ textAlign: 'center', mt: 6 }}>
-            <Typography variant="h5" fontWeight={600} gutterBottom>
-              Ready to Get Started?
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
-              Start shopping now and enjoy free delivery on all orders. Pay when you receive your products!
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
-              <Button
-                component={Link}
-                to="/shop"
-                variant="contained"
-                size="large"
-                startIcon={<Store />}
-                sx={{
-                  bgcolor: 'primary.main',
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                  },
+          <Box sx={{ textAlign: 'center', mt: { xs: 8, md: 10 } }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 4, md: 6 },
+                borderRadius: 4,
+                background: 'linear-gradient(135deg, rgba(233, 69, 96, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%)',
+                border: '1px solid',
+                borderColor: 'grey.200',
+                maxWidth: 800,
+                mx: 'auto',
+              }}
+            >
+              <Typography variant="h4" fontWeight={700} gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2rem' } }}>
+                Ready to Get Started?
+              </Typography>
+              <Typography 
+                variant="body1" 
+                color="text.secondary" 
+                sx={{ 
+                  mb: 4, 
+                  maxWidth: 600, 
+                  mx: 'auto',
+                  fontSize: { xs: '0.95rem', md: '1.1rem' },
+                  lineHeight: 1.7,
                 }}
               >
-                Browse Products
-              </Button>
-              <Button
-                component={Link}
-                to="/orders/track"
-                variant="outlined"
-                size="large"
-                startIcon={<TrackChanges />}
-                sx={{
-                  borderColor: 'primary.main',
-                  color: 'primary.main',
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  '&:hover': {
-                    borderColor: 'primary.dark',
-                    bgcolor: 'primary.lighter',
-                    transform: 'translateY(-2px)',
-                  },
-                }}
+                Start shopping now and enjoy free delivery on all orders. Pay securely when you receive your products!
+              </Typography>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={2} 
+                justifyContent="center"
+                sx={{ maxWidth: 500, mx: 'auto' }}
               >
-                Track Order
-              </Button>
-            </Stack>
+                <Button
+                  component={Link}
+                  to="/shop"
+                  variant="contained"
+                  size="large"
+                  startIcon={<Store />}
+                  sx={{
+                    bgcolor: 'primary.main',
+                    px: 5,
+                    py: 1.75,
+                    fontWeight: 700,
+                    borderRadius: 3,
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 20px rgba(233, 69, 96, 0.3)',
+                    '&:hover': {
+                      bgcolor: 'primary.dark',
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 40px rgba(233, 69, 96, 0.4)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  Browse Products
+                </Button>
+                <Button
+                  component={Link}
+                  to="/orders/track"
+                  variant="outlined"
+                  size="large"
+                  startIcon={<TrackChanges />}
+                  sx={{
+                    borderColor: 'primary.main',
+                    borderWidth: 2,
+                    color: 'primary.main',
+                    px: 5,
+                    py: 1.75,
+                    fontWeight: 700,
+                    borderRadius: 3,
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    bgcolor: 'white',
+                    '&:hover': {
+                      borderColor: 'primary.dark',
+                      borderWidth: 2,
+                      bgcolor: 'primary.lighter',
+                      color: 'primary.dark',
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  Track Order
+                </Button>
+              </Stack>
+            </Paper>
           </Box>
         </Container>
       </Box>
