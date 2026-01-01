@@ -37,15 +37,31 @@ export default function OrderConfirmation() {
   const navigate = useNavigate()
   const [order, setOrder] = useState<OrderData | null>(null)
   const [copied, setCopied] = useState<'code' | 'tracking' | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Get order data from navigation state
     const state = location.state as { order?: OrderData; isGuestOrder?: boolean }
+    
     if (state?.order) {
-      setOrder(state.order)
+      // Validate order data has required fields
+      if (state.order.id && state.order.code && state.order.trackingCode) {
+        setOrder(state.order)
+        setIsLoading(false)
+      } else {
+        console.error('Invalid order data:', state.order)
+        toast.error('Invalid order data. Redirecting...')
+        setTimeout(() => {
+          navigate('/', { replace: true })
+        }, 2000)
+      }
     } else {
-      // If no order data, redirect to home
-      navigate('/')
+      // If no order data, show error and redirect to home
+      console.warn('No order data in navigation state')
+      toast.error('Order data not found. Redirecting...')
+      setTimeout(() => {
+        navigate('/', { replace: true })
+      }, 2000)
     }
   }, [location.state, navigate])
 
@@ -62,8 +78,15 @@ export default function OrderConfirmation() {
 
   const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '+1234567890'
 
-  if (!order) {
-    return null
+  // Show loading state while checking for order data
+  if (isLoading || !order) {
+    return (
+      <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}>
+        <Typography variant="h6" color="text.secondary">
+          Loading order confirmation...
+        </Typography>
+      </Container>
+    )
   }
 
   return (

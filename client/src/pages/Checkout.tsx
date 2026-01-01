@@ -161,6 +161,13 @@ export default function Checkout() {
         coupon: appliedCoupon?.coupon?.code || undefined,
       })
 
+      // Validate response has order data
+      if (!res.data?.order) {
+        console.error('Invalid API response:', res.data)
+        toast.error('Order placed but confirmation data is missing. Please contact support.')
+        return
+      }
+
       // Only clear cart if not using Buy Now
       if (!buyNowItem) {
         cart.clear()
@@ -171,11 +178,12 @@ export default function Checkout() {
         state: {
           order: res.data.order,
           isGuestOrder: res.data.isGuestOrder
-        }
+        },
+        replace: true // Use replace to prevent back button issues
       })
     } catch (e: any) {
-      console.error(e)
-      const errorMsg = e.response?.data?.error || 'Failed to place order'
+      console.error('Order placement error:', e)
+      const errorMsg = e.response?.data?.error || 'Failed to place order. Please try again.'
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)
