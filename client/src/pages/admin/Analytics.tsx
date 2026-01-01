@@ -2,7 +2,6 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
 export default function Analytics() {
   const [period, setPeriod] = React.useState('30')
@@ -19,6 +18,53 @@ export default function Analytics() {
   const stats = data?.stats || {}
   const ordersByStatus = data?.ordersByStatus || []
   const topProducts = data?.topProducts || []
+
+  // Dynamically load recharts to avoid build issues
+  const renderChart = () => {
+    if (!ordersByStatus || !Array.isArray(ordersByStatus) || ordersByStatus.length === 0) {
+      return <p className="text-gray-500">No data available</p>
+    }
+
+    try {
+      // Use require to avoid build-time import issues
+      const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = require('recharts')
+      
+      return (
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={ordersByStatus}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="status" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#6366f1" />
+          </BarChart>
+        </ResponsiveContainer>
+      )
+    } catch (e) {
+      // Fallback to table if recharts fails
+      return (
+        <div className="space-y-2">
+          <p className="text-sm text-gray-500 mb-4">Chart unavailable. Showing as table:</p>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-2 font-semibold">Status</th>
+                <th className="text-right p-2 font-semibold">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordersByStatus.map((item: any, idx: number) => (
+                <tr key={idx} className="border-b hover:bg-gray-50">
+                  <td className="p-2">{item.status}</td>
+                  <td className="text-right p-2">{item.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  }
 
   return (
     <AdminLayout>
@@ -60,19 +106,7 @@ export default function Analytics() {
         {/* Orders by Status */}
         <div className="bg-white rounded-lg shadow p-4">
           <h3 className="font-semibold mb-4">Orders by Status</h3>
-          {ordersByStatus && ordersByStatus.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={ordersByStatus}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#6366f1" />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="text-gray-500">No data available</p>
-          )}
+          {renderChart()}
         </div>
 
         {/* Top Products */}
@@ -98,4 +132,3 @@ export default function Analytics() {
     </AdminLayout>
   )
 }
-
