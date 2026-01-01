@@ -69,16 +69,21 @@ export default function Orders() {
     ['admin:orders', page, pageSize, status, q],
     async () => {
       try {
-        return await getOrders({ page, pageSize, status, q })
+        const result = await getOrders({ page, pageSize, status, q })
+        return result
       } catch (err: any) {
         console.error('Failed to fetch orders:', err)
-        throw err
+        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to fetch orders'
+        throw new Error(errorMessage)
       }
     },
     { 
       keepPreviousData: true,
       retry: 2,
       refetchOnWindowFocus: false,
+      onError: (err: any) => {
+        console.error('Orders query error:', err)
+      }
     }
   )
 
