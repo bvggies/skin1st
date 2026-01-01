@@ -65,10 +65,21 @@ export default function Orders() {
   const [q, setQ] = useState('')
   const navigate = useNavigate()
 
-  const { data, isLoading, refetch } = useQuery(
+  const { data, isLoading, refetch, error } = useQuery(
     ['admin:orders', page, pageSize, status, q],
-    () => getOrders({ page, pageSize, status, q }),
-    { keepPreviousData: true }
+    async () => {
+      try {
+        return await getOrders({ page, pageSize, status, q })
+      } catch (err: any) {
+        console.error('Failed to fetch orders:', err)
+        throw err
+      }
+    },
+    { 
+      keepPreviousData: true,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    }
   )
 
   const handleExport = async () => {
@@ -107,6 +118,24 @@ export default function Orders() {
     confirmed: orders.filter((o: any) => o.status === 'CONFIRMED').length,
     outForDelivery: orders.filter((o: any) => o.status === 'OUT_FOR_DELIVERY').length,
     completed: orders.filter((o: any) => ['DELIVERED', 'PAID', 'COMPLETED'].includes(o.status)).length,
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="error" variant="h6" gutterBottom>
+            Failed to load orders
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            {(error as any)?.response?.data?.error || 'Please check your connection and try again'}
+          </Typography>
+          <Button variant="contained" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </Paper>
+      </AdminLayout>
+    )
   }
 
   return (

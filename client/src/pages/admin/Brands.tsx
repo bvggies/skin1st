@@ -30,20 +30,33 @@ export default function Brands() {
   const [editingBrand, setEditingBrand] = useState<any>(null)
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['admin:brands'], async () => {
-    const res = await api.get('/admin/brands')
-    return res.data.brands || []
-  })
+  const { data, isLoading } = useQuery(
+    ['admin:brands'],
+    async () => {
+      try {
+        const res = await api.get('/admin/brands')
+        return res.data.brands || []
+      } catch (err: any) {
+        console.error('Failed to fetch brands:', err)
+        throw err
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      retry: 2,
+    }
+  )
 
   const deleteMutation = useMutation(
     (id: string) => api.delete(`/admin/brands/${id}`),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['brands'])
+        queryClient.invalidateQueries({ queryKey: ['admin:brands'] })
+        queryClient.invalidateQueries({ queryKey: ['brands'] })
         toast.success('Brand deleted')
       },
-      onError: () => {
-        toast.error('Failed to delete brand')
+      onError: (e: any) => {
+        toast.error(e.response?.data?.error || 'Failed to delete brand')
       },
     }
   )
@@ -126,59 +139,92 @@ export default function Brands() {
           </TableContainer>
         )}
 
-        {(showCreateModal || editingBrand) && (
-          <BrandForm
-            brand={editingBrand}
-            onClose={() => {
-              setShowCreateModal(false)
-              setEditingBrand(null)
-            }}
-            onSuccess={() => {
-              queryClient.invalidateQueries(['brands'])
-              setShowCreateModal(false)
-              setEditingBrand(null)
-            }}
-          />
-        )}
+        <BrandForm
+          open={showCreateModal || !!editingBrand}
+          brand={editingBrand}
+          onClose={() => {
+            setShowCreateModal(false)
+            setEditingBrand(null)
+          }}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['admin:brands'] })
+            queryClient.invalidateQueries({ queryKey: ['brands'] })
+            setShowCreateModal(false)
+            setEditingBrand(null)
+          }}
+        />
       </Stack>
     </AdminLayout>
   )
 }
 
-function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => void; onSuccess: () => void }) {
+function BrandForm({ 
+  open, 
+  brand, 
+  onClose, 
+  onSuccess 
+}: { 
+  open: boolean
+  brand?: any
+  onClose: () => void
+  onSuccess: () => void 
+}) {
   const [formData, setFormData] = useState({
     name: brand?.name || '',
     slug: brand?.slug || '',
   })
 
+  React.useEffect(() => {
+    if (open) {
+      setFormData({
+        name: brand?.name || '',
+        slug: brand?.slug || '',
+      })
+    }
+  }, [open, brand])
+
   const createMutation = useMutation(
-    (data: any) => api.post('/admin/brands', data),
+    async (data: any) => {
+      const res = await api.post('/admin/brands', data)
+      return res.data
+    },
     {
       onSuccess: () => {
         toast.success('Brand created successfully')
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to create brand')
+        const errorMsg = e.response?.data?.error || e.message || 'Failed to create brand'
+        toast.error(errorMsg)
+        console.error('Create brand error:', e)
       },
     }
   )
 
   const updateMutation = useMutation(
-    (data: any) => api.put(`/admin/brands/${brand?.id}`, data),
+    async (data: any) => {
+      const res = await api.put(`/admin/brands/${brand?.id}`, data)
+      return res.data
+    },
     {
       onSuccess: () => {
         toast.success('Brand updated successfully')
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to update brand')
+        const errorMsg = e.response?.data?.error || e.message || 'Failed to update brand'
+        toast.error(errorMsg)
+        console.error('Update brand error:', e)
       },
     }
   )
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.name.trim() || !formData.slug.trim()) {
+      toast.error('Please fill in all required fields')
+      return
+    }
     if (brand) {
       updateMutation.mutate(formData)
     } else {
@@ -187,7 +233,7 @@ function BrandForm({ brand, onClose, onSuccess }: { brand?: any; onClose: () => 
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{brand ? 'Edit Brand' : 'Create Brand'}</Typography>

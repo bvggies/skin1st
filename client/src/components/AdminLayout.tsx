@@ -359,13 +359,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Tooltip title="View Store">
-              <IconButton component={Link} to="/" target="_blank">
+              <IconButton component={Link} to="/" target="_blank" sx={{ color: 'text.primary' }}>
                 <Home />
               </IconButton>
             </Tooltip>
             <Tooltip title="Notifications">
-              <IconButton>
-                <Badge badgeContent={3} color="error">
+              <IconButton 
+                sx={{ color: 'text.primary' }}
+                onClick={() => {
+                  // TODO: Implement notifications dropdown
+                  console.log('Notifications clicked')
+                }}
+              >
+                <Badge badgeContent={0} color="error">
                   <Notifications />
                 </Badge>
               </IconButton>

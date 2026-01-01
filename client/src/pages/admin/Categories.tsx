@@ -30,20 +30,33 @@ export default function Categories() {
   const [editingCategory, setEditingCategory] = useState<any>(null)
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['admin:categories'], async () => {
-    const res = await api.get('/admin/categories')
-    return res.data.categories || []
-  })
+  const { data, isLoading } = useQuery(
+    ['admin:categories'],
+    async () => {
+      try {
+        const res = await api.get('/admin/categories')
+        return res.data.categories || []
+      } catch (err: any) {
+        console.error('Failed to fetch categories:', err)
+        throw err
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      retry: 2,
+    }
+  )
 
   const deleteMutation = useMutation(
     (id: string) => api.delete(`/admin/categories/${id}`),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['categories'])
+        queryClient.invalidateQueries({ queryKey: ['admin:categories'] })
+        queryClient.invalidateQueries({ queryKey: ['categories'] })
         toast.success('Category deleted')
       },
-      onError: () => {
-        toast.error('Failed to delete category')
+      onError: (e: any) => {
+        toast.error(e.response?.data?.error || 'Failed to delete category')
       },
     }
   )
@@ -126,30 +139,32 @@ export default function Categories() {
           </TableContainer>
         )}
 
-        {(showCreateModal || editingCategory) && (
-          <CategoryForm
-            category={editingCategory}
-            onClose={() => {
-              setShowCreateModal(false)
-              setEditingCategory(null)
-            }}
-            onSuccess={() => {
-              queryClient.invalidateQueries(['categories'])
-              setShowCreateModal(false)
-              setEditingCategory(null)
-            }}
-          />
-        )}
+        <CategoryForm
+          open={showCreateModal || !!editingCategory}
+          category={editingCategory}
+          onClose={() => {
+            setShowCreateModal(false)
+            setEditingCategory(null)
+          }}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['admin:categories'] })
+            queryClient.invalidateQueries({ queryKey: ['categories'] })
+            setShowCreateModal(false)
+            setEditingCategory(null)
+          }}
+        />
       </Stack>
     </AdminLayout>
   )
 }
 
 function CategoryForm({
+  open,
   category,
   onClose,
   onSuccess,
 }: {
+  open: boolean
   category?: any
   onClose: () => void
   onSuccess: () => void
@@ -159,34 +174,57 @@ function CategoryForm({
     slug: category?.slug || '',
   })
 
+  React.useEffect(() => {
+    if (open) {
+      setFormData({
+        name: category?.name || '',
+        slug: category?.slug || '',
+      })
+    }
+  }, [open, category])
+
   const createMutation = useMutation(
-    (data: any) => api.post('/admin/categories', data),
+    async (data: any) => {
+      const res = await api.post('/admin/categories', data)
+      return res.data
+    },
     {
       onSuccess: () => {
         toast.success('Category created successfully')
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to create category')
+        const errorMsg = e.response?.data?.error || e.message || 'Failed to create category'
+        toast.error(errorMsg)
+        console.error('Create category error:', e)
       },
     }
   )
 
   const updateMutation = useMutation(
-    (data: any) => api.put(`/admin/categories/${category?.id}`, data),
+    async (data: any) => {
+      const res = await api.put(`/admin/categories/${category?.id}`, data)
+      return res.data
+    },
     {
       onSuccess: () => {
         toast.success('Category updated successfully')
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to update category')
+        const errorMsg = e.response?.data?.error || e.message || 'Failed to update category'
+        toast.error(errorMsg)
+        console.error('Update category error:', e)
       },
     }
   )
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.name.trim() || !formData.slug.trim()) {
+      toast.error('Please fill in all required fields')
+      return
+    }
     if (category) {
       updateMutation.mutate(formData)
     } else {
@@ -195,7 +233,7 @@ function CategoryForm({
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{category ? 'Edit Category' : 'Create Category'}</Typography>

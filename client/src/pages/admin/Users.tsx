@@ -63,44 +63,53 @@ export default function Users() {
   const { data, isLoading, error } = useQuery(
     ['admin:users', page, search],
     async () => {
-      const params = new URLSearchParams()
-      params.set('page', String(page))
-      params.set('pageSize', String(pageSize))
-      if (search) params.set('q', search)
-      const res = await api.get(`/admin/users?${params.toString()}`)
-      return res.data
+      try {
+        const params = new URLSearchParams()
+        params.set('page', String(page))
+        params.set('pageSize', String(pageSize))
+        if (search) params.set('q', search)
+        const res = await api.get(`/admin/users?${params.toString()}`)
+        return res.data
+      } catch (err: any) {
+        console.error('Failed to fetch users:', err)
+        throw err
+      }
     },
     {
       keepPreviousData: true,
+      retry: 2,
+      refetchOnWindowFocus: false,
     }
   )
 
   const toggleStatusMutation = useMutation(
     async ({ userId, enabled }: { userId: string; enabled: boolean }) => {
-      await api.patch(`/admin/users/${userId}`, { enabled })
+      const res = await api.put(`/admin/users/${userId}`, { enabled })
+      return res.data
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['admin:users'])
+        queryClient.invalidateQueries({ queryKey: ['admin:users'] })
         toast.success('User status updated')
       },
-      onError: () => {
-        toast.error('Failed to update user status')
+      onError: (e: any) => {
+        toast.error(e.response?.data?.error || 'Failed to update user status')
       },
     }
   )
 
   const updateRoleMutation = useMutation(
     async ({ userId, role }: { userId: string; role: string }) => {
-      await api.patch(`/admin/users/${userId}`, { role })
+      const res = await api.put(`/admin/users/${userId}`, { role })
+      return res.data
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['admin:users'])
+        queryClient.invalidateQueries({ queryKey: ['admin:users'] })
         toast.success('User role updated')
       },
-      onError: () => {
-        toast.error('Failed to update user role')
+      onError: (e: any) => {
+        toast.error(e.response?.data?.error || 'Failed to update user role')
       },
     }
   )
@@ -172,7 +181,18 @@ export default function Users() {
     return (
       <AdminLayout>
         <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="error">Failed to load users. Please try again.</Typography>
+          <Typography color="error" variant="h6" gutterBottom>
+            Failed to load users
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            {(error as any)?.response?.data?.error || 'Please check your connection and try again'}
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
         </Paper>
       </AdminLayout>
     )
