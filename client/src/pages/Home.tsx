@@ -21,31 +21,13 @@ import {
   ShoppingBag,
   LocalShipping,
   Security,
-  Favorite,
   FavoriteBorder,
-  Star,
   ArrowForward,
-  Verified,
   SupportAgent,
   Autorenew,
 } from '@mui/icons-material'
-import { motion } from 'framer-motion'
 import api from '../api/axios'
 import Newsletter from '../components/Newsletter'
-
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 }
-}
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 }
-  }
-}
 
 export default function Home() {
   const { data: categories } = useQuery(['categories'], async () => {
@@ -90,176 +72,173 @@ export default function Home() {
     const hasDiscount = minPrice < originalPrice
 
     return (
-      <motion.div
-        variants={fadeInUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
-      >
-        <Card
-          sx={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'grey.100',
-            boxShadow: 'none',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            '&:hover': {
-              borderColor: 'transparent',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
-              transform: 'translateY(-8px)',
-              '& .product-image': {
-                transform: 'scale(1.08)',
-              },
-              '& .quick-actions': {
-                opacity: 1,
-                transform: 'translateY(0)',
-              },
+      <Card
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'grey.100',
+          boxShadow: 'none',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
+          '@keyframes fadeInUp': {
+            from: { opacity: 0, transform: 'translateY(20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+          '&:hover': {
+            borderColor: 'transparent',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
+            transform: 'translateY(-8px)',
+            '& .product-image': {
+              transform: 'scale(1.08)',
             },
-          }}
-        >
-          {/* Image Container */}
-          <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: 'grey.50' }}>
-            <Link to={`/product/${product.slug}`}>
-              <CardMedia
-                component="img"
-                height="260"
-                image={product.images?.[0]?.url || 'https://placehold.co/400x300?text=Product'}
-                alt={product.name}
-                className="product-image"
-                sx={{
-                  objectFit: 'cover',
-                  transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              />
-            </Link>
-
-            {/* Badges */}
-            <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              {product.isNew && (
-                <Chip
-                  label="NEW"
-                  size="small"
-                  sx={{
-                    bgcolor: '#1a1a2e',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '0.65rem',
-                    height: 24,
-                    letterSpacing: '0.05em',
-                  }}
-                />
-              )}
-              {product.isBestSeller && (
-                <Chip
-                  label="BEST SELLER"
-                  size="small"
-                  sx={{
-                    bgcolor: '#e94560',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '0.65rem',
-                    height: 24,
-                    letterSpacing: '0.05em',
-                  }}
-                />
-              )}
-              {hasDiscount && (
-                <Chip
-                  label={`-${Math.round(((originalPrice - minPrice) / originalPrice) * 100)}%`}
-                  size="small"
-                  sx={{
-                    bgcolor: '#10b981',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '0.65rem',
-                    height: 24,
-                  }}
-                />
-              )}
-            </Box>
-
-            {/* Quick Actions */}
-            <Box
-              className="quick-actions"
+            '& .quick-actions': {
+              opacity: 1,
+              transform: 'translateY(0)',
+            },
+          },
+        }}
+      >
+        {/* Image Container */}
+        <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: 'grey.50' }}>
+          <Link to={`/product/${product.slug}`}>
+            <CardMedia
+              component="img"
+              height="260"
+              image={product.images?.[0]?.url || 'https://placehold.co/400x300?text=Product'}
+              alt={product.name}
+              className="product-image"
               sx={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                opacity: 0,
-                transform: 'translateY(-10px)',
-                transition: 'all 0.3s ease',
+                objectFit: 'cover',
+                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
-            >
-              <IconButton
+            />
+          </Link>
+
+          {/* Badges */}
+          <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {product.isNew && (
+              <Chip
+                label="NEW"
                 size="small"
                 sx={{
-                  bgcolor: 'white',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-                  '&:hover': { bgcolor: 'secondary.main', color: 'white' },
+                  bgcolor: '#1a1a2e',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.65rem',
+                  height: 24,
+                  letterSpacing: '0.05em',
                 }}
-              >
-                <FavoriteBorder fontSize="small" />
-              </IconButton>
-            </Box>
+              />
+            )}
+            {product.isBestSeller && (
+              <Chip
+                label="BEST SELLER"
+                size="small"
+                sx={{
+                  bgcolor: '#e94560',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.65rem',
+                  height: 24,
+                  letterSpacing: '0.05em',
+                }}
+              />
+            )}
+            {hasDiscount && (
+              <Chip
+                label={`-${Math.round(((originalPrice - minPrice) / originalPrice) * 100)}%`}
+                size="small"
+                sx={{
+                  bgcolor: '#10b981',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.65rem',
+                  height: 24,
+                }}
+              />
+            )}
           </Box>
 
-          {/* Content */}
-          <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            {product.brand?.name && (
-              <Typography
-                variant="caption"
-                sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}
-              >
-                {product.brand.name}
-              </Typography>
-            )}
-            
-            <Typography
-              component={Link}
-              to={`/product/${product.slug}`}
+          {/* Quick Actions */}
+          <Box
+            className="quick-actions"
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              opacity: 0,
+              transform: 'translateY(-10px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <IconButton
+              size="small"
               sx={{
-                fontWeight: 600,
-                fontSize: '1rem',
-                color: 'text.primary',
-                textDecoration: 'none',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                lineHeight: 1.4,
-                mb: 1,
-                '&:hover': { color: 'secondary.main' },
+                bgcolor: 'white',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+                '&:hover': { bgcolor: 'secondary.main', color: 'white' },
               }}
             >
-              {product.name}
+              <FavoriteBorder fontSize="small" />
+            </IconButton>
+          </Box>
+        </Box>
+
+        {/* Content */}
+        <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          {product.brand?.name && (
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}
+            >
+              {product.brand.name}
             </Typography>
+          )}
+          
+          <Typography
+            component={Link}
+            to={`/product/${product.slug}`}
+            sx={{
+              fontWeight: 600,
+              fontSize: '1rem',
+              color: 'text.primary',
+              textDecoration: 'none',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              lineHeight: 1.4,
+              mb: 1,
+              '&:hover': { color: 'secondary.main' },
+            }}
+          >
+            {product.name}
+          </Typography>
 
-            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
-              <Rating value={4.5} precision={0.5} size="small" readOnly sx={{ color: '#fbbf24' }} />
-              <Typography variant="caption" color="text.secondary">(24)</Typography>
-            </Stack>
+          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+            <Rating value={4.5} precision={0.5} size="small" readOnly sx={{ color: '#fbbf24' }} />
+            <Typography variant="caption" color="text.secondary">(24)</Typography>
+          </Stack>
 
-            <Box sx={{ mt: 'auto' }}>
-              <Stack direction="row" alignItems="baseline" spacing={1}>
-                <Typography variant="h6" fontWeight={700} color="primary.main">
-                  ₵{(minPrice / 100).toFixed(2)}
+          <Box sx={{ mt: 'auto' }}>
+            <Stack direction="row" alignItems="baseline" spacing={1}>
+              <Typography variant="h6" fontWeight={700} color="primary.main">
+                ₵{(minPrice / 100).toFixed(2)}
+              </Typography>
+              {hasDiscount && (
+                <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                  ₵{(originalPrice / 100).toFixed(2)}
                 </Typography>
-                {hasDiscount && (
-                  <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
-                    ₵{(originalPrice / 100).toFixed(2)}
-                  </Typography>
-                )}
-              </Stack>
-            </Box>
-          </CardContent>
-        </Card>
-      </motion.div>
+              )}
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -278,115 +257,109 @@ export default function Home() {
 
   // Category Card
   const CategoryCard = ({ category, index }: { category: any; index: number }) => (
-    <motion.div
-      variants={fadeInUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.08 }}
+    <Card
+      component={Link}
+      to={`/shop?category=${category.slug}`}
+      sx={{
+        textAlign: 'center',
+        p: 3,
+        textDecoration: 'none',
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'grey.100',
+        boxShadow: 'none',
+        transition: 'all 0.3s ease',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        animation: `fadeInUp 0.5s ease-out ${index * 0.08}s both`,
+        '@keyframes fadeInUp': {
+          from: { opacity: 0, transform: 'translateY(20px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+        '&:hover': {
+          borderColor: 'primary.main',
+          boxShadow: '0 12px 40px rgba(26,26,46,0.15)',
+          transform: 'translateY(-6px)',
+          '& .category-icon': {
+            bgcolor: 'primary.main',
+            color: 'white',
+            transform: 'scale(1.1)',
+          },
+        },
+      }}
     >
-      <Card
-        component={Link}
-        to={`/shop?category=${category.slug}`}
+      <Box
+        className="category-icon"
         sx={{
-          textAlign: 'center',
-          p: 3,
-          textDecoration: 'none',
-          borderRadius: 3,
-          border: '1px solid',
-          borderColor: 'grey.100',
-          boxShadow: 'none',
-          transition: 'all 0.3s ease',
-          height: '100%',
+          width: 72,
+          height: 72,
+          borderRadius: '50%',
+          bgcolor: 'grey.100',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          '&:hover': {
-            borderColor: 'primary.main',
-            boxShadow: '0 12px 40px rgba(26,26,46,0.15)',
-            transform: 'translateY(-6px)',
-            '& .category-icon': {
-              bgcolor: 'primary.main',
-              color: 'white',
-              transform: 'scale(1.1)',
-            },
-          },
+          mb: 2,
+          transition: 'all 0.3s ease',
         }}
       >
-        <Box
-          className="category-icon"
-          sx={{
-            width: 72,
-            height: 72,
-            borderRadius: '50%',
-            bgcolor: 'grey.100',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mb: 2,
-            transition: 'all 0.3s ease',
-          }}
-        >
-          <ShoppingBag sx={{ fontSize: 32, color: 'primary.main' }} />
-        </Box>
-        <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-          {category.name}
-        </Typography>
-      </Card>
-    </motion.div>
+        <ShoppingBag sx={{ fontSize: 32, color: 'primary.main' }} />
+      </Box>
+      <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+        {category.name}
+      </Typography>
+    </Card>
   )
 
   // Feature Card
   const FeatureCard = ({ icon, title, description, index }: { icon: React.ReactNode; title: string; description: string; index: number }) => (
-    <motion.div
-      variants={fadeInUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+    <Paper
+      elevation={0}
+      sx={{
+        p: 4,
+        textAlign: 'center',
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'grey.100',
+        height: '100%',
+        transition: 'all 0.3s ease',
+        animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
+        '@keyframes fadeInUp': {
+          from: { opacity: 0, transform: 'translateY(20px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+        '&:hover': {
+          borderColor: 'transparent',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.1)',
+          transform: 'translateY(-4px)',
+        },
+      }}
     >
-      <Paper
-        elevation={0}
+      <Box
         sx={{
-          p: 4,
-          textAlign: 'center',
-          borderRadius: 3,
-          border: '1px solid',
-          borderColor: 'grey.100',
-          height: '100%',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            borderColor: 'transparent',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.1)',
-            transform: 'translateY(-4px)',
-          },
+          width: 64,
+          height: 64,
+          borderRadius: 2,
+          bgcolor: 'primary.main',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mx: 'auto',
+          mb: 2,
+          color: 'white',
         }}
       >
-        <Box
-          sx={{
-            width: 64,
-            height: 64,
-            borderRadius: 2,
-            bgcolor: 'primary.main',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            mb: 2,
-            color: 'white',
-          }}
-        >
-          {icon}
-        </Box>
-        <Typography variant="h6" fontWeight={600} gutterBottom>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      </Paper>
-    </motion.div>
+        {icon}
+      </Box>
+      <Typography variant="h6" fontWeight={600} gutterBottom>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {description}
+      </Typography>
+    </Paper>
   )
 
   const features = [
@@ -451,11 +424,7 @@ export default function Home() {
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
+              <Box sx={{ animation: 'slideInLeft 0.8s ease-out' }}>
                 <Chip
                   label="✨ Premium Quality Products"
                   sx={{
@@ -554,46 +523,49 @@ export default function Home() {
                     </Box>
                   ))}
                 </Stack>
-              </motion.div>
+              </Box>
             </Grid>
             <Grid item xs={12} md={6}>
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+              <Box
+                sx={{
+                  position: 'relative',
+                  animation: 'slideInRight 0.8s ease-out 0.2s both',
+                  '@keyframes slideInRight': {
+                    from: { opacity: 0, transform: 'translateX(40px)' },
+                    to: { opacity: 1, transform: 'translateX(0)' },
+                  },
+                  '@keyframes slideInLeft': {
+                    from: { opacity: 0, transform: 'translateX(-40px)' },
+                    to: { opacity: 1, transform: 'translateX(0)' },
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '10%',
+                    left: '10%',
+                    right: '-5%',
+                    bottom: '-5%',
+                    borderRadius: 4,
+                    bgcolor: 'rgba(233,69,96,0.2)',
+                    zIndex: 0,
+                  },
+                }}
               >
                 <Box
+                  component="img"
+                  src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80"
+                  alt="Beauty Products"
                   sx={{
+                    width: '100%',
+                    height: { xs: 320, md: 450 },
+                    objectFit: 'cover',
+                    borderRadius: 4,
                     position: 'relative',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: '10%',
-                      left: '10%',
-                      right: '-5%',
-                      bottom: '-5%',
-                      borderRadius: 4,
-                      bgcolor: 'rgba(233,69,96,0.2)',
-                      zIndex: 0,
-                    },
+                    zIndex: 1,
+                    boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
                   }}
-                >
-                  <Box
-                    component="img"
-                    src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80"
-                    alt="Beauty Products"
-                    sx={{
-                      width: '100%',
-                      height: { xs: 320, md: 450 },
-                      objectFit: 'cover',
-                      borderRadius: 4,
-                      position: 'relative',
-                      zIndex: 1,
-                      boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
-                    }}
-                  />
-                </Box>
-              </motion.div>
+                />
+              </Box>
             </Grid>
           </Grid>
         </Container>
@@ -708,40 +680,33 @@ export default function Home() {
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Grid container spacing={4} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={8} sx={{ textAlign: 'center' }}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <Typography variant="h3" fontWeight={800} gutterBottom>
-                  Special Offer - 20% Off
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 4, opacity: 0.95, fontWeight: 400 }}>
-                  Use code FIRST20 on your first order. Limited time only!
-                </Typography>
-                <Button
-                  component={Link}
-                  to="/shop"
-                  variant="contained"
-                  size="large"
-                  endIcon={<ArrowForward />}
-                  sx={{
+              <Typography variant="h3" fontWeight={800} gutterBottom>
+                Special Offer - 20% Off
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 4, opacity: 0.95, fontWeight: 400 }}>
+                Use code FIRST20 on your first order. Limited time only!
+              </Typography>
+              <Button
+                component={Link}
+                to="/shop"
+                variant="contained"
+                size="large"
+                endIcon={<ArrowForward />}
+                sx={{
+                  bgcolor: 'white',
+                  color: '#e94560',
+                  px: 5,
+                  py: 1.75,
+                  fontWeight: 700,
+                  '&:hover': {
                     bgcolor: 'white',
-                    color: '#e94560',
-                    px: 5,
-                    py: 1.75,
-                    fontWeight: 700,
-                    '&:hover': {
-                      bgcolor: 'white',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                    },
-                  }}
-                >
-                  Shop Now
-                </Button>
-              </motion.div>
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                  },
+                }}
+              >
+                Shop Now
+              </Button>
             </Grid>
           </Grid>
         </Container>
