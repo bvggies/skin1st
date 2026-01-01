@@ -220,32 +220,54 @@ export default function OrderDetail() {
                   color="info"
                   onClick={() => onChangeStatus('CONFIRMED')}
                   fullWidth
+                  disabled={mutation.isLoading || order.status === 'CONFIRMED'}
                 >
-                  Confirm
+                  {mutation.isLoading ? 'Updating...' : 'Confirm'}
                 </Button>
                 <Button
                   variant="contained"
                   color="warning"
                   onClick={() => onChangeStatus('OUT_FOR_DELIVERY')}
                   fullWidth
+                  disabled={mutation.isLoading || order.status === 'OUT_FOR_DELIVERY'}
                 >
-                  Out for Delivery
+                  {mutation.isLoading ? 'Updating...' : 'Out for Delivery'}
                 </Button>
                 <Button
                   variant="contained"
                   color="success"
                   onClick={() => onChangeStatus('DELIVERED')}
                   fullWidth
+                  disabled={mutation.isLoading || order.status === 'DELIVERED'}
                 >
-                  Delivered
+                  {mutation.isLoading ? 'Updating...' : 'Delivered'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => onChangeStatus('PAID')}
+                  fullWidth
+                  disabled={mutation.isLoading || order.status === 'PAID'}
+                >
+                  {mutation.isLoading ? 'Updating...' : 'Mark as Paid'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => onChangeStatus('COMPLETED')}
+                  fullWidth
+                  disabled={mutation.isLoading || order.status === 'COMPLETED'}
+                >
+                  {mutation.isLoading ? 'Updating...' : 'Complete'}
                 </Button>
                 <Button
                   variant="contained"
                   color="error"
                   onClick={() => onChangeStatus('CANCELLED')}
                   fullWidth
+                  disabled={mutation.isLoading || order.status === 'CANCELLED'}
                 >
-                  Cancel
+                  {mutation.isLoading ? 'Updating...' : 'Cancel'}
                 </Button>
               </Stack>
 
