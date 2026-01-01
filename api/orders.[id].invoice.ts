@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
-import { requireAuth } from './middleware/auth'
+import prisma from '../db'
+import { requireAuth } from '../middleware/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
@@ -14,6 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let order
   if (user) {
+    // Authenticated user - search by id and userId
     order = await prisma.order.findFirst({
       where: {
         id,
@@ -32,7 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         user: true
       }
     })
-  } else if (code && typeof code === 'string') {
+  }
+  
+  // If not found by user or user not authenticated, try by code
+  if (!order && code && typeof code === 'string') {
     order = await prisma.order.findUnique({
       where: { code: code.toUpperCase() },
       include: {
@@ -43,6 +47,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 product: true
               }
             }
+          }
+        },
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
+  }
+  
+  // If still not found and we have an id, try by id only (for guest access)
+  if (!order && id) {
+    order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: true
+              }
+            }
+          }
+        },
+        user: {
+          select: {
+            name: true,
+            email: true
           }
         }
       }

@@ -24,6 +24,10 @@
       "destination": "/api/admin/orders.[id].delivery-pdf?id=:id"
     },
     {
+      "source": "/api/orders/:id/invoice",
+      "destination": "/api/orders.[id].invoice?id=:id"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
