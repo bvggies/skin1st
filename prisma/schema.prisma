@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
+enum GuaranteeStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?
+  name      String?
+  password  String
+  role      Role     @default(CUSTOMER)
+  enabled   Boolean  @default(true)
+  orders    Order[]
+  reviews   Review[]
+  cart      Cart?
+  refreshTokens RefreshToken[]
+  wishlist  Wishlist[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  description  String
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  categoryId   String?
+  brand        Brand?        @relation(fields: [brandId], references: [id])
+  brandId      String?
+  images       ProductImage[]
+  variants     Variant[]
+  reviews      Review[]
+  wishlist     Wishlist[]
+  isNew        Boolean       @default(false)
+  isBestSeller Boolean       @default(false)
+  moneyBackGuarantee Boolean @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model Variant {
+  id        String  @id @default(cuid())
+  sku       String  @unique
+  name      String
+  price     Int
+  discount  Int?    @default(0)
+  stock     Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  cartItems CartItem[]
+  orderItems OrderItem[]
+}
+
+model Review {
+  id        String  @id @default(cuid())
+  rating    Int
+  title     String?
+  body      String?
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  user      User?   @relation(fields: [userId], references: [id])
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  type      String   // percentage | fixed
+  value     Int
+  expiry    DateTime?
+  maxUses   Int?
+  createdAt DateTime @default(now())
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User?      @relation(fields: [userId], references: [id])
+  userId    String?    @unique
+  cartToken String?    @unique
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String
+  variant   Variant @relation(fields: [variantId], references: [id])
+  variantId String
+  quantity  Int
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  user          User?        @relation(fields: [userId], references: [id])
+  userId        String?
+  status        OrderStatus  @default(PENDING_CONFIRMATION)
+  total         Int
+  customerName  String?
+  phone         String?
+  deliveryAddr  String
+  deliveryNotes String?
+  items         OrderItem[]
+  guaranteeClaims GuaranteeClaim[]
+  events        EventTracking[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String
+  variant    Variant  @relation(fields: [variantId], references: [id])
+  variantId  String
+  quantity   Int
+  unitPrice  Int
+}
+
+model EventTracking {
+  id        String   @id @default(cuid())
+  type      String
+  payload   Json
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?
+  createdAt DateTime @default(now())
+}
+
+model GuaranteeClaim {
+  id         String          @id @default(cuid())
+  order      Order?          @relation(fields: [orderId], references: [id])
+  orderId    String?
+  status     GuaranteeStatus @default(SUBMITTED)
+  reason     String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, productId])
+  @@index([userId])
+}

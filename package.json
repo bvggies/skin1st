@@ -1,0 +1,14 @@
+{
+  "name": "skin1st-monorepo",
+  "private": true,
+  "workspaces": ["client", "api"],
+  "scripts": {
+    "start:client": "cd client && npm start",
+    "build:client": "cd client && npm run build",
+    "dev": "concurrently \"cd client && npm start\" \"vercel dev\"",
+    "prisma:generate": "cd api && npm run prisma:generate",
+    "prisma:migrate:dev": "cd api && npm run prisma:migrate:dev",
+    "prisma:seed": "cd api && npm run prisma:seed",
+    "prisma:create-admin": "node prisma/scripts/create-admin.js"
+  }
+} 

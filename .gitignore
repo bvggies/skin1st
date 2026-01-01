@@ -1,0 +1,14 @@
+node_modules/
+client/node_modules/
+api/node_modules/
+.env
+.env.local
+.DS_Store
+dist/
+build/
+.next/
+.vscode/
+coverage/
+*.log
+*.sqlite
+/prisma/dev.db

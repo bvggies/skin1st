@@ -1,0 +1,24 @@
+{
+  "name": "skin1st-api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "prisma:generate": "prisma generate --schema=../prisma/schema.prisma",
+    "prisma:migrate:dev": "prisma migrate dev --schema=../prisma/schema.prisma --name init",
+    "prisma:seed": "node ../prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.11.0",
+    "@vercel/node": "^2.2.0",
+    "bcryptjs": "^3.0.3",
+    "cookie": "^0.7.2",
+    "dotenv": "^10.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "prisma": "^5.11.0"
+  }
+}
