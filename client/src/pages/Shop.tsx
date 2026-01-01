@@ -1,12 +1,28 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import api from '../api/axios'
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Card,
+  CardMedia,
+  CardContent,
+  Chip,
+  Pagination,
+  Stack,
+  CircularProgress,
+} from '@mui/material'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import api from '../api/axios'
 import SearchBar from '../components/SearchBar'
 import SkeletonCard from '../components/SkeletonCard'
-import { motion, AnimatePresence } from 'framer-motion'
 
-export default function Shop(){
+export default function Shop() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
@@ -24,23 +40,26 @@ export default function Shop(){
     return res.data.brands || []
   })
 
-  const { data, isLoading } = useQuery(['products', page, search, selectedCategory, selectedBrand, sort], async ()=>{
-    const qs = []
-    if (search) qs.push(`search=${encodeURIComponent(search)}`)
-    if (selectedCategory) qs.push(`category=${encodeURIComponent(selectedCategory)}`)
-    if (selectedBrand) qs.push(`brand=${encodeURIComponent(selectedBrand)}`)
-    if (sort) qs.push(`sort=${encodeURIComponent(sort)}`)
-    qs.push(`page=${page}`)
-    qs.push(`perPage=${perPage}`)
-    const res = await api.get(`/products?${qs.join('&')}`)
-    return res.data
-  })
+  const { data, isLoading } = useQuery(
+    ['products', page, search, selectedCategory, selectedBrand, sort],
+    async () => {
+      const qs = []
+      if (search) qs.push(`search=${encodeURIComponent(search)}`)
+      if (selectedCategory) qs.push(`category=${encodeURIComponent(selectedCategory)}`)
+      if (selectedBrand) qs.push(`brand=${encodeURIComponent(selectedBrand)}`)
+      if (sort) qs.push(`sort=${encodeURIComponent(sort)}`)
+      qs.push(`page=${page}`)
+      qs.push(`perPage=${perPage}`)
+      const res = await api.get(`/products?${qs.join('&')}`)
+      return res.data
+    }
+  )
 
   const products = data?.products || []
   const total = data?.meta?.total || 0
   const pages = Math.max(1, Math.ceil(total / perPage))
 
-  const gridItems = useMemo(()=> products, [products])
+  const gridItems = useMemo(() => products, [products])
 
   const clearFilters = () => {
     setSelectedCategory('')
@@ -52,139 +71,203 @@ export default function Shop(){
 
   const hasActiveFilters = selectedCategory || selectedBrand || sort || search
 
-  return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-semibold">Shop</h1>
-        <div className="w-full md:w-64">
-          <SearchBar value={search} onChange={(v)=>{ setPage(1); setSearch(v) }} />
-        </div>
-      </div>
+  const ProductCard = ({ product }: { product: any }) => {
+    const minPrice =
+      product.variants && product.variants.length > 0
+        ? Math.min(...product.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
+        : 0
 
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Category</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => { setSelectedCategory(e.target.value); setPage(1) }}
-              className="w-full border p-2 rounded-lg text-sm"
-            >
-              <option value="">All Categories</option>
-              {categories?.map((cat: any) => (
-                <option key={cat.id} value={cat.slug}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Brand</label>
-            <select
-              value={selectedBrand}
-              onChange={(e) => { setSelectedBrand(e.target.value); setPage(1) }}
-              className="w-full border p-2 rounded-lg text-sm"
-            >
-              <option value="">All Brands</option>
-              {brands?.map((brand: any) => (
-                <option key={brand.id} value={brand.slug}>{brand.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Sort By</label>
-            <select
-              value={sort}
-              onChange={(e) => { setSort(e.target.value); setPage(1) }}
-              className="w-full border p-2 rounded-lg text-sm"
-            >
-              <option value="">Default</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-            </select>
-          </div>
-          <div className="flex items-end">
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm"
-              >
-                Clear Filters
-              </button>
+    return (
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+      >
+        <Card
+          component={Link}
+          to={`/product/${product.slug}`}
+          sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            textDecoration: 'none',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: 4,
+            },
+          }}
+        >
+          <Box sx={{ position: 'relative' }}>
+            <CardMedia
+              component="img"
+              height="160"
+              image={product.images?.[0]?.url || 'https://placehold.co/400x300'}
+              alt={product.name}
+            />
+            {product.isNew && (
+              <Chip
+                label="New"
+                color="primary"
+                size="small"
+                sx={{ position: 'absolute', top: 8, left: 8 }}
+              />
             )}
-          </div>
-        </div>
-      </div>
+            {product.isBestSeller && (
+              <Chip
+                label="Best Seller"
+                color="warning"
+                size="small"
+                sx={{ position: 'absolute', top: 8, right: 8 }}
+              />
+            )}
+          </Box>
+          <CardContent>
+            <Typography variant="h6" component="div" noWrap gutterBottom>
+              {product.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {product.brand?.name}
+            </Typography>
+            {minPrice > 0 && (
+              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                From ₵{minPrice.toFixed(2)}
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    )
+  }
+
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
+        <Typography variant="h4" component="h1" fontWeight={600}>
+          Shop
+        </Typography>
+        <Box sx={{ width: { xs: '100%', md: 300 } }}>
+          <SearchBar value={search} onChange={(v) => { setPage(1); setSearch(v) }} />
+        </Box>
+      </Box>
+
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              select
+              label="Category"
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value)
+                setPage(1)
+              }}
+              fullWidth
+              size="small"
+            >
+              <MenuItem value="">All Categories</MenuItem>
+              {categories?.map((cat: any) => (
+                <MenuItem key={cat.id} value={cat.slug}>
+                  {cat.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              select
+              label="Brand"
+              value={selectedBrand}
+              onChange={(e) => {
+                setSelectedBrand(e.target.value)
+                setPage(1)
+              }}
+              fullWidth
+              size="small"
+            >
+              <MenuItem value="">All Brands</MenuItem>
+              {brands?.map((brand: any) => (
+                <MenuItem key={brand.id} value={brand.slug}>
+                  {brand.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              select
+              label="Sort By"
+              value={sort}
+              onChange={(e) => {
+                setSort(e.target.value)
+                setPage(1)
+              }}
+              fullWidth
+              size="small"
+            >
+              <MenuItem value="">Default</MenuItem>
+              <MenuItem value="price_asc">Price: Low to High</MenuItem>
+              <MenuItem value="price_desc">Price: High to Low</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            {hasActiveFilters && (
+              <Button onClick={clearFilters} variant="outlined" fullWidth sx={{ height: '40px' }}>
+                Clear Filters
+              </Button>
+            )}
+          </Grid>
+        </Grid>
+      </Paper>
 
       {total > 0 && (
-        <div className="text-sm text-gray-600 mb-4">
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Showing {((page - 1) * perPage) + 1} - {Math.min(page * perPage, total)} of {total} products
-        </div>
+        </Typography>
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({length:12}).map((_,i)=> <SkeletonCard key={i} />)}
-        </div>
+        <Grid container spacing={3}>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Grid item xs={6} sm={4} md={3} key={i}>
+              <SkeletonCard />
+            </Grid>
+          ))}
+        </Grid>
       ) : products.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-gray-600 mb-4">No products found matching your criteria.</p>
+        <Paper sx={{ p: 6, textAlign: 'center' }}>
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No products found matching your criteria.
+          </Typography>
           {hasActiveFilters && (
-            <button
-              onClick={clearFilters}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition"
-            >
+            <Button onClick={clearFilters} variant="contained" color="primary" sx={{ mt: 2 }}>
               Clear Filters
-            </button>
+            </Button>
           )}
-        </div>
+        </Paper>
       ) : (
         <AnimatePresence>
-          <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {gridItems.map((p:any)=> {
-              const minPrice = p.variants && p.variants.length > 0 
-                ? Math.min(...p.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
-                : 0
-              return (
-                <motion.div layout key={p.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
-                  <Link to={`/product/${p.slug}`} className="bg-white rounded-lg shadow p-3 block hover:shadow-lg transition">
-                    <div className="relative">
-                      <img src={p.images?.[0]?.url||'https://placehold.co/400x300'} alt={p.name} className="w-full h-40 object-cover rounded"/>
-                      {p.isNew && <div className="absolute top-2 left-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded">New</div>}
-                      {p.isBestSeller && <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">Best Seller</div>}
-                    </div>
-                    <div className="mt-2">
-                      <div className="font-medium text-sm mb-1">{p.name}</div>
-                      <div className="text-xs text-gray-500 mb-2">{p.brand?.name}</div>
-                      {minPrice > 0 && (
-                        <div className="text-sm font-semibold text-indigo-600">From ₵{minPrice.toFixed(2)}</div>
-                      )}
-                    </div>
-                  </Link>
-                </motion.div>
-              )
-            })}
-          </motion.div>
+          <Grid container spacing={3}>
+            {gridItems.map((p: any) => (
+              <Grid item xs={6} sm={4} md={3} key={p.id}>
+                <ProductCard product={p} />
+              </Grid>
+            ))}
+          </Grid>
         </AnimatePresence>
       )}
 
       {pages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <button 
-            disabled={page<=1} 
-            onClick={()=>setPage(p=>Math.max(1,p-1))} 
-            className="px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-          >
-            Previous
-          </button>
-          <span className="text-sm px-4">Page {page} of {pages}</span>
-          <button 
-            disabled={page>=pages} 
-            onClick={()=>setPage(p=>Math.min(p+1,pages))} 
-            className="px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-          >
-            Next
-          </button>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination
+            count={pages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

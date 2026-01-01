@@ -1,8 +1,27 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Box, Button, IconButton, Typography, CircularProgress } from '@mui/material'
-import { Favorite, FavoriteBorder } from '@mui/icons-material'
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  CircularProgress,
+  Grid,
+  Chip,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Stack,
+  Divider,
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material'
+import { Favorite, FavoriteBorder, WhatsApp } from '@mui/icons-material'
 import api from '../api/axios'
 import useCart from '../store/cart'
 import { useAuth } from '../context/AuthContext'
@@ -14,30 +33,38 @@ import toast from 'react-hot-toast'
 import { useTrackProductView } from '../components/RecentlyViewed'
 import RecentlyViewed from '../components/RecentlyViewed'
 
-export default function Product(){
+export default function Product() {
   const { slug } = useParams()
-  const { data, isLoading } = useQuery(['product', slug], async ()=>{
-    const res = await api.get(`/products/${slug}`)
-    return res.data.product
-  }, { enabled: !!slug })
+  const { data, isLoading } = useQuery(
+    ['product', slug],
+    async () => {
+      const res = await api.get(`/products/${slug}`)
+      return res.data.product
+    },
+    { enabled: !!slug }
+  )
 
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null)
   const cart = useCart()
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
-  // Check if product is in wishlist
-  const { data: wishlistData } = useQuery(['wishlist'], async () => {
-    const res = await api.get('/wishlist')
-    return res.data.items || []
-  }, { enabled: !!user })
+  const { data: wishlistData } = useQuery(
+    ['wishlist'],
+    async () => {
+      const res = await api.get('/wishlist')
+      return res.data.items || []
+    },
+    { enabled: !!user }
+  )
 
   const isInWishlist = wishlistData?.some((item: any) => item.productId === data?.id)
 
   const wishlistMutation = useMutation(
-    () => isInWishlist 
-      ? api.delete(`/wishlist/${data.id}`)
-      : api.post('/wishlist', { productId: data.id }),
+    () =>
+      isInWishlist
+        ? api.delete(`/wishlist/${data.id}`)
+        : api.post('/wishlist', { productId: data.id }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['wishlist'])
@@ -45,11 +72,10 @@ export default function Product(){
       },
       onError: () => {
         toast.error('Failed to update wishlist')
-      }
+      },
     }
   )
 
-  // Track product view for recently viewed
   useTrackProductView(data?.id)
 
   if (isLoading || !data) {
@@ -60,256 +86,442 @@ export default function Product(){
     )
   }
 
-  const addToCart = ()=>{
+  const addToCart = () => {
     const vId = selectedVariant || data.variants?.[0]?.id
     if (!vId) return
     cart.add({ variantId: vId, quantity: 1 })
+    toast.success('Added to cart!')
   }
 
-  const selectedVariantData = data.variants?.find((v: any) => v.id === selectedVariant) || data.variants?.[0]
-  const finalPrice = selectedVariantData ? (selectedVariantData.price - (selectedVariantData.discount || 0)) / 100 : 0
+  const selectedVariantData =
+    data.variants?.find((v: any) => v.id === selectedVariant) || data.variants?.[0]
+  const finalPrice = selectedVariantData
+    ? (selectedVariantData.price - (selectedVariantData.discount || 0)) / 100
+    : 0
   const originalPrice = selectedVariantData ? selectedVariantData.price / 100 : 0
   const hasDiscount = selectedVariantData && selectedVariantData.discount && selectedVariantData.discount > 0
 
   const tabs = [
-    { id: 'desc', title: 'Description', content: (
-      <div className="prose max-w-none">
-        <p className="text-gray-700 leading-relaxed">{data.description}</p>
-        {data.category && (
-          <div className="mt-4">
-            <span className="text-sm text-gray-500">Category: </span>
-            <span className="text-sm font-medium">{data.category.name}</span>
-          </div>
-        )}
-      </div>
-    ) },
-    { id: 'pricing', title: 'Pricing', content: (
-      <div className="space-y-3">
-        {data.variants?.map((v:any)=> {
-          const price = (v.price - (v.discount || 0)) / 100
-          const original = v.price / 100
-          const discount = v.discount || 0
-          return (
-            <div key={v.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition">
-              <div className="flex-1">
-                <div className="font-medium">{v.name}</div>
-                <div className="text-sm text-gray-500">SKU: {v.sku} • Stock: {v.stock > 0 ? `${v.stock} available` : 'Out of stock'}</div>
-              </div>
-              <div className="text-right">
-                {discount > 0 ? (
-                  <div>
-                    <div className="text-lg font-semibold text-indigo-600">₵{price.toFixed(2)}</div>
-                    <div className="text-sm text-gray-400 line-through">₵{original.toFixed(2)}</div>
-                    <div className="text-xs text-red-500">Save ₵{(discount / 100).toFixed(2)}</div>
-                  </div>
-                ) : (
-                  <div className="text-lg font-semibold text-indigo-600">₵{price.toFixed(2)}</div>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    ) },
-    { id: 'packages', title: 'Packages & Pricing', content: (
-      <div className="space-y-4">
-        <p className="text-gray-700">Choose from our available package sizes to suit your needs:</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {
+      id: 'desc',
+      title: 'Description',
+      content: (
+        <Box>
+          <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.8 }}>
+            {data.description}
+          </Typography>
+          {data.category && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="caption" color="text.secondary">
+                Category:{' '}
+              </Typography>
+              <Typography variant="caption" fontWeight={500}>
+                {data.category.name}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      ),
+    },
+    {
+      id: 'pricing',
+      title: 'Pricing',
+      content: (
+        <Stack spacing={2}>
           {data.variants?.map((v: any) => {
             const price = (v.price - (v.discount || 0)) / 100
+            const original = v.price / 100
+            const discount = v.discount || 0
             return (
-              <div key={v.id} className="border rounded-lg p-4 hover:shadow-md transition">
-                <div className="font-semibold text-lg mb-2">{v.name}</div>
-                <div className="text-2xl font-bold text-indigo-600 mb-2">₵{price.toFixed(2)}</div>
-                {v.discount && v.discount > 0 && (
-                  <div className="text-sm text-red-500 mb-2">Save ₵{(v.discount / 100).toFixed(2)}</div>
-                )}
-                <div className="text-sm text-gray-600">SKU: {v.sku}</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {v.stock > 0 ? (
-                    <span className="text-green-600">✓ In Stock ({v.stock} available)</span>
-                  ) : (
-                    <span className="text-red-600">✗ Out of Stock</span>
-                  )}
-                </div>
-              </div>
+              <Paper key={v.id} sx={{ p: 2, '&:hover': { bgcolor: 'grey.50' } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle1" fontWeight={500}>
+                      {v.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      SKU: {v.sku} • Stock: {v.stock > 0 ? `${v.stock} available` : 'Out of stock'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'right' }}>
+                    {discount > 0 ? (
+                      <Box>
+                        <Typography variant="h6" color="primary" fontWeight={600}>
+                          ₵{price.toFixed(2)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                          ₵{original.toFixed(2)}
+                        </Typography>
+                        <Typography variant="caption" color="error">
+                          Save ₵{(discount / 100).toFixed(2)}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography variant="h6" color="primary" fontWeight={600}>
+                        ₵{price.toFixed(2)}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
             )
           })}
-        </div>
-      </div>
-    ) },
-    { id: 'howto', title: 'How to Use', content: (
-      <div className="prose max-w-none">
-        <h3 className="font-semibold mb-3">Usage Instructions</h3>
-        <ol className="list-decimal list-inside space-y-2 text-gray-700">
-          <li>Cleanse your skin thoroughly before application</li>
-          <li>Apply a small amount to the affected area</li>
-          <li>Gently massage in circular motions until absorbed</li>
-          <li>Use twice daily (morning and evening) for best results</li>
-          <li>Store in a cool, dry place away from direct sunlight</li>
-        </ol>
-        <div className="mt-4 p-3 bg-yellow-50 rounded border border-yellow-200">
-          <p className="text-sm text-yellow-800"><strong>Note:</strong> If you experience any irritation, discontinue use and consult a dermatologist.</p>
-        </div>
-      </div>
-    ) },
-    { id: 'ingredients', title: 'Ingredients', content: (
-      <div className="prose max-w-none">
-        <h3 className="font-semibold mb-3">Product Composition</h3>
-        <p className="text-gray-700 mb-3">This product contains carefully selected ingredients for optimal skin care:</p>
-        <ul className="list-disc list-inside space-y-1 text-gray-700">
-          <li>Natural botanical extracts</li>
-          <li>Vitamin E for skin nourishment</li>
-          <li>Hyaluronic acid for hydration</li>
-          <li>Gentle, non-comedogenic formula</li>
-        </ul>
-        <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-          <p className="text-sm text-blue-800"><strong>Allergen Information:</strong> Please check the product label for a complete list of ingredients. If you have known allergies, consult with a healthcare professional before use.</p>
-        </div>
-      </div>
-    ) },
-    { id: 'faqs', title: 'FAQs', content: (
-      <div className="space-y-4">
-        <div className="border-b pb-3">
-          <h3 className="font-semibold mb-2">How long does shipping take?</h3>
-          <p className="text-gray-700 text-sm">We deliver within 1-3 business days across Ghana. Delivery times may vary based on your location.</p>
-        </div>
-        <div className="border-b pb-3">
-          <h3 className="font-semibold mb-2">Is this product suitable for all skin types?</h3>
-          <p className="text-gray-700 text-sm">This product is formulated for most skin types. However, if you have sensitive skin or known allergies, we recommend doing a patch test first or consulting with a dermatologist.</p>
-        </div>
-        <div className="border-b pb-3">
-          <h3 className="font-semibold mb-2">Can I return this product?</h3>
-          <p className="text-gray-700 text-sm">Yes! We offer a money-back guarantee. If you're not satisfied with your purchase, you can return it within 30 days for a full refund.</p>
-        </div>
-        <div className="border-b pb-3">
-          <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
-          <p className="text-gray-700 text-sm">We accept Cash on Delivery (COD). You pay when you receive your order.</p>
-        </div>
-        <div>
-          <h3 className="font-semibold mb-2">How should I store this product?</h3>
-          <p className="text-gray-700 text-sm">Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed when not in use.</p>
-        </div>
-      </div>
-    ) },
-    { id: 'delivery', title: 'Delivery & Returns', content: (
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-semibold mb-2">Delivery Information</h3>
-          <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
-            <li>Free delivery within 1-3 business days across Ghana</li>
-            <li>Cash on Delivery (COD) available</li>
-            <li>We'll contact you before delivery to confirm your address</li>
-            <li>Delivery times may vary during holidays or peak seasons</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-semibold mb-2">Returns Policy</h3>
-          <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
-            <li>30-day money-back guarantee</li>
-            <li>Products must be unopened and in original packaging</li>
-            <li>Contact us via WhatsApp or email to initiate a return</li>
-            <li>Refunds will be processed within 5-7 business days</li>
-          </ul>
-        </div>
-        <div className="p-3 bg-green-50 rounded border border-green-200">
-          <p className="text-sm text-green-800"><strong>Need Help?</strong> Contact us via WhatsApp at {process.env.REACT_APP_WHATSAPP_NUMBER} or email us for assistance with delivery or returns.</p>
-        </div>
-      </div>
-    ) },
-    { id: 'guarantee', title: 'Money-Back Guarantee', content: (
-      <div className="space-y-4">
-        <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-          <h3 className="font-semibold text-indigo-900 mb-2">100% Satisfaction Guarantee</h3>
-          <p className="text-indigo-800 text-sm">We stand behind the quality of our products. If you're not completely satisfied, we'll make it right.</p>
-        </div>
-        <div>
-          <h3 className="font-semibold mb-2">What's Covered</h3>
-          <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
-            <li>Full refund within 30 days of purchase</li>
-            <li>Products that don't meet your expectations</li>
-            <li>Defective or damaged items</li>
-            <li>Wrong items received</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-semibold mb-2">How to Claim</h3>
-          <ol className="list-decimal list-inside space-y-1 text-gray-700 text-sm">
-            <li>Contact us via WhatsApp or email within 30 days</li>
-            <li>Provide your order number and reason for return</li>
-            <li>We'll arrange for product return (if applicable)</li>
-            <li>Receive your full refund within 5-7 business days</li>
-          </ol>
-        </div>
-        {data.moneyBackGuarantee && (
-          <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
-            <p className="text-sm text-yellow-800"><strong>This product is covered by our Money-Back Guarantee!</strong></p>
-          </div>
-        )}
-      </div>
-    ) }
+        </Stack>
+      ),
+    },
+    {
+      id: 'packages',
+      title: 'Packages & Pricing',
+      content: (
+        <Box>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Choose from our available package sizes to suit your needs:
+          </Typography>
+          <Grid container spacing={2}>
+            {data.variants?.map((v: any) => {
+              const price = (v.price - (v.discount || 0)) / 100
+              return (
+                <Grid item xs={12} sm={6} key={v.id}>
+                  <Paper sx={{ p: 3, '&:hover': { boxShadow: 4 } }}>
+                    <Typography variant="h6" fontWeight={600} gutterBottom>
+                      {v.name}
+                    </Typography>
+                    <Typography variant="h4" color="primary" fontWeight={700} gutterBottom>
+                      ₵{price.toFixed(2)}
+                    </Typography>
+                    {v.discount && v.discount > 0 && (
+                      <Typography variant="body2" color="error" gutterBottom>
+                        Save ₵{(v.discount / 100).toFixed(2)}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      SKU: {v.sku}
+                    </Typography>
+                    <Typography variant="body2" color={v.stock > 0 ? 'success.main' : 'error.main'} sx={{ mt: 1 }}>
+                      {v.stock > 0 ? `✓ In Stock (${v.stock} available)` : '✗ Out of Stock'}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              )
+            })}
+          </Grid>
+        </Box>
+      ),
+    },
+    {
+      id: 'howto',
+      title: 'How to Use',
+      content: (
+        <Box>
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            Usage Instructions
+          </Typography>
+          <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Cleanse your skin thoroughly before application" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Apply a small amount to the affected area" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Gently massage in circular motions until absorbed" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Use twice daily (morning and evening) for best results" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Store in a cool, dry place away from direct sunlight" />
+            </ListItem>
+          </List>
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            <strong>Note:</strong> If you experience any irritation, discontinue use and consult a dermatologist.
+          </Alert>
+        </Box>
+      ),
+    },
+    {
+      id: 'ingredients',
+      title: 'Ingredients',
+      content: (
+        <Box>
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            Product Composition
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            This product contains carefully selected ingredients for optimal skin care:
+          </Typography>
+          <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Natural botanical extracts" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Vitamin E for skin nourishment" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Hyaluronic acid for hydration" />
+            </ListItem>
+            <ListItem sx={{ display: 'list-item', pl: 1 }}>
+              <ListItemText primary="Gentle, non-comedogenic formula" />
+            </ListItem>
+          </List>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <strong>Allergen Information:</strong> Please check the product label for a complete list of ingredients.
+            If you have known allergies, consult with a healthcare professional before use.
+          </Alert>
+        </Box>
+      ),
+    },
+    {
+      id: 'faqs',
+      title: 'FAQs',
+      content: (
+        <Stack spacing={3}>
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              How long does shipping take?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              We deliver within 1-3 business days across Ghana. Delivery times may vary based on your location.
+            </Typography>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Is this product suitable for all skin types?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              This product is formulated for most skin types. However, if you have sensitive skin or known allergies,
+              we recommend doing a patch test first or consulting with a dermatologist.
+            </Typography>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Can I return this product?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Yes! We offer a money-back guarantee. If you're not satisfied with your purchase, you can return it
+              within 30 days for a full refund.
+            </Typography>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              What payment methods do you accept?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              We accept Cash on Delivery (COD). You pay when you receive your order.
+            </Typography>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              How should I store this product?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed when not in use.
+            </Typography>
+          </Box>
+        </Stack>
+      ),
+    },
+    {
+      id: 'delivery',
+      title: 'Delivery & Returns',
+      content: (
+        <Stack spacing={3}>
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Delivery Information
+            </Typography>
+            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Free delivery within 1-3 business days across Ghana" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Cash on Delivery (COD) available" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="We'll contact you before delivery to confirm your address" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Delivery times may vary during holidays or peak seasons" />
+              </ListItem>
+            </List>
+          </Box>
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Returns Policy
+            </Typography>
+            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="30-day money-back guarantee" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Products must be unopened and in original packaging" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Contact us via WhatsApp or email to initiate a return" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Refunds will be processed within 5-7 business days" />
+              </ListItem>
+            </List>
+          </Box>
+          <Alert severity="success">
+            <strong>Need Help?</strong> Contact us via WhatsApp at {process.env.REACT_APP_WHATSAPP_NUMBER} or email us
+            for assistance with delivery or returns.
+          </Alert>
+        </Stack>
+      ),
+    },
+    {
+      id: 'guarantee',
+      title: 'Money-Back Guarantee',
+      content: (
+        <Stack spacing={3}>
+          <Alert severity="info">
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              100% Satisfaction Guarantee
+            </Typography>
+            <Typography variant="body2">
+              We stand behind the quality of our products. If you're not completely satisfied, we'll make it right.
+            </Typography>
+          </Alert>
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              What's Covered
+            </Typography>
+            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Full refund within 30 days of purchase" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Products that don't meet your expectations" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Defective or damaged items" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Wrong items received" />
+              </ListItem>
+            </List>
+          </Box>
+          <Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              How to Claim
+            </Typography>
+            <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Contact us via WhatsApp or email within 30 days" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Provide your order number and reason for return" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="We'll arrange for product return (if applicable)" />
+              </ListItem>
+              <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                <ListItemText primary="Receive your full refund within 5-7 business days" />
+              </ListItem>
+            </List>
+          </Box>
+          {data.moneyBackGuarantee && (
+            <Alert severity="warning">
+              <strong>This product is covered by our Money-Back Guarantee!</strong>
+            </Alert>
+          )}
+        </Stack>
+      ),
+    },
   ]
 
-  const whatsappMessage = encodeURIComponent(`Hi, I'd like to order ${data.name} - Packages: ${data.variants?.map((v:any)=>v.name+'('+v.id+')').join(', ')}`)
+  const whatsappMessage = encodeURIComponent(
+    `Hi, I'd like to order ${data.name} - Packages: ${data.variants
+      ?.map((v: any) => v.name + '(' + v.id + ')')
+      .join(', ')}`
+  )
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
+    <Box>
+      <Grid container spacing={4} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={6}>
           <ImageGallery images={data.images || []} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{data.name}</h1>
-          <div className="text-sm text-gray-500 mb-4">
-            {data.brand?.name && <span>Brand: {data.brand.name}</span>}
-            {data.category && <span className="ml-3">Category: {data.category.name}</span>}
-          </div>
-          
-          {data.isNew && <span className="inline-block bg-indigo-600 text-white text-xs px-2 py-1 rounded mb-2">New</span>}
-          {data.isBestSeller && <span className="inline-block bg-yellow-500 text-white text-xs px-2 py-1 rounded ml-2 mb-2">Best Seller</span>}
-          {data.moneyBackGuarantee && <span className="inline-block bg-green-600 text-white text-xs px-2 py-1 rounded ml-2 mb-2">Money-Back Guarantee</span>}
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Typography variant="h3" component="h1" gutterBottom fontWeight={700}>
+            {data.name}
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            {data.brand?.name && (
+              <Typography variant="body2" color="text.secondary" component="span">
+                Brand: {data.brand.name}
+              </Typography>
+            )}
+            {data.category && (
+              <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 2 }}>
+                Category: {data.category.name}
+              </Typography>
+            )}
+          </Box>
 
-          <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">Select Package</label>
-            <select 
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-              value={selectedVariant||''} 
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>)=>setSelectedVariant(e.target.value)}
+          <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
+            {data.isNew && <Chip label="New" color="primary" size="small" />}
+            {data.isBestSeller && <Chip label="Best Seller" color="warning" size="small" />}
+            {data.moneyBackGuarantee && <Chip label="Money-Back Guarantee" color="success" size="small" />}
+          </Stack>
+
+          <FormControl fullWidth sx={{ mb: 3 }}>
+            <InputLabel id="variant-select-label">Select Package</InputLabel>
+            <Select
+              labelId="variant-select-label"
+              value={selectedVariant || ''}
+              label="Select Package"
+              onChange={(e) => setSelectedVariant(e.target.value as string)}
             >
-              {data.variants?.map((v:any)=>(
-                <option key={v.id} value={v.id}>
-                  {v.name} — ₵{(v.price/100).toFixed(2)}
-                  {v.discount && v.discount > 0 && ` (Save ₵${(v.discount/100).toFixed(2)})`}
+              {data.variants?.map((v: any) => (
+                <MenuItem key={v.id} value={v.id}>
+                  {v.name} — ₵{(v.price / 100).toFixed(2)}
+                  {v.discount && v.discount > 0 && ` (Save ₵${(v.discount / 100).toFixed(2)})`}
                   {v.stock <= 0 && ' — Out of Stock'}
-                </option>
+                </MenuItem>
               ))}
-            </select>
-          </div>
+            </Select>
+          </FormControl>
 
           {selectedVariantData && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-baseline gap-2">
+            <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50' }}>
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
                 {hasDiscount ? (
                   <>
-                    <span className="text-3xl font-bold text-indigo-600">₵{finalPrice.toFixed(2)}</span>
-                    <span className="text-lg text-gray-400 line-through">₵{originalPrice.toFixed(2)}</span>
-                    <span className="text-sm text-red-600 font-medium">Save ₵{((selectedVariantData.discount || 0) / 100).toFixed(2)}</span>
+                    <Typography variant="h3" color="primary" fontWeight={700}>
+                      ₵{finalPrice.toFixed(2)}
+                    </Typography>
+                    <Typography variant="h6" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                      ₵{originalPrice.toFixed(2)}
+                    </Typography>
+                    <Typography variant="body2" color="error" fontWeight={500}>
+                      Save ₵{((selectedVariantData.discount || 0) / 100).toFixed(2)}
+                    </Typography>
                   </>
                 ) : (
-                  <span className="text-3xl font-bold text-indigo-600">₵{finalPrice.toFixed(2)}</span>
+                  <Typography variant="h3" color="primary" fontWeight={700}>
+                    ₵{finalPrice.toFixed(2)}
+                  </Typography>
                 )}
-              </div>
-              <div className="mt-2 text-sm text-gray-600">
-                {selectedVariantData.stock > 0 ? (
-                  <span className="text-green-600">✓ In Stock ({selectedVariantData.stock} available)</span>
-                ) : (
-                  <span className="text-red-600">✗ Out of Stock</span>
-                )}
-              </div>
-            </div>
+              </Box>
+              <Typography
+                variant="body2"
+                color={selectedVariantData.stock > 0 ? 'success.main' : 'error.main'}
+              >
+                {selectedVariantData.stock > 0
+                  ? `✓ In Stock (${selectedVariantData.stock} available)`
+                  : '✗ Out of Stock'}
+              </Typography>
+            </Paper>
           )}
 
-          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+          <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
             <Button
               onClick={addToCart}
               disabled={!selectedVariantData || selectedVariantData.stock <= 0}
@@ -343,31 +555,38 @@ export default function Product(){
               color="success"
               fullWidth
               size="large"
+              startIcon={<WhatsApp />}
             >
               Order via WhatsApp
             </Button>
-          </Box>
-        </div>
-      </div>
+          </Stack>
+        </Grid>
+      </Grid>
 
-      <Tabs tabs={tabs} />
+      <Box sx={{ mb: 4 }}>
+        <Tabs tabs={tabs} />
+      </Box>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-3">Reviews</h2>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
+          Reviews
+        </Typography>
         <ReviewsList slug={slug as string} />
-        <div className="mt-4">
-          <h3 className="font-medium mb-2">Write a review</h3>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" component="h3" gutterBottom fontWeight={500}>
+            Write a review
+          </Typography>
           <ReviewForm slug={slug as string} />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="mt-6">
+      <Box sx={{ mb: 4 }}>
         <RelatedProducts productId={data.id} categorySlug={data.category?.slug} />
-      </div>
+      </Box>
 
-      <div className="mt-6">
+      <Box>
         <RecentlyViewed />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

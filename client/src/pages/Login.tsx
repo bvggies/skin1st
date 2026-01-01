@@ -2,43 +2,86 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Container,
+  Alert,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom'
 
 const Schema = z.object({ email: z.string().email(), password: z.string().min(1) })
 
-export default function Login(){
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(Schema) })
+export default function Login() {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(Schema),
+  })
   const auth = useAuth()
   const navigate = useNavigate()
 
-  async function onSubmit(data:any){
-    try{
+  async function onSubmit(data: any) {
+    try {
       await auth.login(data.email, data.password)
       toast.success('Logged in')
       navigate('/')
-    }catch(e:any){ console.error(e); toast.error('Login failed') }
+    } catch (e: any) {
+      console.error(e)
+      toast.error('Login failed')
+    }
   }
 
   return (
-    <div className="max-w-md">
-      <h1 className="text-2xl font-semibold mb-4">Login</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div>
-          <label className="block text-sm">Email</label>
-          <input className="w-full border p-2 rounded" {...register('email')} />
-          {errors.email && <div className="text-sm text-red-500">{errors.email.message}</div>}
-        </div>
-        <div>
-          <label className="block text-sm">Password</label>
-          <input type="password" className="w-full border p-2 rounded" {...register('password')} />
-          {errors.password && <div className="text-sm text-red-500">{errors.password.message}</div>}
-        </div>
-        <div>
-          <button type="submit" disabled={isSubmitting} className="bg-indigo-600 text-white px-4 py-2 rounded">{isSubmitting ? 'Logging in...' : 'Login'}</button>
-        </div>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Paper sx={{ p: 4, mt: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+          Login
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+          <TextField
+            {...register('email')}
+            label="Email"
+            type="email"
+            fullWidth
+            margin="normal"
+            error={!!errors.email}
+            helperText={errors.email?.message as string}
+          />
+          <TextField
+            {...register('password')}
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            error={!!errors.password}
+            helperText={errors.password?.message as string}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            size="large"
+            disabled={isSubmitting}
+            sx={{ mt: 3 }}
+          >
+            {isSubmitting ? 'Logging in...' : 'Login'}
+          </Button>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2">
+              Don't have an account?{' '}
+              <Link to="/register" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                Sign up
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   )
 }

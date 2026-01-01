@@ -2,51 +2,107 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Container,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom'
 
-const Schema = z.object({ email: z.string().email(), password: z.string().min(8), name: z.string().optional(), phone: z.string().optional() })
+const Schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+})
 
-export default function Register(){
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(Schema) })
+export default function Register() {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(Schema),
+  })
   const auth = useAuth()
   const navigate = useNavigate()
 
-  async function onSubmit(data:any){
-    try{
-      await auth.register({ email: data.email, password: data.password, name: data.name, phone: data.phone })
+  async function onSubmit(data: any) {
+    try {
+      await auth.register({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        phone: data.phone,
+      })
       toast.success('Account created')
       navigate('/')
-    }catch(e:any){ console.error(e); toast.error('Registration failed') }
+    } catch (e: any) {
+      console.error(e)
+      toast.error('Registration failed')
+    }
   }
 
   return (
-    <div className="max-w-md">
-      <h1 className="text-2xl font-semibold mb-4">Create account</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div>
-          <label className="block text-sm">Full name</label>
-          <input className="w-full border p-2 rounded" {...register('name')} />
-        </div>
-        <div>
-          <label className="block text-sm">Email</label>
-          <input className="w-full border p-2 rounded" {...register('email')} />
-          {errors.email && <div className="text-sm text-red-500">{errors.email.message}</div>}
-        </div>
-        <div>
-          <label className="block text-sm">Password</label>
-          <input type="password" className="w-full border p-2 rounded" {...register('password')} />
-          {errors.password && <div className="text-sm text-red-500">{errors.password.message}</div>}
-        </div>
-        <div>
-          <label className="block text-sm">Phone</label>
-          <input className="w-full border p-2 rounded" {...register('phone')} />
-        </div>
-        <div>
-          <button type="submit" disabled={isSubmitting} className="bg-indigo-600 text-white px-4 py-2 rounded">{isSubmitting ? 'Creating...' : 'Create account'}</button>
-        </div>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Paper sx={{ p: 4, mt: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+          Create account
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+          <TextField
+            {...register('name')}
+            label="Full name"
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            {...register('email')}
+            label="Email"
+            type="email"
+            fullWidth
+            margin="normal"
+            error={!!errors.email}
+            helperText={errors.email?.message as string}
+          />
+          <TextField
+            {...register('password')}
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            error={!!errors.password}
+            helperText={errors.password?.message as string}
+          />
+          <TextField
+            {...register('phone')}
+            label="Phone"
+            fullWidth
+            margin="normal"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            size="large"
+            disabled={isSubmitting}
+            sx={{ mt: 3 }}
+          >
+            {isSubmitting ? 'Creating...' : 'Create account'}
+          </Button>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2">
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                Login
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   )
 }

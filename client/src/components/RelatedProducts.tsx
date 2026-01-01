@@ -1,28 +1,70 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import api from '../api/axios'
+import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box } from '@mui/material'
 import { Link } from 'react-router-dom'
+import api from '../api/axios'
 
-export default function RelatedProducts({ productId, categorySlug }: { productId: string; categorySlug?: string }){
-  const { data, isLoading } = useQuery(['related', productId], async ()=>{
-    const res = await api.get(`/products/related?category=${encodeURIComponent(categorySlug||'')}`)
-    return res.data.products
-  }, { enabled: !!categorySlug })
+export default function RelatedProducts({
+  productId,
+  categorySlug,
+}: {
+  productId: string
+  categorySlug?: string
+}) {
+  const { data, isLoading } = useQuery(
+    ['related', productId],
+    async () => {
+      const res = await api.get(`/products/related?category=${encodeURIComponent(categorySlug || '')}`)
+      return res.data.products
+    },
+    { enabled: !!categorySlug }
+  )
 
-  if (isLoading) return <div>Loading related...</div>
-  if (!data || data.length===0) return null
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (!data || data.length === 0) return null
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold mb-3">Related products</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {data.map((p:any)=> (
-          <Link key={p.id} to={`/product/${p.slug}`} className="bg-white rounded p-2 shadow">
-            <img src={p.images?.[0]?.url||'https://placehold.co/200x150'} alt={p.name} className="w-full h-24 object-cover rounded mb-2" />
-            <div className="text-sm font-medium">{p.name}</div>
-          </Link>
+    <Box>
+      <Typography variant="h6" component="h3" gutterBottom fontWeight={600}>
+        Related products
+      </Typography>
+      <Grid container spacing={2}>
+        {data.map((p: any) => (
+          <Grid item xs={6} sm={3} key={p.id}>
+            <Card
+              component={Link}
+              to={`/product/${p.slug}`}
+              sx={{
+                textDecoration: 'none',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4,
+                },
+              }}
+            >
+              <CardMedia
+                component="img"
+                height="120"
+                image={p.images?.[0]?.url || 'https://placehold.co/200x150'}
+                alt={p.name}
+              />
+              <CardContent>
+                <Typography variant="body2" component="div" fontWeight={500} noWrap>
+                  {p.name}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   )
 }

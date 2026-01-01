@@ -1,57 +1,142 @@
 import React from 'react'
-import useCart from '../store/cart'
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  TextField,
+  Stack,
+  Divider,
+  IconButton,
+  CircularProgress,
+} from '@mui/material'
+import { Delete as DeleteIcon } from '@mui/icons-material'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import useCart from '../store/cart'
 import api from '../api/axios'
 
-export default function Cart(){
-  const items = useCart(state=>state.items)
-  const update = useCart(state=>state.update)
-  const remove = useCart(state=>state.remove)
-  const clear = useCart(state=>state.clear)
+export default function Cart() {
+  const items = useCart((state) => state.items)
+  const update = useCart((state) => state.update)
+  const remove = useCart((state) => state.remove)
+  const clear = useCart((state) => state.clear)
   const navigate = useNavigate()
 
-  const ids = items.map(i=>i.variantId)
-  const { data, isLoading } = useQuery(['variants', ids], async ()=>{
-    if (ids.length===0) return { variants: [] }
-    const res = await api.get(`/variants?ids=${ids.join(',')}`)
-    return res.data
-  }, { enabled: ids.length>0 })
+  const ids = items.map((i) => i.variantId)
+  const { data, isLoading } = useQuery(
+    ['variants', ids],
+    async () => {
+      if (ids.length === 0) return { variants: [] }
+      const res = await api.get(`/variants?ids=${ids.join(',')}`)
+      return res.data
+    },
+    { enabled: ids.length > 0 }
+  )
 
-  const subtotal = (data?.variants || []).reduce((s:any,v:any)=>{
-    const qty = items.find((it:any)=>it.variantId===v.id)?.quantity || 0
-    const price = (v.price - (v.discount||0))
+  const subtotal = (data?.variants || []).reduce((s: any, v: any) => {
+    const qty = items.find((it: any) => it.variantId === v.id)?.quantity || 0
+    const price = v.price - (v.discount || 0)
     return s + price * qty
   }, 0)
 
+  if (items.length === 0) {
+    return (
+      <Box>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+          Cart
+        </Typography>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="body1" gutterBottom>
+            Your cart is empty.
+          </Typography>
+          <Button component={Link} to="/shop" variant="contained" color="primary" sx={{ mt: 2 }}>
+            Shop now
+          </Button>
+        </Paper>
+      </Box>
+    )
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-4">Cart</h1>
-      {items.length===0 ? (
-        <div className="p-6 bg-white rounded shadow">Your cart is empty. <Link className="text-indigo-600" to="/shop">Shop now</Link></div>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+        Cart
+      </Typography>
+
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
       ) : (
-        <div className="space-y-3">
-          {isLoading ? <div>Loading cart...</div> : items.map(it=>{
-            const v = data?.variants?.find((x:any)=>x.id===it.variantId)
+        <Stack spacing={2}>
+          {items.map((it) => {
+            const v = data?.variants?.find((x: any) => x.id === it.variantId)
             return (
-              <div key={it.variantId} className="bg-white p-4 rounded shadow flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{v ? v.product.name + ' — ' + v.name : `Variant ${it.variantId}`}</div>
-                  <div className="text-sm text-gray-500">Quantity: <input className="w-12 ml-2 border p-1" type="number" value={it.quantity} onChange={(e: React.ChangeEvent<HTMLInputElement>)=>update(it.variantId, Number(e.target.value))} /></div>
-                </div>
-                <div className="text-right">
-                  {v && <div className="font-medium">₵{((v.price - (v.discount||0))/100*it.quantity).toFixed(2)}</div>}
-                  <div><button onClick={()=>remove(it.variantId)} className="text-sm text-red-500">Remove</button></div>
-                </div>
-              </div>
+              <Paper key={it.variantId} sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h6" component="div">
+                      {v ? `${v.product.name} — ${v.name}` : `Variant ${it.variantId}`}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Quantity:
+                      </Typography>
+                      <TextField
+                        type="number"
+                        value={it.quantity}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          update(it.variantId, Number(e.target.value))
+                        }
+                        size="small"
+                        inputProps={{ min: 1, style: { width: 60, textAlign: 'center' } }}
+                      />
+                    </Box>
+                  </Box>
+                  <Box sx={{ textAlign: 'right', mr: 2 }}>
+                    {v && (
+                      <Typography variant="h6" component="div" fontWeight={600}>
+                        ₵{(((v.price - (v.discount || 0)) / 100) * it.quantity).toFixed(2)}
+                      </Typography>
+                    )}
+                    <Button
+                      startIcon={<DeleteIcon />}
+                      onClick={() => remove(it.variantId)}
+                      color="error"
+                      size="small"
+                      sx={{ mt: 1 }}
+                    >
+                      Remove
+                    </Button>
+                  </Box>
+                </Box>
+              </Paper>
             )
           })}
-          <div className="flex justify-between items-center">
-            <button onClick={()=>{clear();}} className="text-sm text-gray-600">Clear cart</button>
-            <button onClick={()=>navigate('/checkout')} className="bg-indigo-600 text-white px-4 py-2 rounded">Proceed to Checkout</button>
-          </div>
-        </div>
+
+          <Divider />
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Button onClick={() => clear()} color="inherit" size="small">
+              Clear cart
+            </Button>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography variant="h6" component="div" gutterBottom>
+                Subtotal: ₵{(subtotal / 100).toFixed(2)}
+              </Typography>
+              <Button
+                onClick={() => navigate('/checkout')}
+                variant="contained"
+                color="primary"
+                size="large"
+              >
+                Proceed to Checkout
+              </Button>
+            </Box>
+          </Box>
+        </Stack>
       )}
-    </div>
+    </Box>
   )
 }

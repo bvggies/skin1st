@@ -1,20 +1,47 @@
 import React, { useState } from 'react'
+import { Box, ImageList, ImageListItem, Paper } from '@mui/material'
 
-export default function ImageGallery({ images }: { images: { url: string; alt?: string }[] }){
+export default function ImageGallery({ images }: { images: { url: string; alt?: string }[] }) {
   const [idx, setIdx] = useState(0)
   const active = images && images.length ? images[idx] : { url: 'https://placehold.co/600x400', alt: '' }
+
   return (
-    <div>
-      <div className="mb-3">
-        <img src={active.url} alt={active.alt} className="w-full rounded shadow" />
-      </div>
-      <div className="flex gap-2 overflow-x-auto">
-        {images?.map((img,i)=> (
-          <button key={i} onClick={()=>setIdx(i)} className={`w-20 h-14 rounded overflow-hidden border ${i===idx? 'ring-2 ring-indigo-500':''}`}>
-            <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
-          </button>
-        ))}
-      </div>
-    </div>
+    <Box>
+      <Paper sx={{ mb: 2, overflow: 'hidden' }}>
+        <Box
+          component="img"
+          src={active.url}
+          alt={active.alt}
+          sx={{ width: '100%', display: 'block' }}
+        />
+      </Paper>
+      {images && images.length > 1 && (
+        <ImageList cols={images.length} gap={8} sx={{ m: 0 }}>
+          {images.map((img, i) => (
+            <ImageListItem
+              key={i}
+              onClick={() => setIdx(i)}
+              sx={{
+                cursor: 'pointer',
+                border: i === idx ? 2 : 1,
+                borderColor: i === idx ? 'primary.main' : 'divider',
+                borderRadius: 1,
+                overflow: 'hidden',
+                '&:hover': {
+                  opacity: 0.8,
+                },
+              }}
+            >
+              <Box
+                component="img"
+                src={img.url}
+                alt={img.alt}
+                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </ImageListItem>
+          ))}
+        </ImageList>
+      )}
+    </Box>
   )
 }
