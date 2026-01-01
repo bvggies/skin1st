@@ -40,7 +40,7 @@ export default function Shop() {
     return res.data.brands || []
   })
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, error } = useQuery(
     ['products', page, search, selectedCategory, selectedBrand, sort],
     async () => {
       const qs = []
@@ -52,6 +52,11 @@ export default function Shop() {
       qs.push(`perPage=${perPage}`)
       const res = await api.get(`/products?${qs.join('&')}`)
       return res.data
+    },
+    {
+      onError: (error: any) => {
+        console.error('Error fetching products:', error)
+      }
     }
   )
 
@@ -227,7 +232,19 @@ export default function Shop() {
         </Typography>
       )}
 
-      {isLoading ? (
+      {error ? (
+        <Paper sx={{ p: 6, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Error loading products
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {(error as any)?.response?.data?.error || 'Please try again later.'}
+          </Typography>
+          <Button onClick={() => window.location.reload()} variant="contained" color="primary">
+            Retry
+          </Button>
+        </Paper>
+      ) : isLoading ? (
         <Grid container spacing={3}>
           {Array.from({ length: 12 }).map((_, i) => (
             <Grid item xs={6} sm={4} md={3} key={i}>

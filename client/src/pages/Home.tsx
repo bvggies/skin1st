@@ -35,29 +35,44 @@ export default function Home() {
     return res.data.categories || []
   })
 
-  const { data: featured, isLoading: featuredLoading } = useQuery(
+  const { data: featured, isLoading: featuredLoading, error: featuredError } = useQuery(
     ['products', 'featured'],
     async () => {
       const res = await api.get('/products?perPage=8')
-      return res.data.products
+      return res.data.products || []
+    },
+    {
+      onError: (error: any) => {
+        console.error('Error fetching featured products:', error)
+      }
     }
   )
 
-  const { data: bestSellers, isLoading: bestSellersLoading } = useQuery(
+  const { data: bestSellers, isLoading: bestSellersLoading, error: bestSellersError } = useQuery(
     ['products', 'bestsellers'],
     async () => {
       const res = await api.get('/products?perPage=4')
       const products = res.data.products || []
       return products.filter((p: any) => p.isBestSeller).slice(0, 4)
+    },
+    {
+      onError: (error: any) => {
+        console.error('Error fetching best sellers:', error)
+      }
     }
   )
 
-  const { data: newProducts, isLoading: newProductsLoading } = useQuery(
+  const { data: newProducts, isLoading: newProductsLoading, error: newProductsError } = useQuery(
     ['products', 'new'],
     async () => {
       const res = await api.get('/products?perPage=4')
       const products = res.data.products || []
       return products.filter((p: any) => p.isNew).slice(0, 4)
+    },
+    {
+      onError: (error: any) => {
+        console.error('Error fetching new products:', error)
+      }
     }
   )
 
@@ -462,6 +477,48 @@ export default function Home() {
         </Box>
       )}
 
+      {/* Featured Products Section - Show all products if no best sellers */}
+      {featured && featured.length > 0 && (
+        <Container maxWidth="lg" sx={{ mb: 8 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box>
+              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+                Featured Products
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Discover our collection
+              </Typography>
+            </Box>
+            <Button
+              component={Link}
+              to="/shop"
+              variant="outlined"
+              endIcon={<ArrowForward />}
+              sx={{ textTransform: 'none' }}
+            >
+              View All
+            </Button>
+          </Box>
+          {featuredLoading ? (
+            <Grid container spacing={3}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Grid item xs={6} md={3} key={i}>
+                  <SkeletonCard />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Grid container spacing={3}>
+              {featured.slice(0, 8).map((p: any) => (
+                <Grid item xs={6} md={3} key={p.id}>
+                  <ProductCard product={p} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Container>
+      )}
+
       {/* Best Sellers Section */}
       {bestSellers && bestSellers.length > 0 && (
         <Container maxWidth="lg" sx={{ mb: 8 }}>
@@ -547,46 +604,55 @@ export default function Home() {
       </Box>
 
       {/* New Arrivals Section */}
-      {newProducts && newProducts.length > 0 && (
-        <Container maxWidth="lg" sx={{ mb: 8 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-            <Box>
-              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
-                New Arrivals
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Latest additions to our collection
-              </Typography>
-            </Box>
-            <Button
-              component={Link}
-              to="/shop"
-              variant="outlined"
-              endIcon={<ArrowForward />}
-              sx={{ textTransform: 'none' }}
-            >
-              View All
+      <Container maxWidth="lg" sx={{ mb: 8 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Box>
+            <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+              New Arrivals
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Latest additions to our collection
+            </Typography>
+          </Box>
+          <Button
+            component={Link}
+            to="/shop"
+            variant="outlined"
+            endIcon={<ArrowForward />}
+            sx={{ textTransform: 'none' }}
+          >
+            View All
+          </Button>
+        </Box>
+        {newProductsError ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography color="error">Error loading products. Please try again later.</Typography>
+          </Box>
+        ) : newProductsLoading ? (
+          <Grid container spacing={3}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Grid item xs={6} md={3} key={i}>
+                <SkeletonCard />
+              </Grid>
+            ))}
+          </Grid>
+        ) : newProducts && newProducts.length > 0 ? (
+          <Grid container spacing={3}>
+            {newProducts.map((p: any) => (
+              <Grid item xs={6} md={3} key={p.id}>
+                <ProductCard product={p} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography color="text.secondary">No new arrivals yet. Check out all products in our shop!</Typography>
+            <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
+              Browse All Products
             </Button>
           </Box>
-          {newProductsLoading ? (
-            <Grid container spacing={3}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Grid item xs={6} md={3} key={i}>
-                  <SkeletonCard />
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Grid container spacing={3}>
-              {newProducts.map((p: any) => (
-                <Grid item xs={6} md={3} key={p.id}>
-                  <ProductCard product={p} />
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Container>
-      )}
+        )}
+      </Container>
 
       {/* Newsletter Section */}
       <Box sx={{ bgcolor: 'grey.50', py: 8 }}>
