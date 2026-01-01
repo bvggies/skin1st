@@ -1,49 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { authGuard } from './middleware/auth'
-
-// This is a placeholder for image upload
-// In production, you'd use a service like Cloudinary, AWS S3, or Vercel Blob
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const user = await authGuard(req, res)
-  if (!user) return
-  if (user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' })
-
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-
-  // For now, this accepts a URL
-  // In production, you'd handle file upload here
-  const { url, alt } = req.body
-
-  if (!url || typeof url !== 'string') {
-    return res.status(400).json({ error: 'Image URL is required' })
-  }
-
-  // Validate URL
-  try {
-    new URL(url)
-  } catch {
-    return res.status(400).json({ error: 'Invalid URL format' })
-  }
-
-  // In production, you would:
-  // 1. Accept file upload (multipart/form-data)
-  // 2. Upload to Cloudinary/S3/Vercel Blob
-  // 3. Get back the URL
-  // 4. Return the URL
-
-  // For now, just return the URL (assuming it's already uploaded)
-  return res.status(200).json({
-    url,
-    alt: alt || null,
-    message: 'Image URL accepted. In production, this would upload the file to a CDN.'
-  })
-}
-
-// Example Cloudinary implementation (uncomment and configure):
-/*
 import { v2 as cloudinary } from 'cloudinary'
 
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -57,35 +16,75 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Handle file upload
-  const formData = await req.formData()
-  const file = formData.get('file') as File
+  // Check if Cloudinary is configured
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    // Fallback: accept URL if Cloudinary not configured
+    const { url, alt } = req.body
 
-  if (!file) {
-    return res.status(400).json({ error: 'No file provided' })
-  }
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'Image URL is required (Cloudinary not configured)' })
+    }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const base64 = buffer.toString('base64')
-  const dataURI = `data:${file.type};base64,${base64}`
-
-  try {
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'skin1st/products',
-      transformation: [
-        { width: 800, height: 800, crop: 'limit' },
-        { quality: 'auto' }
-      ]
-    })
+    // Validate URL
+    try {
+      new URL(url)
+    } catch {
+      return res.status(400).json({ error: 'Invalid URL format' })
+    }
 
     return res.status(200).json({
-      url: result.secure_url,
-      publicId: result.public_id
+      url,
+      alt: alt || null,
+      message: 'Image URL accepted. Configure Cloudinary for file uploads.'
     })
-  } catch (error) {
-    console.error('Cloudinary upload error:', error)
-    return res.status(500).json({ error: 'Failed to upload image' })
   }
-}
-*/
 
+  // Handle file upload to Cloudinary
+  const { file, url, alt } = req.body
+
+  // If URL is provided, use it (for backward compatibility)
+  if (url && typeof url === 'string') {
+    try {
+      new URL(url)
+      return res.status(200).json({
+        url,
+        alt: alt || null
+      })
+    } catch {
+      return res.status(400).json({ error: 'Invalid URL format' })
+    }
+  }
+
+  // Handle base64 file upload
+  if (file && typeof file === 'string') {
+    try {
+      // Check if it's a data URI
+      if (!file.startsWith('data:image/')) {
+        return res.status(400).json({ error: 'Invalid file format. Expected base64 data URI.' })
+      }
+
+      const result = await cloudinary.uploader.upload(file, {
+        folder: 'skin1st/products',
+        transformation: [
+          { width: 1200, height: 1200, crop: 'limit' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ],
+        resource_type: 'image'
+      })
+
+      return res.status(200).json({
+        url: result.secure_url,
+        publicId: result.public_id,
+        alt: alt || null
+      })
+    } catch (error: any) {
+      console.error('Cloudinary upload error:', error)
+      return res.status(500).json({ 
+        error: 'Failed to upload image to Cloudinary',
+        details: error.message 
+      })
+    }
+  }
+
+  return res.status(400).json({ error: 'Either file (base64) or url is required' })
+}
