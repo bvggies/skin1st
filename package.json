@@ -9,6 +9,8 @@
     "prisma:generate": "cd api && npm run prisma:generate",
     "prisma:migrate:dev": "cd api && npm run prisma:migrate:dev",
     "prisma:seed": "cd api && npm run prisma:seed",
-    "prisma:create-admin": "node prisma/scripts/create-admin.js"
+    "prisma:create-admin": "node prisma/scripts/create-admin.js",
+    "setup:env": "node scripts/setup-env.js",
+    "generate:secrets": "node scripts/generate-secrets.js"
   }
 } 

@@ -3,15 +3,26 @@
 ## Immediate Actions (Do First)
 
 ### 1. Environment Setup ⚙️
-```bash
-# Copy the example env file
-cp .env.example .env
 
-# Edit .env with your actual values
-# - DATABASE_URL: Get from Neon/Supabase
-# - JWT secrets: Generate strong random strings
-# - WhatsApp webhook: Your notification service URL
+**Option A: Interactive Setup (Recommended)**
+```bash
+npm run setup:env
 ```
+
+**Option B: Manual Setup**
+```bash
+# Generate JWT secrets
+npm run generate:secrets
+
+# Create .env file manually
+# See SETUP_GUIDE.md for complete .env template
+```
+
+**Required Values:**
+- `DATABASE_URL`: Get from Neon/Supabase
+- `JWT_ACCESS_SECRET` & `JWT_REFRESH_SECRET`: Generate with `npm run generate:secrets`
+- `REACT_APP_WHATSAPP_NUMBER`: Your WhatsApp business number
+- `CLIENT_URL`: Your frontend URL (localhost for dev, Vercel URL for prod)
 
 ### 2. Database Setup 🗄️
 ```bash
@@ -36,33 +47,14 @@ npx prisma studio
 # Navigate to User table, create user with role: ADMIN
 ```
 
-**Option B: Create a script** (recommended)
-Create `prisma/scripts/create-admin.js`:
-```javascript
-const { PrismaClient } = require('@prisma/client')
-const bcrypt = require('bcryptjs')
-const prisma = new PrismaClient()
+**Option B: Use the script** (recommended - already exists)
+```bash
+npm run prisma:create-admin <email> <password> [name]
+```
 
-async function main() {
-  const email = 'admin@example.com'
-  const password = 'ChangeThisPassword123!'
-  const hashed = await bcrypt.hash(password, 10)
-  
-  const admin = await prisma.user.upsert({
-    where: { email },
-    update: {},
-    create: {
-      email,
-      password: hashed,
-      role: 'ADMIN',
-      name: 'Admin User'
-    }
-  })
-  
-  console.log('Admin user created:', admin.email)
-}
-
-main().finally(() => prisma.$disconnect())
+Example:
+```bash
+npm run prisma:create-admin admin@yourstore.com "SecurePassword123!" "Admin Name"
 ```
 
 ### 4. Deploy to Vercel 🚀

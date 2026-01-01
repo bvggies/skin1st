@@ -60,15 +60,19 @@ export default function Analytics() {
         {/* Orders by Status */}
         <div className="bg-white rounded-lg shadow p-4">
           <h3 className="font-semibold mb-4">Orders by Status</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={ordersByStatus}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="status" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#6366f1" />
-            </BarChart>
-          </ResponsiveContainer>
+          {ordersByStatus && ordersByStatus.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={ordersByStatus}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="status" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#6366f1" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-gray-500">No data available</p>
+          )}
         </div>
 
         {/* Top Products */}
