@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../../db'
+import prisma from '../db'
 import { authGuard } from '../middleware/auth'
 import PDFDocument from 'pdfkit'
 

@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../../db'
+import prisma from '../db'
 import { authGuard } from '../middleware/auth'
 import { z } from 'zod'
-import { sendWhatsappNotification } from '../../utils/notifications'
-import { sendEmail, orderStatusUpdateEmail } from '../../utils/email'
+import { sendWhatsappNotification } from '../utils/notifications'
+import { sendEmail, orderStatusUpdateEmail } from '../utils/email'
 
 const StatusSchema = z.object({ 
   status: z.enum(['PENDING_CONFIRMATION','CONFIRMED','OUT_FOR_DELIVERY','DELIVERED','PAID','COMPLETED','CANCELLED']),
