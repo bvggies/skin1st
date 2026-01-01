@@ -94,6 +94,7 @@ function PublicRoutes() {
 function AdminRoutes() {
   return (
     <Routes>
+      <Route path="/admin" element={<AdminAnalytics />} />
       <Route path="/admin/orders" element={<AdminOrders />} />
       <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
