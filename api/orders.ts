@@ -93,13 +93,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Get user from auth if available (optional for guest orders)
   // requireAuth returns null if no token or invalid token, so we can use it directly
-  const { requireAuth } = await import('./middleware/auth')
   const user = await requireAuth(req, res)
   const userId = user?.id || null
   
   // Log for debugging (remove in production)
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Order creation - userId:', userId, 'user:', user?.email || 'none')
+    console.log('Order creation - userId:', userId, 'user:', user?.email || 'none', 'hasToken:', !!req.headers.authorization)
   }
 
   // Use transaction to ensure stock is decremented atomically
