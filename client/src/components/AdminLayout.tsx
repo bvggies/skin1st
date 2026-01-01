@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <Box
           component="img"
-          src="/assets/skin1st.png"
+          src="/assets/skin1stwhite.png"
           alt="Skin1st"
           sx={{ height: 40, width: 'auto' }}
         />

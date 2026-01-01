@@ -69,7 +69,7 @@ export default function Footer() {
             <Box component={Link} to="/" sx={{ display: 'inline-block', mb: 3 }}>
               <Box
                 component="img"
-                src="/assets/skin1st.png"
+                src="/assets/skin1stwhite.png"
                 alt="Skin1st Beauty Therapy"
                 sx={{
                   height: 50,
