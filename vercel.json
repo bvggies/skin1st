@@ -13,7 +13,7 @@
     },
     {
       "source": "/api/admin/orders/:id",
-      "destination": "/api/admin/orders.[id]?id=:id"
+      "destination": "/api/admin/orders?id=:id"
     },
     {
       "source": "/api/admin/orders/:id/status",

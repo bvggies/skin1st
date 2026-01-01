@@ -9,6 +9,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
+  // Check if this is a detail request (has id in query or path)
+  const id = req.query.id as string | undefined
+  
+  // If id is provided, return single order detail
+  if (id) {
+    const order = await prisma.order.findUnique({ 
+      where: { id }, 
+      include: { 
+        items: { include: { variant: true } }, 
+        user: true 
+      } 
+    })
+    if (!order) return res.status(404).json({ error: 'Order not found' })
+
+    const events = await prisma.eventTracking.findMany({ 
+      where: { orderId: id }, 
+      orderBy: { createdAt: 'desc' } 
+    })
+
+    return res.status(200).json({ order, events })
+  }
+
+  // Otherwise, return order list
   const { page = '1', pageSize = '20', status, q, from, to } = req.query as any
   const p = Math.max(1, Number(page) || 1)
   const ps = Math.min(100, Math.max(1, Number(pageSize) || 20))
