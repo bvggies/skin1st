@@ -35,25 +35,25 @@ export default function App() {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'grey.50' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ flex: 1, py: 3, width: '100%' }}>
+      <Box sx={{ flex: 1, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/product/:slug" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/orders" element={<MyOrders />} />
-          <Route path="/orders/track" element={<OrderTrack />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/guarantee/claim" element={<GuaranteeClaim />} />
+          <Route path="/shop" element={<Container maxWidth="lg" sx={{ py: 3 }}><Shop /></Container>} />
+          <Route path="/product/:slug" element={<Container maxWidth="lg" sx={{ py: 3 }}><Product /></Container>} />
+          <Route path="/cart" element={<Container maxWidth="lg" sx={{ py: 3 }}><Cart /></Container>} />
+          <Route path="/checkout" element={<Container maxWidth="lg" sx={{ py: 3 }}><Checkout /></Container>} />
+          <Route path="/login" element={<Container maxWidth="lg" sx={{ py: 3 }}><Login /></Container>} />
+          <Route path="/register" element={<Container maxWidth="lg" sx={{ py: 3 }}><Register /></Container>} />
+          <Route path="/profile" element={<Container maxWidth="lg" sx={{ py: 3 }}><Profile /></Container>} />
+          <Route path="/orders" element={<Container maxWidth="lg" sx={{ py: 3 }}><MyOrders /></Container>} />
+          <Route path="/orders/track" element={<Container maxWidth="lg" sx={{ py: 3 }}><OrderTrack /></Container>} />
+          <Route path="/wishlist" element={<Container maxWidth="lg" sx={{ py: 3 }}><Wishlist /></Container>} />
+          <Route path="/contact" element={<Container maxWidth="lg" sx={{ py: 3 }}><Contact /></Container>} />
+          <Route path="/faq" element={<Container maxWidth="lg" sx={{ py: 3 }}><FAQ /></Container>} />
+          <Route path="/about" element={<Container maxWidth="lg" sx={{ py: 3 }}><About /></Container>} />
+          <Route path="/terms" element={<Container maxWidth="lg" sx={{ py: 3 }}><Terms /></Container>} />
+          <Route path="/privacy" element={<Container maxWidth="lg" sx={{ py: 3 }}><Privacy /></Container>} />
+          <Route path="/guarantee/claim" element={<Container maxWidth="lg" sx={{ py: 3 }}><GuaranteeClaim /></Container>} />
 
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
@@ -65,7 +65,7 @@ export default function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
         </Routes>
-      </Container>
+      </Box>
       <Footer />
     </Box>
   )

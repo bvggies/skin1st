@@ -10,15 +10,31 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Paper,
   Chip,
   Stack,
+  IconButton,
+  Paper,
+  Divider,
 } from '@mui/material'
+import {
+  ShoppingBag,
+  LocalShipping,
+  Security,
+  Favorite,
+  Star,
+  ArrowForward,
+} from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import api from '../api/axios'
 import SkeletonCard from '../components/SkeletonCard'
+import Newsletter from '../components/Newsletter'
 
 export default function Home() {
+  const { data: categories } = useQuery(['categories'], async () => {
+    const res = await api.get('/categories')
+    return res.data.categories || []
+  })
+
   const { data: featured, isLoading: featuredLoading } = useQuery(
     ['products', 'featured'],
     async () => {
@@ -49,117 +65,423 @@ export default function Home() {
     const minPrice = product.variants && product.variants.length > 0
       ? Math.min(...product.variants.map((v: any) => v.price - (v.discount || 0)))
       : 0
+    const maxPrice = product.variants && product.variants.length > 0
+      ? Math.max(...product.variants.map((v: any) => v.price - (v.discount || 0)))
+      : 0
+    const hasDiscount = product.variants?.some((v: any) => v.discount > 0)
 
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        whileHover={{ y: -8 }}
       >
         <Card
-          component={Link}
-          to={`/product/${product.slug}`}
           sx={{
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            textDecoration: 'none',
-            transition: 'transform 0.2s, box-shadow 0.2s',
+            position: 'relative',
+            overflow: 'visible',
+            borderRadius: 2,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            transition: 'all 0.3s ease',
             '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: 4,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
             },
           }}
         >
-          <Box sx={{ position: 'relative' }}>
+          <Box sx={{ position: 'relative', overflow: 'hidden' }}>
             <CardMedia
               component="img"
-              height="200"
+              height="280"
               image={product.images?.[0]?.url || 'https://placehold.co/400x300'}
               alt={product.name}
+              sx={{
+                objectFit: 'cover',
+                transition: 'transform 0.5s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                },
+              }}
             />
-            {product.isBestSeller && (
-              <Chip
-                label="Best Seller"
-                color="warning"
-                size="small"
-                sx={{ position: 'absolute', top: 8, right: 8 }}
-              />
-            )}
-            {product.isNew && (
-              <Chip
-                label="New"
-                color="primary"
-                size="small"
-                sx={{ position: 'absolute', top: 8, right: 8 }}
-              />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 12,
+                left: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+              }}
+            >
+              {product.isNew && (
+                <Chip
+                  label="New"
+                  size="small"
+                  sx={{
+                    bgcolor: '#10b981',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                  }}
+                />
+              )}
+              {product.isBestSeller && (
+                <Chip
+                  label="Best Seller"
+                  size="small"
+                  sx={{
+                    bgcolor: '#f59e0b',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                  }}
+                />
+              )}
+            </Box>
+            <IconButton
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                bgcolor: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                '&:hover': {
+                  bgcolor: '#f3f4f6',
+                },
+              }}
+            >
+              <Favorite fontSize="small" />
+            </IconButton>
+            {hasDiscount && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 12,
+                  right: 12,
+                  bgcolor: '#ef4444',
+                  color: 'white',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                }}
+              >
+                Sale
+              </Box>
             )}
           </Box>
-          <CardContent sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" component="div" gutterBottom noWrap>
-              {product.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 0.5, fontSize: '0.875rem' }}
+            >
               {product.brand?.name}
             </Typography>
-            {minPrice > 0 && (
-              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-                From ₵{(minPrice / 100).toFixed(2)}
-              </Typography>
-            )}
+            <Typography
+              variant="h6"
+              component={Link}
+              to={`/product/${product.slug}`}
+              sx={{
+                fontWeight: 600,
+                mb: 1,
+                textDecoration: 'none',
+                color: 'text.primary',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {product.name}
+            </Typography>
+            <Stack direction="row" spacing={0.5} sx={{ mb: 1 }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  sx={{
+                    fontSize: '1rem',
+                    color: star <= 4 ? '#fbbf24' : '#e5e7eb',
+                  }}
+                />
+              ))}
+            </Stack>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              {minPrice > 0 && (
+                <>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      color: 'primary.main',
+                    }}
+                  >
+                    ₵{(minPrice / 100).toFixed(2)}
+                  </Typography>
+                  {maxPrice > minPrice && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ textDecoration: 'line-through' }}
+                    >
+                      ₵{(maxPrice / 100).toFixed(2)}
+                    </Typography>
+                  )}
+                </>
+              )}
+            </Stack>
           </CardContent>
         </Card>
       </motion.div>
     )
   }
 
-  return (
-    <Box>
-      <Paper
+  const CategoryCard = ({ category }: { category: any }) => (
+    <motion.div
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card
+        component={Link}
+        to={`/shop?category=${category.slug}`}
         sx={{
-          background: 'linear-gradient(135deg, #fce7f3 0%, #e0e7ff 100%)',
-          p: 4,
-          mb: 4,
+          textAlign: 'center',
+          p: 3,
+          textDecoration: 'none',
           borderRadius: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          transition: 'all 0.3s ease',
+          bgcolor: 'background.paper',
+          '&:hover': {
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            transform: 'translateY(-4px)',
+          },
         }}
       >
-        <Container maxWidth="md">
-          <Typography variant="h3" component="h1" gutterBottom fontWeight={700}>
-            Skin1st Beauty Therapy
-          </Typography>
-          <Typography variant="h6" color="text.secondary" paragraph>
-            Premium beauty and skin therapy products — COD, 1–3 day delivery, money-back guarantee.
-          </Typography>
-          <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            bgcolor: 'primary.light',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            mb: 2,
+          }}
+        >
+          <ShoppingBag sx={{ fontSize: 40, color: 'primary.main' }} />
+        </Box>
+        <Typography variant="h6" fontWeight={600} sx={{ color: 'text.primary' }}>
+          {category.name}
+        </Typography>
+      </Card>
+    </motion.div>
+  )
+
+  return (
+    <Box>
+      {/* Hero Section */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          py: { xs: 8, md: 12 },
+          mb: 6,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  fontWeight={800}
+                  gutterBottom
+                  sx={{ fontSize: { xs: '2rem', md: '3.5rem' } }}
+                >
+                  Premium Beauty & Skin Therapy
+                </Typography>
+                <Typography
+                  variant="h5"
+                  sx={{ mb: 4, opacity: 0.9, fontSize: { xs: '1rem', md: '1.25rem' } }}
+                >
+                  Discover our curated collection of premium beauty products. 
+                  Quality you can trust, delivered to your door.
+                </Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                  <Button
+                    component={Link}
+                    to="/shop"
+                    variant="contained"
+                    size="large"
+                    endIcon={<ArrowForward />}
+                    sx={{
+                      bgcolor: 'white',
+                      color: 'primary.main',
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: '#f3f4f6',
+                      },
+                    }}
+                  >
+                    Shop Now
+                  </Button>
+                  <Button
+                    href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I want to order')}`}
+                    variant="outlined"
+                    size="large"
+                    sx={{
+                      borderColor: 'white',
+                      color: 'white',
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: 'white',
+                        bgcolor: 'rgba(255,255,255,0.1)',
+                      },
+                    }}
+                  >
+                    Contact Us
+                  </Button>
+                </Stack>
+              </motion.div>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Box
+                  sx={{
+                    position: 'relative',
+                    height: { xs: 300, md: 400 },
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800"
+                    alt="Beauty Products"
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                </Box>
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Container maxWidth="lg" sx={{ mb: 8 }}>
+        <Grid container spacing={3}>
+          {[
+            { icon: <LocalShipping />, title: 'Free Delivery', desc: '1-3 days delivery' },
+            { icon: <Security />, title: 'Secure Payment', desc: 'Cash on delivery' },
+            { icon: <Favorite />, title: 'Money Back', desc: '100% guarantee' },
+          ].map((feature, idx) => (
+            <Grid item xs={12} sm={4} key={idx}>
+              <Paper
+                sx={{
+                  p: 3,
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  bgcolor: 'background.paper',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                }}
+              >
+                <Box
+                  sx={{
+                    color: 'primary.main',
+                    mb: 2,
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {feature.icon}
+                </Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  {feature.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {feature.desc}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      {/* Categories Section */}
+      {categories && categories.length > 0 && (
+        <Box sx={{ bgcolor: 'grey.50', py: 8, mb: 8 }}>
+          <Container maxWidth="lg">
+            <Box sx={{ textAlign: 'center', mb: 6 }}>
+              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+                Shop by Category
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Explore our wide range of beauty categories
+              </Typography>
+            </Box>
+            <Grid container spacing={3}>
+              {categories.slice(0, 6).map((category: any) => (
+                <Grid item xs={6} sm={4} md={2} key={category.id}>
+                  <CategoryCard category={category} />
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+      )}
+
+      {/* Best Sellers Section */}
+      {bestSellers && bestSellers.length > 0 && (
+        <Container maxWidth="lg" sx={{ mb: 8 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box>
+              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+                Best Sellers
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Our most popular products
+              </Typography>
+            </Box>
             <Button
               component={Link}
               to="/shop"
-              variant="contained"
-              size="large"
-              color="primary"
+              variant="outlined"
+              endIcon={<ArrowForward />}
+              sx={{ textTransform: 'none' }}
             >
-              Shop Now
-            </Button>
-            <Button
-              href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I want to order')}`}
-              variant="contained"
-              size="large"
-              color="success"
-            >
-              Contact WhatsApp
-            </Button>
-          </Stack>
-        </Container>
-      </Paper>
-
-      {bestSellers && bestSellers.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h4" component="h2" fontWeight={600}>
-              Best Sellers
-            </Typography>
-            <Button component={Link} to="/shop" color="primary">
-              View all →
+              View All
             </Button>
           </Box>
           {bestSellersLoading ? (
@@ -179,17 +501,71 @@ export default function Home() {
               ))}
             </Grid>
           )}
-        </Box>
+        </Container>
       )}
 
+      {/* Special Offer Banner */}
+      <Box
+        sx={{
+          bgcolor: 'primary.main',
+          color: 'white',
+          py: 6,
+          mb: 8,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={8}>
+              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+                Special Offer
+              </Typography>
+              <Typography variant="h5" sx={{ mb: 3, opacity: 0.9 }}>
+                Get 20% off on your first order. Use code: FIRST20
+              </Typography>
+              <Button
+                component={Link}
+                to="/shop"
+                variant="contained"
+                size="large"
+                endIcon={<ArrowForward />}
+                sx={{
+                  bgcolor: 'white',
+                  color: 'primary.main',
+                  px: 4,
+                  '&:hover': {
+                    bgcolor: '#f3f4f6',
+                  },
+                }}
+              >
+                Shop Now
+              </Button>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* New Arrivals Section */}
       {newProducts && newProducts.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h4" component="h2" fontWeight={600}>
-              New Arrivals
-            </Typography>
-            <Button component={Link} to="/shop" color="primary">
-              View all →
+        <Container maxWidth="lg" sx={{ mb: 8 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box>
+              <Typography variant="h3" component="h2" fontWeight={700} gutterBottom>
+                New Arrivals
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Latest additions to our collection
+              </Typography>
+            </Box>
+            <Button
+              component={Link}
+              to="/shop"
+              variant="outlined"
+              endIcon={<ArrowForward />}
+              sx={{ textTransform: 'none' }}
+            >
+              View All
             </Button>
           </Box>
           {newProductsLoading ? (
@@ -209,8 +585,15 @@ export default function Home() {
               ))}
             </Grid>
           )}
-        </Box>
+        </Container>
       )}
+
+      {/* Newsletter Section */}
+      <Box sx={{ bgcolor: 'grey.50', py: 8 }}>
+        <Container maxWidth="lg">
+          <Newsletter />
+        </Container>
+      </Box>
     </Box>
   )
 }
