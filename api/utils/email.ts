@@ -54,17 +54,27 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     case 'smtp':
       // SMTP implementation using nodemailer
       const nodemailer = require('nodemailer')
+      const isSecure = process.env.SMTP_SECURE === 'true'
+      const port = parseInt(process.env.SMTP_PORT || '587')
+      
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        port: port,
+        secure: isSecure, // true for 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS
-        }
+        },
+        // For Gmail and other services that require TLS
+        ...(port === 587 && !isSecure && {
+          tls: {
+            rejectUnauthorized: false // Allow self-signed certificates if needed
+          }
+        })
       })
+      
       await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'noreply@skin1st.com',
+        from: process.env.EMAIL_FROM || process.env.SMTP_USER || 'noreply@skin1st.com',
         to: options.to,
         subject: options.subject,
         text: options.text,
