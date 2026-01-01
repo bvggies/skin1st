@@ -217,22 +217,69 @@ async function main() {
   // Create products
   for (const productData of products) {
     const { variants, images, ...productInfo } = productData
-    await prisma.product.upsert({
+    
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({
       where: { slug: productInfo.slug },
-      update: {
-        ...productInfo,
-        updatedAt: new Date() // Update timestamp to make it appear first
-      },
-      create: {
-        ...productInfo,
-        variants: {
-          create: variants.map(v => ({ ...v, discount: v.discount || 0 }))
-        },
-        images: {
-          create: images
-        }
-      }
+      include: { variants: true, images: true }
     })
+
+    let product
+    if (existingProduct) {
+      // Delete existing images
+      await prisma.productImage.deleteMany({
+        where: { productId: existingProduct.id }
+      })
+
+      // Update product
+      product = await prisma.product.update({
+        where: { id: existingProduct.id },
+        data: {
+          ...productInfo,
+          updatedAt: new Date(), // Update timestamp to make it appear first
+        }
+      })
+    } else {
+      // Create new product
+      product = await prisma.product.create({
+        data: productInfo
+      })
+    }
+
+    // Upsert variants (create or update by SKU)
+    for (const variantData of variants) {
+      await prisma.variant.upsert({
+        where: { sku: variantData.sku },
+        update: {
+          name: variantData.name,
+          price: variantData.price,
+          discount: variantData.discount || 0,
+          stock: variantData.stock || 0,
+          productId: product.id
+        },
+        create: {
+          ...variantData,
+          discount: variantData.discount || 0,
+          productId: product.id
+        }
+      })
+    }
+
+    // Create images (delete old ones first if updating)
+    if (existingProduct) {
+      await prisma.productImage.deleteMany({
+        where: { productId: product.id }
+      })
+    }
+    
+    for (const imageData of images) {
+      await prisma.productImage.create({
+        data: {
+          ...imageData,
+          productId: product.id
+        }
+      })
+    }
   }
 
   // Create demo admin and customer users
