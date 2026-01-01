@@ -20,6 +20,7 @@ import { ExpandMore, Download, Print } from '@mui/icons-material'
 import { getOrder, updateOrderStatus } from '../../api/admin'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
+import api from '../../api/axios'
 
 const statusColors: Record<string, 'warning' | 'info' | 'secondary' | 'success' | 'primary' | 'default' | 'error'> = {
   PENDING_CONFIRMATION: 'warning',
@@ -76,16 +77,45 @@ export default function OrderDetail() {
 
   const onChangeStatus = (status: string) => mutation.mutate(status)
 
-  const handleDownloadPDF = () => {
-    window.open(`/api/admin/orders/${id}/delivery-pdf`, '_blank')
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await api.get(`/admin/orders/${id}/delivery-pdf`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `delivery-note-${order.code}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+      toast.success('PDF downloaded successfully')
+    } catch (error: any) {
+      console.error('Failed to download PDF:', error)
+      toast.error(error.response?.data?.error || 'Failed to download PDF')
+    }
   }
 
-  const handlePrintPDF = () => {
-    const printWindow = window.open(`/api/admin/orders/${id}/delivery-pdf`, '_blank')
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print()
+  const handlePrintPDF = async () => {
+    try {
+      const response = await api.get(`/admin/orders/${id}/delivery-pdf`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const printWindow = window.open(url, '_blank')
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print()
+          window.URL.revokeObjectURL(url)
+        }
       }
+      toast.success('PDF opened for printing')
+    } catch (error: any) {
+      console.error('Failed to open PDF for printing:', error)
+      toast.error(error.response?.data?.error || 'Failed to open PDF')
     }
   }
 
