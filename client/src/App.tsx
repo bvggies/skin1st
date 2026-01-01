@@ -31,6 +31,7 @@ import Wishlist from './pages/Wishlist'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import WhatsAppFloat from './components/WhatsAppFloat'
+import AdminRouteGuard from './components/AdminRouteGuard'
 
 import { Container, Box } from '@mui/material'
 
@@ -93,18 +94,20 @@ function PublicRoutes() {
 // Admin routes (no Header/Footer - AdminLayout handles its own layout)
 function AdminRoutes() {
   return (
-    <Routes>
-      <Route path="/admin" element={<AdminAnalytics />} />
-      <Route path="/admin/orders" element={<AdminOrders />} />
-      <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
-      <Route path="/admin/analytics" element={<AdminAnalytics />} />
-      <Route path="/admin/products" element={<AdminProducts />} />
-      <Route path="/admin/categories" element={<AdminCategories />} />
-      <Route path="/admin/brands" element={<AdminBrands />} />
-      <Route path="/admin/coupons" element={<AdminCoupons />} />
-      <Route path="/admin/users" element={<AdminUsers />} />
-      <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
-    </Routes>
+    <AdminRouteGuard>
+      <Routes>
+        <Route path="/admin" element={<AdminAnalytics />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/categories" element={<AdminCategories />} />
+        <Route path="/admin/brands" element={<AdminBrands />} />
+        <Route path="/admin/coupons" element={<AdminCoupons />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
+      </Routes>
+    </AdminRouteGuard>
   )
 }
 
