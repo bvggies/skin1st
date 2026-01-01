@@ -150,21 +150,26 @@ model CartItem {
 }
 
 model Order {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  user          User?        @relation(fields: [userId], references: [id])
-  userId        String?
-  status        OrderStatus  @default(PENDING_CONFIRMATION)
-  total         Int
-  customerName  String?
-  phone         String?
-  deliveryAddr  String
-  deliveryNotes String?
-  items         OrderItem[]
-  guaranteeClaims GuaranteeClaim[]
-  events        EventTracking[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                String       @id @default(cuid())
+  code              String       @unique
+  user              User?        @relation(fields: [userId], references: [id])
+  userId            String?
+  status            OrderStatus  @default(PENDING_CONFIRMATION)
+  total             Int
+  customerName      String?
+  phone             String?
+  alternativePhone  String?      // WhatsApp or alternative number
+  region            String?      // Ghana region
+  city              String?
+  area              String?      // Neighborhood/Area
+  landmark          String?      // Nearby landmark
+  deliveryAddr      String       // Full address (legacy, can be used as fallback)
+  deliveryNotes     String?
+  items             OrderItem[]
+  guaranteeClaims   GuaranteeClaim[]
+  events            EventTracking[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 model OrderItem {

@@ -7,6 +7,11 @@ import { sendEmail, orderConfirmationEmail } from './utils/email'
 const OrderSchema = z.object({
   name: z.string().min(1),
   phone: z.string().min(5),
+  alternativePhone: z.string().optional(),
+  region: z.string().optional(),
+  city: z.string().optional(),
+  area: z.string().optional(),
+  landmark: z.string().optional(),
   deliveryAddr: z.string().min(5),
   deliveryNotes: z.string().optional(),
   items: z.array(z.object({ variantId: z.string(), quantity: z.number().int().min(1) })),
@@ -22,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const parse = OrderSchema.safeParse(req.body || {})
   if (!parse.success) return res.status(400).json({ error: parse.error.errors })
 
-  const { name, phone, deliveryAddr, deliveryNotes, items, coupon } = parse.data
+  const { name, phone, alternativePhone, region, city, area, landmark, deliveryAddr, deliveryNotes, items, coupon } = parse.data
 
   // validate variants and compute total
   const variantIds = items.map(i => i.variantId)
@@ -95,6 +100,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         total, 
         customerName: name, 
         phone, 
+        alternativePhone: alternativePhone || null,
+        region: region || null,
+        city: city || null,
+        area: area || null,
+        landmark: landmark || null,
         deliveryAddr, 
         deliveryNotes, 
         items: { create: orderItemsData }, 

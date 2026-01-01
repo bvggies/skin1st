@@ -139,6 +139,10 @@ export default function Home() {
   const categories = categoriesData && categoriesData.length > 0 ? categoriesData : sampleCategories
   const products = productsData && productsData.length > 0 ? productsData : sampleProducts
 
+  // Fixed dimensions for consistent card sizes
+  const CARD_IMAGE_HEIGHT = 220
+  const CARD_MIN_HEIGHT = 380
+
   // Product Card Component
   const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) => {
     const minPrice = product.variants?.length > 0
@@ -152,7 +156,9 @@ export default function Home() {
     return (
       <Card
         sx={{
-          height: '100%',
+          height: CARD_MIN_HEIGHT,
+          minHeight: CARD_MIN_HEIGHT,
+          maxHeight: CARD_MIN_HEIGHT,
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
@@ -181,16 +187,17 @@ export default function Home() {
           },
         }}
       >
-        {/* Image Container */}
-        <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: 'grey.50' }}>
+        {/* Image Container - Fixed Height */}
+        <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: 'grey.50', height: CARD_IMAGE_HEIGHT, minHeight: CARD_IMAGE_HEIGHT }}>
           <Link to={`/product/${product.slug}`}>
             <CardMedia
               component="img"
-              height="240"
               image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80'}
               alt={product.name}
               className="product-image"
               sx={{
+                width: '100%',
+                height: CARD_IMAGE_HEIGHT,
                 objectFit: 'cover',
                 transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
@@ -267,12 +274,27 @@ export default function Home() {
           </Box>
         </Box>
 
-        {/* Content */}
-        <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Content - Fixed Height */}
+        <CardContent sx={{ 
+          p: 2, 
+          flexGrow: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          height: CARD_MIN_HEIGHT - CARD_IMAGE_HEIGHT,
+          minHeight: CARD_MIN_HEIGHT - CARD_IMAGE_HEIGHT,
+        }}>
           {product.brand?.name && (
             <Typography
               variant="caption"
-              sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}
+              sx={{ 
+                color: 'text.secondary', 
+                fontWeight: 500, 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.05em', 
+                mb: 0.5,
+                fontSize: '0.7rem',
+              }}
+              noWrap
             >
               {product.brand.name}
             </Typography>
@@ -283,33 +305,34 @@ export default function Home() {
             to={`/product/${product.slug}`}
             sx={{
               fontWeight: 600,
-              fontSize: '1rem',
+              fontSize: '0.9rem',
               color: 'text.primary',
               textDecoration: 'none',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-              lineHeight: 1.4,
-              mb: 1,
+              lineHeight: 1.3,
+              minHeight: '2.6em', // Ensures 2 lines height
+              mb: 0.5,
               '&:hover': { color: 'secondary.main' },
             }}
           >
             {product.name}
           </Typography>
 
-          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
-            <Rating value={4.5} precision={0.5} size="small" readOnly sx={{ color: '#fbbf24' }} />
-            <Typography variant="caption" color="text.secondary">(24)</Typography>
+          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.5 }}>
+            <Rating value={4.5} precision={0.5} size="small" readOnly sx={{ color: '#fbbf24', fontSize: '0.9rem' }} />
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>(24)</Typography>
           </Stack>
 
           <Box sx={{ mt: 'auto' }}>
-            <Stack direction="row" alignItems="baseline" spacing={1}>
-              <Typography variant="h6" fontWeight={700} color="primary.main">
+            <Stack direction="row" alignItems="baseline" spacing={1} flexWrap="wrap">
+              <Typography variant="subtitle1" fontWeight={700} color="primary.main" sx={{ fontSize: '1rem' }}>
                 ₵{(minPrice / 100).toFixed(2)}
               </Typography>
               {hasDiscount && (
-                <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
                   ₵{(originalPrice / 100).toFixed(2)}
                 </Typography>
               )}

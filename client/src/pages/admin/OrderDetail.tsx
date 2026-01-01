@@ -81,31 +81,78 @@ export default function OrderDetail() {
               <Typography variant="h6" component="h3" gutterBottom fontWeight={600}>
                 Customer Information
               </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Name:</strong> {order.user?.name || order.user?.email || 'Guest'}
-              </Typography>
-              {order.user?.email && (
-                <Typography variant="body1" gutterBottom>
-                  <strong>Email:</strong> {order.user.email}
-                </Typography>
-              )}
-              {order.user?.phone && (
-                <Typography variant="body1" gutterBottom>
-                  <strong>Phone:</strong> {order.user.phone}
-                </Typography>
-              )}
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Customer Name</Typography>
+                  <Typography variant="body1" fontWeight={500}>
+                    {order.customerName || order.user?.name || 'Guest'}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Email</Typography>
+                  <Typography variant="body1" fontWeight={500}>
+                    {order.user?.email || 'N/A'}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Phone Number</Typography>
+                  <Typography variant="body1" fontWeight={500}>
+                    <a href={`tel:${order.phone}`} style={{ color: 'inherit' }}>{order.phone || 'N/A'}</a>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">WhatsApp/Alternative</Typography>
+                  <Typography variant="body1" fontWeight={500}>
+                    {order.alternativePhone ? (
+                      <a 
+                        href={`https://wa.me/${order.alternativePhone.replace(/\D/g, '')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ color: '#25D366' }}
+                      >
+                        {order.alternativePhone}
+                      </a>
+                    ) : 'N/A'}
+                  </Typography>
+                </Grid>
+              </Grid>
 
               <Divider sx={{ my: 3 }} />
 
               <Typography variant="h6" component="h3" gutterBottom fontWeight={600}>
                 Delivery Address
               </Typography>
-              <Typography variant="body1">{order.deliveryAddr}</Typography>
-              {order.deliveryNotes && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  <strong>Notes:</strong> {order.deliveryNotes}
-                </Typography>
-              )}
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Region</Typography>
+                  <Typography variant="body1" fontWeight={500}>{order.region || 'N/A'}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">City/Town</Typography>
+                  <Typography variant="body1" fontWeight={500}>{order.city || 'N/A'}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Area/Neighborhood</Typography>
+                  <Typography variant="body1" fontWeight={500}>{order.area || 'N/A'}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" color="text.secondary">Landmark</Typography>
+                  <Typography variant="body1" fontWeight={500}>{order.landmark || 'N/A'}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">Full Address</Typography>
+                  <Typography variant="body1" fontWeight={500}>{order.deliveryAddr}</Typography>
+                </Grid>
+                {order.deliveryNotes && (
+                  <Grid item xs={12}>
+                    <Alert severity="info" sx={{ mt: 1 }}>
+                      <Typography variant="body2">
+                        <strong>Delivery Notes:</strong> {order.deliveryNotes}
+                      </Typography>
+                    </Alert>
+                  </Grid>
+                )}
+              </Grid>
 
               <Divider sx={{ my: 3 }} />
 

@@ -12,18 +12,46 @@ import {
   Divider,
   Stack,
   Alert,
-  Chip,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material'
+import { Warning, LocalShipping, Payment } from '@mui/icons-material'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import useCart from '../store/cart'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
+// Ghana Regions
+const GHANA_REGIONS = [
+  'Greater Accra',
+  'Ashanti',
+  'Western',
+  'Eastern',
+  'Central',
+  'Northern',
+  'Upper East',
+  'Upper West',
+  'Volta',
+  'Bono',
+  'Bono East',
+  'Ahafo',
+  'Western North',
+  'Oti',
+  'North East',
+  'Savannah',
+]
+
 const Schema = z.object({
-  name: z.string().min(1),
-  phone: z.string().min(5),
-  deliveryAddr: z.string().min(5),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  phone: z.string().min(10, 'Please enter a valid phone number'),
+  alternativePhone: z.string().optional(),
+  region: z.string().min(1, 'Please select your region'),
+  city: z.string().min(2, 'Please enter your city/town'),
+  area: z.string().min(2, 'Please enter your area/neighborhood'),
+  landmark: z.string().optional(),
   deliveryNotes: z.string().optional(),
 })
 
@@ -32,12 +60,29 @@ type Form = z.infer<typeof Schema>
 export default function Checkout() {
   const cart = useCart()
   const navigate = useNavigate()
-  const { register, handleSubmit } = useForm<Form>({ resolver: zodResolver(Schema) })
+  const location = useLocation()
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<Form>({ 
+    resolver: zodResolver(Schema),
+    defaultValues: {
+      region: '',
+    }
+  })
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
   const [couponError, setCouponError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const variantIds = cart.items.map((i) => i.variantId)
+  // Check if coming from "Buy Now" with a direct item
+  const buyNowItem = location.state?.buyNowItem
+
+  const variantIds = buyNowItem 
+    ? [buyNowItem.variantId] 
+    : cart.items.map((i) => i.variantId)
+  
+  const itemsToCheckout = buyNowItem 
+    ? [buyNowItem] 
+    : cart.items
+
   const { data: variantsData } = useQuery(
     ['variants', variantIds],
     async () => {
@@ -49,7 +94,8 @@ export default function Checkout() {
   )
 
   const subtotal = (variantsData?.variants || []).reduce((s: any, v: any) => {
-    const qty = cart.items.find((it: any) => it.variantId === v.id)?.quantity || 0
+    const item = itemsToCheckout.find((it: any) => it.variantId === v.id)
+    const qty = item?.quantity || 0
     const price = v.price - (v.discount || 0)
     return s + price * qty
   }, 0)
@@ -81,29 +127,56 @@ export default function Checkout() {
   }
 
   async function onSubmit(data: Form) {
-    if (cart.items.length === 0) {
-      toast.error('Your cart is empty')
+    if (itemsToCheckout.length === 0) {
+      toast.error('No items to checkout')
       return
     }
 
+    setIsSubmitting(true)
+
     try {
-      const items = cart.items.map((i) => ({ variantId: i.variantId, quantity: i.quantity }))
+      const items = itemsToCheckout.map((i: any) => ({ variantId: i.variantId, quantity: i.quantity }))
+      
+      // Combine address fields into full delivery address
+      const fullAddress = [
+        data.area,
+        data.city,
+        data.region,
+        data.landmark ? `Near: ${data.landmark}` : '',
+      ].filter(Boolean).join(', ')
+
       const res = await api.post('/orders', {
-        ...data,
+        name: data.name,
+        phone: data.phone,
+        alternativePhone: data.alternativePhone || undefined,
+        region: data.region,
+        city: data.city,
+        area: data.area,
+        landmark: data.landmark || undefined,
+        deliveryAddr: fullAddress,
+        deliveryNotes: data.deliveryNotes || undefined,
         items,
         coupon: appliedCoupon?.coupon?.code || undefined,
       })
+
       toast.success(`Order placed successfully! Order code: ${res.data.order.code}`)
-      cart.clear()
+      
+      // Only clear cart if not using Buy Now
+      if (!buyNowItem) {
+        cart.clear()
+      }
+      
       navigate(`/orders/track?code=${res.data.order.code}`)
     } catch (e: any) {
       console.error(e)
       const errorMsg = e.response?.data?.error || 'Failed to place order'
       toast.error(errorMsg)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  if (cart.items.length === 0) {
+  if (itemsToCheckout.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 6 }}>
         <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
@@ -128,49 +201,158 @@ export default function Checkout() {
         <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
           Checkout
         </Typography>
+
+        {/* Important Notice */}
+        <Alert 
+          severity="warning" 
+          icon={<Warning />}
+          sx={{ mb: 3, borderRadius: 2 }}
+        >
+          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            PLEASE NOTE:
+          </Typography>
+          <Typography variant="body2">
+            Before filling the order form, make sure you are ready to receive your package and pay at the point of delivery. 
+            We use Cash on Delivery (COD) payment method.
+          </Typography>
+        </Alert>
+
         <Paper sx={{ p: 3, mt: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+            <LocalShipping color="primary" />
+            <Typography variant="h6" fontWeight={600}>
+              Delivery Information
+            </Typography>
+          </Box>
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Stack spacing={3}>
-              <TextField
-                {...register('name')}
-                label="Full name *"
-                fullWidth
-                required
-              />
-              <TextField
-                {...register('phone')}
-                label="Phone *"
-                type="tel"
-                fullWidth
-                required
-              />
-              <TextField
-                {...register('deliveryAddr')}
-                label="Delivery address *"
-                multiline
-                rows={3}
-                fullWidth
-                required
-              />
-              <TextField
-                {...register('deliveryNotes')}
-                label="Delivery notes (optional)"
-                fullWidth
-                helperText="Any special instructions for delivery"
-              />
-            </Stack>
+            <Grid container spacing={3}>
+              {/* Personal Details */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Personal Details
+                </Typography>
+              </Grid>
+              
+              <Grid item xs={12}>
+                <TextField
+                  {...register('name')}
+                  label="Full Name *"
+                  placeholder="Enter your full name"
+                  fullWidth
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('phone')}
+                  label="Active Phone Number *"
+                  placeholder="e.g., 0244123456"
+                  type="tel"
+                  fullWidth
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message || 'We will call this number for delivery'}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('alternativePhone')}
+                  label="Alternative/WhatsApp Number"
+                  placeholder="e.g., 0201234567"
+                  type="tel"
+                  fullWidth
+                  helperText="Optional - for WhatsApp updates"
+                />
+              </Grid>
+
+              {/* Delivery Address */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ mt: 2 }}>
+                  Delivery Address
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('region')}
+                  select
+                  label="Region *"
+                  fullWidth
+                  error={!!errors.region}
+                  helperText={errors.region?.message}
+                  defaultValue=""
+                >
+                  <MenuItem value="">Select your region</MenuItem>
+                  {GHANA_REGIONS.map((region) => (
+                    <MenuItem key={region} value={region}>
+                      {region}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('city')}
+                  label="City/Town *"
+                  placeholder="e.g., Accra, Kumasi, Tema"
+                  fullWidth
+                  error={!!errors.city}
+                  helperText={errors.city?.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('area')}
+                  label="Area/Neighborhood *"
+                  placeholder="e.g., East Legon, Osu, Adum"
+                  fullWidth
+                  error={!!errors.area}
+                  helperText={errors.area?.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  {...register('landmark')}
+                  label="Nearby Landmark"
+                  placeholder="e.g., Near Total Filling Station"
+                  fullWidth
+                  helperText="Optional - helps our delivery rider find you"
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  {...register('deliveryNotes')}
+                  label="Additional Delivery Instructions"
+                  placeholder="Any special instructions for delivery (e.g., gate color, floor number, best time to deliver)"
+                  multiline
+                  rows={3}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
           </Box>
         </Paper>
       </Grid>
 
       <Grid item xs={12} lg={4}>
         <Paper sx={{ p: 3, position: 'sticky', top: 80 }}>
-          <Typography variant="h6" component="h2" gutterBottom fontWeight={600}>
-            Order Summary
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Payment color="primary" />
+            <Typography variant="h6" component="h2" fontWeight={600}>
+              Order Summary
+            </Typography>
+          </Box>
 
           <Stack spacing={1} sx={{ my: 3 }}>
-            {cart.items.map((item: any) => {
+            {itemsToCheckout.map((item: any) => {
               const variant = variantsData?.variants?.find((v: any) => v.id === item.variantId)
               if (!variant) return null
               const price = (variant.price - (variant.discount || 0)) / 100
@@ -237,6 +419,10 @@ export default function Checkout() {
               <Typography variant="body2">Subtotal</Typography>
               <Typography variant="body2">₵{(subtotal / 100).toFixed(2)}</Typography>
             </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="body2">Delivery</Typography>
+              <Typography variant="body2" color="success.main">FREE</Typography>
+            </Box>
             {appliedCoupon && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="success.main">
@@ -264,14 +450,18 @@ export default function Checkout() {
             color="primary"
             fullWidth
             size="large"
+            disabled={isSubmitting}
             sx={{ mt: 3 }}
           >
-            Place Order (COD)
+            {isSubmitting ? 'Placing Order...' : 'Place Order (Cash on Delivery)'}
           </Button>
 
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 2 }}>
-            You'll pay when you receive your order
-          </Typography>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <Typography variant="caption">
+              <strong>Cash on Delivery:</strong> You'll pay when you receive your order. 
+              Our delivery rider will contact you before arrival.
+            </Typography>
+          </Alert>
         </Paper>
       </Grid>
     </Grid>

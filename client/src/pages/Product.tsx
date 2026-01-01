@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Box,
@@ -21,7 +21,7 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material'
-import { Favorite, FavoriteBorder, WhatsApp } from '@mui/icons-material'
+import { Favorite, FavoriteBorder, WhatsApp, ShoppingBag } from '@mui/icons-material'
 import api from '../api/axios'
 import useCart from '../store/cart'
 import { useAuth } from '../context/AuthContext'
@@ -48,6 +48,7 @@ export default function Product() {
   const cart = useCart()
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data: wishlistData } = useQuery(
     ['wishlist'],
@@ -91,6 +92,17 @@ export default function Product() {
     if (!vId) return
     cart.add({ variantId: vId, quantity: 1 })
     toast.success('Added to cart!')
+  }
+
+  const buyNow = () => {
+    const vId = selectedVariant || data.variants?.[0]?.id
+    if (!vId) return
+    // Navigate to checkout with this item directly
+    navigate('/checkout', {
+      state: {
+        buyNowItem: { variantId: vId, quantity: 1 }
+      }
+    })
   }
 
   const selectedVariantData =
@@ -575,37 +587,54 @@ export default function Product() {
             </Paper>
           )}
 
-          <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+          <Stack spacing={2} sx={{ mt: 3 }}>
+            {/* Buy Now Button - Primary Action */}
             <Button
-              onClick={addToCart}
+              onClick={buyNow}
               disabled={!selectedVariantData || selectedVariantData.stock <= 0}
               variant="contained"
-              color="primary"
+              color="secondary"
               fullWidth
               size="large"
+              startIcon={<ShoppingBag />}
+              sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 600 }}
             >
-              Add to Cart
+              Buy Now
             </Button>
-            {user && (
-              <IconButton
-                onClick={() => wishlistMutation.mutate()}
-                color={isInWishlist ? 'error' : 'default'}
-                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-                sx={{
-                  bgcolor: isInWishlist ? 'error.light' : 'grey.100',
-                  '&:hover': {
-                    bgcolor: isInWishlist ? 'error.main' : 'grey.200',
-                  },
-                }}
+
+            <Stack direction="row" spacing={2}>
+              <Button
+                onClick={addToCart}
+                disabled={!selectedVariantData || selectedVariantData.stock <= 0}
+                variant="outlined"
+                color="primary"
+                fullWidth
+                size="large"
               >
-                {isInWishlist ? <Favorite /> : <FavoriteBorder />}
-              </IconButton>
-            )}
+                Add to Cart
+              </Button>
+              {user && (
+                <IconButton
+                  onClick={() => wishlistMutation.mutate()}
+                  color={isInWishlist ? 'error' : 'default'}
+                  title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                  sx={{
+                    bgcolor: isInWishlist ? 'error.light' : 'grey.100',
+                    '&:hover': {
+                      bgcolor: isInWishlist ? 'error.main' : 'grey.200',
+                    },
+                  }}
+                >
+                  {isInWishlist ? <Favorite /> : <FavoriteBorder />}
+                </IconButton>
+              )}
+            </Stack>
+
             <Button
               href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              variant="contained"
+              variant="outlined"
               color="success"
               fullWidth
               size="large"

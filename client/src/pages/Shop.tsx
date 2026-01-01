@@ -76,11 +76,20 @@ export default function Shop() {
 
   const hasActiveFilters = selectedCategory || selectedBrand || sort || search
 
+  // Fixed dimensions for consistent card sizes
+  const CARD_IMAGE_HEIGHT = 200
+  const CARD_MIN_HEIGHT = 340
+
   const ProductCard = ({ product }: { product: any }) => {
     const minPrice =
       product.variants && product.variants.length > 0
         ? Math.min(...product.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
         : 0
+    const originalPrice =
+      product.variants && product.variants.length > 0
+        ? Math.min(...product.variants.map((v: any) => v.price / 100))
+        : 0
+    const hasDiscount = minPrice < originalPrice
 
     return (
       <motion.div
@@ -88,58 +97,130 @@ export default function Shop() {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
+        style={{ height: '100%' }}
       >
         <Card
           component={Link}
           to={`/product/${product.slug}`}
           sx={{
-            height: '100%',
+            height: CARD_MIN_HEIGHT,
+            minHeight: CARD_MIN_HEIGHT,
+            maxHeight: CARD_MIN_HEIGHT,
             display: 'flex',
             flexDirection: 'column',
             textDecoration: 'none',
             transition: 'transform 0.2s, box-shadow 0.2s',
+            overflow: 'hidden',
             '&:hover': {
               transform: 'translateY(-4px)',
               boxShadow: 4,
             },
           }}
         >
-          <Box sx={{ position: 'relative' }}>
+          <Box sx={{ position: 'relative', height: CARD_IMAGE_HEIGHT, minHeight: CARD_IMAGE_HEIGHT, bgcolor: 'grey.50' }}>
             <CardMedia
               component="img"
-              height="160"
-              image={product.images?.[0]?.url || 'https://placehold.co/400x300'}
+              image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80'}
               alt={product.name}
+              sx={{
+                width: '100%',
+                height: CARD_IMAGE_HEIGHT,
+                objectFit: 'cover',
+              }}
             />
-            {product.isNew && (
-              <Chip
-                label="New"
-                color="primary"
-                size="small"
-                sx={{ position: 'absolute', top: 8, left: 8 }}
-              />
-            )}
-            {product.isBestSeller && (
-              <Chip
-                label="Best Seller"
-                color="warning"
-                size="small"
-                sx={{ position: 'absolute', top: 8, right: 8 }}
-              />
-            )}
+            <Box sx={{ position: 'absolute', top: 8, left: 8, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              {product.isNew && (
+                <Chip
+                  label="NEW"
+                  size="small"
+                  sx={{
+                    bgcolor: '#1a1a2e',
+                    color: 'white',
+                    fontWeight: 700,
+                    fontSize: '0.65rem',
+                    height: 22,
+                  }}
+                />
+              )}
+              {product.isBestSeller && (
+                <Chip
+                  label="BEST SELLER"
+                  size="small"
+                  sx={{
+                    bgcolor: '#e94560',
+                    color: 'white',
+                    fontWeight: 700,
+                    fontSize: '0.65rem',
+                    height: 22,
+                  }}
+                />
+              )}
+              {hasDiscount && (
+                <Chip
+                  label={`-${Math.round(((originalPrice - minPrice) / originalPrice) * 100)}%`}
+                  size="small"
+                  sx={{
+                    bgcolor: '#10b981',
+                    color: 'white',
+                    fontWeight: 700,
+                    fontSize: '0.65rem',
+                    height: 22,
+                  }}
+                />
+              )}
+            </Box>
           </Box>
-          <CardContent>
-            <Typography variant="h6" component="div" noWrap gutterBottom>
-              {product.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {product.brand?.name}
-            </Typography>
-            {minPrice > 0 && (
-              <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-                From ₵{minPrice.toFixed(2)}
+          <CardContent sx={{ 
+            flexGrow: 1, 
+            display: 'flex', 
+            flexDirection: 'column',
+            p: 2,
+            height: CARD_MIN_HEIGHT - CARD_IMAGE_HEIGHT,
+          }}>
+            {product.brand?.name && (
+              <Typography 
+                variant="caption" 
+                color="text.secondary" 
+                sx={{ 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.05em',
+                  fontWeight: 500,
+                  fontSize: '0.7rem',
+                }}
+                noWrap
+              >
+                {product.brand.name}
               </Typography>
             )}
+            <Typography 
+              variant="subtitle1" 
+              component="div" 
+              sx={{ 
+                fontWeight: 600,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                lineHeight: 1.3,
+                minHeight: '2.6em',
+                fontSize: '0.9rem',
+                mb: 0.5,
+              }}
+            >
+              {product.name}
+            </Typography>
+            <Box sx={{ mt: 'auto' }}>
+              <Stack direction="row" alignItems="baseline" spacing={1} flexWrap="wrap">
+                <Typography variant="subtitle1" color="primary" fontWeight={700} sx={{ fontSize: '1rem' }}>
+                  From ₵{minPrice.toFixed(2)}
+                </Typography>
+                {hasDiscount && (
+                  <Typography variant="caption" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                    ₵{originalPrice.toFixed(2)}
+                  </Typography>
+                )}
+              </Stack>
+            </Box>
           </CardContent>
         </Card>
       </motion.div>
