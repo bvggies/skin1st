@@ -33,9 +33,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } 
     })
   } else if (code && typeof code === 'string') {
-    // Search by order code
+    // Search by order code (normalize to uppercase for consistency)
     order = await prisma.order.findUnique({ 
-      where: { code }, 
+      where: { code: code.toUpperCase() }, 
       include: { 
         items: { 
           include: { 
