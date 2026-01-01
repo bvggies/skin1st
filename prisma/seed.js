@@ -4,213 +4,263 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding sample categories, brands, products...')
+  console.log('Seeding beauty/skincare categories, brands, and products...')
 
   // Create Categories
-  const engineOilCategory = await prisma.category.upsert({
-    where: { slug: 'engine-oil' },
+  const faceCategory = await prisma.category.upsert({
+    where: { slug: 'face-care' },
     update: {},
-    create: { name: 'Engine Oils', slug: 'engine-oil' }
+    create: { name: 'Face Care', slug: 'face-care' }
   })
 
-  const motorOilCategory = await prisma.category.upsert({
-    where: { slug: 'motor-oil' },
+  const bodyCategory = await prisma.category.upsert({
+    where: { slug: 'body-oils' },
     update: {},
-    create: { name: 'Motor Oils', slug: 'motor-oil' }
+    create: { name: 'Body Oils', slug: 'body-oils' }
   })
 
-  const gearOilCategory = await prisma.category.upsert({
-    where: { slug: 'gear-oil' },
+  const serumsCategory = await prisma.category.upsert({
+    where: { slug: 'serums' },
     update: {},
-    create: { name: 'Gear Oils', slug: 'gear-oil' }
+    create: { name: 'Serums', slug: 'serums' }
   })
 
-  const transmissionOilCategory = await prisma.category.upsert({
-    where: { slug: 'transmission-oil' },
+  const moisturizersCategory = await prisma.category.upsert({
+    where: { slug: 'moisturizers' },
     update: {},
-    create: { name: 'Transmission Oils', slug: 'transmission-oil' }
+    create: { name: 'Moisturizers', slug: 'moisturizers' }
   })
 
-  const hydraulicOilCategory = await prisma.category.upsert({
-    where: { slug: 'hydraulic-oil' },
+  const cleansersCategory = await prisma.category.upsert({
+    where: { slug: 'cleansers' },
     update: {},
-    create: { name: 'Hydraulic Oils', slug: 'hydraulic-oil' }
+    create: { name: 'Cleansers', slug: 'cleansers' }
   })
 
-  const cookingOilCategory = await prisma.category.upsert({
-    where: { slug: 'cooking-oil' },
+  const treatmentsCategory = await prisma.category.upsert({
+    where: { slug: 'treatments' },
     update: {},
-    create: { name: 'Cooking Oils', slug: 'cooking-oil' }
+    create: { name: 'Treatments', slug: 'treatments' }
   })
 
   // Create Brands
-  const pureOilBrand = await prisma.brand.upsert({
-    where: { slug: 'pure-oil' },
+  const skin1stBrand = await prisma.brand.upsert({
+    where: { slug: 'skin1st' },
     update: {},
-    create: { name: 'Pure Oil Co', slug: 'pure-oil' }
+    create: { name: 'Skin1st', slug: 'skin1st' }
   })
 
-  const premiumOilBrand = await prisma.brand.upsert({
-    where: { slug: 'premium-oil' },
+  const pureBeautyBrand = await prisma.brand.upsert({
+    where: { slug: 'pure-beauty' },
     update: {},
-    create: { name: 'Premium Oil', slug: 'premium-oil' }
+    create: { name: 'Pure Beauty', slug: 'pure-beauty' }
   })
 
-  const eliteOilBrand = await prisma.brand.upsert({
-    where: { slug: 'elite-oil' },
+  const naturalGlowBrand = await prisma.brand.upsert({
+    where: { slug: 'natural-glow' },
     update: {},
-    create: { name: 'Elite Oil', slug: 'elite-oil' }
+    create: { name: 'Natural Glow', slug: 'natural-glow' }
   })
 
-  const naturalOilBrand = await prisma.brand.upsert({
-    where: { slug: 'natural-oil' },
+  const eliteSkincBrand = await prisma.brand.upsert({
+    where: { slug: 'elite-skincare' },
     update: {},
-    create: { name: 'Natural Oil', slug: 'natural-oil' }
+    create: { name: 'Elite Skincare', slug: 'elite-skincare' }
   })
 
-  // Create Products - Engine Oils
+  // Create Products
   const products = [
     {
-      name: 'Ultra Premium Engine Oil 5W-30',
-      slug: 'ultra-premium-engine-oil-5w30',
-      description: 'Premium synthetic engine oil for modern engines. Provides excellent protection and performance.',
-      categoryId: engineOilCategory.id,
-      brandId: pureOilBrand.id,
+      name: 'Vitamin C Brightening Serum',
+      slug: 'vitamin-c-brightening-serum',
+      description: 'A powerful Vitamin C serum that brightens skin, reduces dark spots, and evens out skin tone. Formulated with 15% L-Ascorbic Acid and Hyaluronic Acid for maximum effectiveness.',
+      categoryId: serumsCategory.id,
+      brandId: skin1stBrand.id,
       isNew: true,
       isBestSeller: true,
+      howToUse: '<p>Apply 3-4 drops to clean, dry skin in the morning. Gently pat onto face and neck, avoiding the eye area. Follow with moisturizer and sunscreen.</p>',
+      ingredients: '<p>Water, L-Ascorbic Acid (15%), Hyaluronic Acid, Vitamin E, Ferulic Acid, Glycerin, Aloe Vera Extract</p>',
       variants: [
-        { sku: 'UO-5W30-1L', name: '1L Bottle', price: 8500, discount: 500, stock: 50 },
-        { sku: 'UO-5W30-4L', name: '4L Jug', price: 30000, discount: 2000, stock: 20 }
+        { sku: 'VCS-30ML', name: '30ml Bottle', price: 4500, discount: 500, stock: 50 },
+        { sku: 'VCS-50ML', name: '50ml Bottle', price: 7000, discount: 1000, stock: 30 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Ultra Premium 5W-30' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600', alt: 'Vitamin C Brightening Serum' }]
     },
     {
-      name: 'Synthetic Motor Oil 10W-40',
-      slug: 'synthetic-motor-oil-10w40',
-      description: 'High-performance synthetic motor oil for all-season use. Excellent for high-mileage vehicles.',
-      categoryId: motorOilCategory.id,
-      brandId: premiumOilBrand.id,
-      isNew: true,
-      isBestSeller: false,
-      variants: [
-        { sku: 'SMO-10W40-1L', name: '1L Bottle', price: 7500, stock: 45 },
-        { sku: 'SMO-10W40-5L', name: '5L Container', price: 35000, discount: 3000, stock: 15 }
-      ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Synthetic Motor Oil 10W-40' }]
-    },
-    {
-      name: 'Heavy Duty Gear Oil 80W-90',
-      slug: 'heavy-duty-gear-oil-80w90',
-      description: 'Heavy-duty gear oil for manual transmissions and differentials. Provides superior protection.',
-      categoryId: gearOilCategory.id,
-      brandId: eliteOilBrand.id,
-      isNew: false,
-      isBestSeller: true,
-      variants: [
-        { sku: 'HDGO-80W90-1L', name: '1L Bottle', price: 9000, stock: 30 },
-        { sku: 'HDGO-80W90-4L', name: '4L Jug', price: 32000, discount: 2000, stock: 12 }
-      ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Heavy Duty Gear Oil' }]
-    },
-    {
-      name: 'Automatic Transmission Fluid',
-      slug: 'automatic-transmission-fluid',
-      description: 'Premium ATF for smooth shifting and extended transmission life. Compatible with most vehicles.',
-      categoryId: transmissionOilCategory.id,
-      brandId: pureOilBrand.id,
+      name: 'Hydrating Rose Face Oil',
+      slug: 'hydrating-rose-face-oil',
+      description: 'A luxurious facial oil infused with pure rose extract and rosehip oil. Deeply hydrates and nourishes skin while providing a radiant glow.',
+      categoryId: bodyCategory.id,
+      brandId: pureBeautyBrand.id,
       isNew: true,
       isBestSeller: false,
+      howToUse: '<p>Apply 4-5 drops to fingertips and gently massage onto face after cleansing. Can be used alone or mixed with moisturizer.</p>',
+      ingredients: '<p>Rosehip Seed Oil, Jojoba Oil, Rose Extract, Vitamin E, Evening Primrose Oil</p>',
       variants: [
-        { sku: 'ATF-1L', name: '1L Bottle', price: 12000, discount: 1000, stock: 40 },
-        { sku: 'ATF-4L', name: '4L Container', price: 45000, discount: 5000, stock: 18 }
+        { sku: 'HRFO-30ML', name: '30ml Bottle', price: 3500, stock: 45 },
+        { sku: 'HRFO-50ML', name: '50ml Bottle', price: 5500, discount: 500, stock: 25 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Automatic Transmission Fluid' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600', alt: 'Hydrating Rose Face Oil' }]
     },
     {
-      name: 'Hydraulic Oil ISO 46',
-      slug: 'hydraulic-oil-iso46',
-      description: 'High-quality hydraulic oil for industrial machinery and equipment. Excellent thermal stability.',
-      categoryId: hydraulicOilCategory.id,
-      brandId: premiumOilBrand.id,
+      name: 'Anti-Aging Night Cream',
+      slug: 'anti-aging-night-cream',
+      description: 'An intensive night cream with retinol and peptides that works while you sleep to reduce fine lines, wrinkles, and improve skin elasticity.',
+      categoryId: moisturizersCategory.id,
+      brandId: skin1stBrand.id,
       isNew: false,
       isBestSeller: true,
+      howToUse: '<p>Apply a generous amount to clean face and neck every evening. Gently massage in upward motions until fully absorbed.</p>',
+      ingredients: '<p>Retinol, Peptide Complex, Shea Butter, Hyaluronic Acid, Niacinamide, Vitamin E</p>',
       variants: [
-        { sku: 'HO-ISO46-5L', name: '5L Container', price: 28000, stock: 25 },
-        { sku: 'HO-ISO46-20L', name: '20L Drum', price: 100000, discount: 10000, stock: 8 }
+        { sku: 'AANC-50G', name: '50g Jar', price: 5500, discount: 1000, stock: 35 },
+        { sku: 'AANC-100G', name: '100g Jar', price: 9500, discount: 1500, stock: 20 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Hydraulic Oil ISO 46' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1570194065650-d99fb4b38b15?w=600', alt: 'Anti-Aging Night Cream' }]
     },
     {
-      name: 'Premium Cooking Oil - Sunflower',
-      slug: 'premium-cooking-oil-sunflower',
-      description: '100% pure sunflower oil. Rich in vitamin E, perfect for cooking and frying.',
-      categoryId: cookingOilCategory.id,
-      brandId: naturalOilBrand.id,
+      name: 'Gentle Foaming Cleanser',
+      slug: 'gentle-foaming-cleanser',
+      description: 'A gentle, pH-balanced foaming cleanser that effectively removes makeup, dirt, and impurities without stripping the skin of its natural oils.',
+      categoryId: cleansersCategory.id,
+      brandId: naturalGlowBrand.id,
+      isNew: false,
+      isBestSeller: false,
+      howToUse: '<p>Wet face with lukewarm water. Pump foam into hands and massage onto face in circular motions. Rinse thoroughly and pat dry.</p>',
+      ingredients: '<p>Coconut-derived Surfactants, Aloe Vera, Green Tea Extract, Chamomile, Glycerin</p>',
+      variants: [
+        { sku: 'GFC-150ML', name: '150ml Bottle', price: 2800, stock: 60 },
+        { sku: 'GFC-300ML', name: '300ml Bottle', price: 4800, discount: 500, stock: 40 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600', alt: 'Gentle Foaming Cleanser' }]
+    },
+    {
+      name: 'Hyaluronic Acid Moisturizer',
+      slug: 'hyaluronic-acid-moisturizer',
+      description: 'A lightweight, oil-free moisturizer with 3 types of Hyaluronic Acid for deep, long-lasting hydration. Perfect for all skin types.',
+      categoryId: moisturizersCategory.id,
+      brandId: skin1stBrand.id,
+      isNew: true,
+      isBestSeller: true,
+      howToUse: '<p>Apply to face and neck morning and evening after cleansing and toning. Gently pat until absorbed.</p>',
+      ingredients: '<p>Hyaluronic Acid (3 types), Ceramides, Squalane, Aloe Vera, Vitamin B5</p>',
+      variants: [
+        { sku: 'HAM-50ML', name: '50ml Bottle', price: 4200, discount: 700, stock: 55 },
+        { sku: 'HAM-100ML', name: '100ml Bottle', price: 7500, discount: 1000, stock: 30 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=600', alt: 'Hyaluronic Acid Moisturizer' }]
+    },
+    {
+      name: 'Tea Tree Spot Treatment',
+      slug: 'tea-tree-spot-treatment',
+      description: 'A fast-acting spot treatment with pure tea tree oil and salicylic acid that targets blemishes and reduces inflammation overnight.',
+      categoryId: treatmentsCategory.id,
+      brandId: pureBeautyBrand.id,
+      isNew: false,
+      isBestSeller: true,
+      howToUse: '<p>Apply a small amount directly onto blemishes before bed. Leave on overnight. Use 2-3 times per week or as needed.</p>',
+      ingredients: '<p>Tea Tree Oil, Salicylic Acid (2%), Niacinamide, Zinc, Aloe Vera</p>',
+      variants: [
+        { sku: 'TTST-15ML', name: '15ml Tube', price: 1800, stock: 80 },
+        { sku: 'TTST-30ML', name: '30ml Tube', price: 3200, discount: 400, stock: 50 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600', alt: 'Tea Tree Spot Treatment' }]
+    },
+    {
+      name: 'Collagen Boost Eye Cream',
+      slug: 'collagen-boost-eye-cream',
+      description: 'An advanced eye cream with marine collagen and caffeine that reduces puffiness, dark circles, and fine lines around the delicate eye area.',
+      categoryId: faceCategory.id,
+      brandId: skin1stBrand.id,
       isNew: true,
       isBestSeller: false,
+      howToUse: '<p>Gently dab a small amount around the eye area using your ring finger. Use morning and evening after serum.</p>',
+      ingredients: '<p>Marine Collagen, Caffeine, Vitamin K, Peptides, Hyaluronic Acid, Cucumber Extract</p>',
       variants: [
-        { sku: 'CO-SF-500ML', name: '500ml Bottle', price: 1500, stock: 100 },
-        { sku: 'CO-SF-1L', name: '1L Bottle', price: 2800, discount: 300, stock: 80 },
-        { sku: 'CO-SF-5L', name: '5L Container', price: 12000, discount: 2000, stock: 40 }
+        { sku: 'CBEC-15ML', name: '15ml Jar', price: 3200, discount: 400, stock: 40 },
+        { sku: 'CBEC-30ML', name: '30ml Jar', price: 5800, discount: 800, stock: 25 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', alt: 'Premium Sunflower Oil' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600', alt: 'Collagen Boost Eye Cream' }]
     },
     {
-      name: 'Extra Virgin Olive Oil',
-      slug: 'extra-virgin-olive-oil',
-      description: 'Cold-pressed extra virgin olive oil. Premium quality for salads and cooking.',
-      categoryId: cookingOilCategory.id,
-      brandId: naturalOilBrand.id,
+      name: 'Niacinamide Pore Minimizer',
+      slug: 'niacinamide-pore-minimizer',
+      description: 'A concentrated serum with 10% Niacinamide that minimizes pores, controls oil production, and improves skin texture for a smoother complexion.',
+      categoryId: serumsCategory.id,
+      brandId: naturalGlowBrand.id,
       isNew: true,
       isBestSeller: true,
+      howToUse: '<p>Apply a few drops to clean skin before moisturizer. Can be used morning and evening. Pairs well with Hyaluronic Acid.</p>',
+      ingredients: '<p>Niacinamide (10%), Zinc PCA, Hyaluronic Acid, Panthenol, Licorice Root Extract</p>',
       variants: [
-        { sku: 'EVOO-250ML', name: '250ml Bottle', price: 3500, discount: 500, stock: 60 },
-        { sku: 'EVOO-500ML', name: '500ml Bottle', price: 6500, discount: 1000, stock: 50 },
-        { sku: 'EVOO-1L', name: '1L Bottle', price: 12000, discount: 2000, stock: 30 }
+        { sku: 'NPM-30ML', name: '30ml Bottle', price: 3800, stock: 65 },
+        { sku: 'NPM-60ML', name: '60ml Bottle', price: 6800, discount: 1000, stock: 35 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', alt: 'Extra Virgin Olive Oil' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1617897903246-719242758050?w=600', alt: 'Niacinamide Pore Minimizer' }]
     },
     {
-      name: 'Premium Engine Oil 0W-20',
-      slug: 'premium-engine-oil-0w20',
-      description: 'Full synthetic engine oil for modern fuel-efficient engines. Low viscosity for better fuel economy.',
-      categoryId: engineOilCategory.id,
-      brandId: premiumOilBrand.id,
-      isNew: true,
+      name: 'Shea Butter Body Lotion',
+      slug: 'shea-butter-body-lotion',
+      description: 'A rich, nourishing body lotion with African Shea Butter and coconut oil that deeply moisturizes and softens dry skin.',
+      categoryId: bodyCategory.id,
+      brandId: naturalGlowBrand.id,
+      isNew: false,
+      isBestSeller: true,
+      howToUse: '<p>Apply generously to body after bathing while skin is still slightly damp. Massage until fully absorbed.</p>',
+      ingredients: '<p>Shea Butter, Coconut Oil, Vitamin E, Cocoa Butter, Aloe Vera, Sweet Almond Oil</p>',
+      variants: [
+        { sku: 'SBBL-200ML', name: '200ml Bottle', price: 2500, stock: 70 },
+        { sku: 'SBBL-400ML', name: '400ml Bottle', price: 4200, discount: 500, stock: 45 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600', alt: 'Shea Butter Body Lotion' }]
+    },
+    {
+      name: 'Exfoliating Face Scrub',
+      slug: 'exfoliating-face-scrub',
+      description: 'A gentle exfoliating scrub with natural walnut shell powder and papaya enzymes that removes dead skin cells and reveals brighter, smoother skin.',
+      categoryId: cleansersCategory.id,
+      brandId: eliteSkincBrand.id,
+      isNew: false,
       isBestSeller: false,
+      howToUse: '<p>Use 2-3 times per week on damp skin. Massage gently in circular motions, avoiding eye area. Rinse with lukewarm water.</p>',
+      ingredients: '<p>Walnut Shell Powder, Papaya Enzyme, Glycerin, Aloe Vera, Vitamin E, Jojoba Oil</p>',
       variants: [
-        { sku: 'PEO-0W20-1L', name: '1L Bottle', price: 9500, discount: 1000, stock: 35 },
-        { sku: 'PEO-0W20-5L', name: '5L Container', price: 42000, discount: 5000, stock: 15 }
+        { sku: 'EFS-100ML', name: '100ml Tube', price: 2200, stock: 55 },
+        { sku: 'EFS-200ML', name: '200ml Tube', price: 3800, discount: 400, stock: 35 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Premium Engine Oil 0W-20' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600', alt: 'Exfoliating Face Scrub' }]
     },
     {
-      name: 'Coconut Cooking Oil',
-      slug: 'coconut-cooking-oil',
-      description: 'Pure organic coconut oil. Great for cooking, baking, and skincare. Rich in healthy fats.',
-      categoryId: cookingOilCategory.id,
-      brandId: naturalOilBrand.id,
-      isNew: false,
+      name: 'Sunscreen SPF 50+',
+      slug: 'sunscreen-spf-50',
+      description: 'A lightweight, non-greasy sunscreen with SPF 50+ broad-spectrum protection. Water-resistant and suitable for all skin types.',
+      categoryId: faceCategory.id,
+      brandId: skin1stBrand.id,
+      isNew: true,
       isBestSeller: true,
+      howToUse: '<p>Apply generously 15 minutes before sun exposure. Reapply every 2 hours or after swimming/sweating.</p>',
+      ingredients: '<p>Zinc Oxide, Titanium Dioxide, Vitamin E, Aloe Vera, Green Tea Extract, Niacinamide</p>',
       variants: [
-        { sku: 'CCO-500ML', name: '500ml Jar', price: 3200, stock: 70 },
-        { sku: 'CCO-1L', name: '1L Jar', price: 6000, discount: 800, stock: 55 }
+        { sku: 'SS50-50ML', name: '50ml Tube', price: 3500, discount: 500, stock: 60 },
+        { sku: 'SS50-100ML', name: '100ml Tube', price: 6000, discount: 800, stock: 40 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600', alt: 'Coconut Cooking Oil' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1570194065650-d99fb4b38b15?w=600', alt: 'Sunscreen SPF 50+' }]
     },
     {
-      name: 'Diesel Engine Oil 15W-40',
-      slug: 'diesel-engine-oil-15w40',
-      description: 'Heavy-duty diesel engine oil for trucks and commercial vehicles. Superior protection.',
-      categoryId: engineOilCategory.id,
-      brandId: eliteOilBrand.id,
+      name: 'Retinol Anti-Wrinkle Serum',
+      slug: 'retinol-anti-wrinkle-serum',
+      description: 'A potent anti-aging serum with encapsulated retinol that reduces wrinkles, improves skin texture, and promotes cell turnover.',
+      categoryId: serumsCategory.id,
+      brandId: eliteSkincBrand.id,
       isNew: false,
       isBestSeller: true,
+      howToUse: '<p>Apply a few drops to clean skin every evening. Start with 2-3 times per week, gradually increasing frequency. Always use sunscreen during the day.</p>',
+      ingredients: '<p>Encapsulated Retinol (0.5%), Squalane, Vitamin E, Hyaluronic Acid, Bakuchiol</p>',
       variants: [
-        { sku: 'DEO-15W40-4L', name: '4L Jug', price: 28000, discount: 3000, stock: 20 },
-        { sku: 'DEO-15W40-20L', name: '20L Drum', price: 130000, discount: 15000, stock: 5 }
+        { sku: 'RAWS-30ML', name: '30ml Bottle', price: 5500, discount: 800, stock: 35 },
+        { sku: 'RAWS-50ML', name: '50ml Bottle', price: 8500, discount: 1500, stock: 20 }
       ],
-      images: [{ url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600', alt: 'Diesel Engine Oil 15W-40' }]
+      images: [{ url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600', alt: 'Retinol Anti-Wrinkle Serum' }]
     }
   ]
 
@@ -236,7 +286,7 @@ async function main() {
         where: { id: existingProduct.id },
         data: {
           ...productInfo,
-          updatedAt: new Date(), // Update timestamp to make it appear first
+          updatedAt: new Date(),
         }
       })
     } else {
@@ -265,13 +315,7 @@ async function main() {
       })
     }
 
-    // Create images (delete old ones first if updating)
-    if (existingProduct) {
-      await prisma.productImage.deleteMany({
-        where: { productId: product.id }
-      })
-    }
-    
+    // Create images
     for (const imageData of images) {
       await prisma.productImage.create({
         data: {
@@ -282,32 +326,44 @@ async function main() {
     }
   }
 
-  // Create demo admin and customer users
+  // Create demo admin user
   const adminPassword = await bcrypt.hash('AdminPass123!', 10)
   await prisma.user.upsert({
-    where: { email: 'admin@skin1st.test' },
+    where: { email: 'admin@skin1st.com' },
     update: {},
     create: {
-      email: 'admin@skin1st.test',
+      email: 'admin@skin1st.com',
       password: adminPassword,
       name: 'Admin',
       role: 'ADMIN'
     }
   })
 
+  // Create demo customer user
   const customerPassword = await bcrypt.hash('CustomerPass123!', 10)
   await prisma.user.upsert({
-    where: { email: 'jane@doe.test' },
+    where: { email: 'customer@test.com' },
     update: {},
     create: {
-      email: 'jane@doe.test',
+      email: 'customer@test.com',
       password: customerPassword,
-      name: 'Jane Doe',
+      name: 'Jane Customer',
       role: 'CUSTOMER'
     }
   })
 
-  console.log(`✅ Seeding completed! Created ${products.length} products.`)
+  console.log(`✅ Seeding completed!`)
+  console.log(`📦 Created ${products.length} beauty products`)
+  console.log(`🏷️ Created 6 categories: Face Care, Body Oils, Serums, Moisturizers, Cleansers, Treatments`)
+  console.log(`🏢 Created 4 brands: Skin1st, Pure Beauty, Natural Glow, Elite Skincare`)
+  console.log(``)
+  console.log(`👤 Admin Login:`)
+  console.log(`   Email: admin@skin1st.com`)
+  console.log(`   Password: AdminPass123!`)
+  console.log(``)
+  console.log(`👤 Customer Login:`)
+  console.log(`   Email: customer@test.com`)
+  console.log(`   Password: CustomerPass123!`)
 }
 
 main()
