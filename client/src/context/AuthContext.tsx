@@ -28,7 +28,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }){
         const cartRes = await api.get('/cart')
         const items = (cartRes.data.cart.items||[]).map((it:any)=>({ variantId: it.variantId, quantity: it.quantity }))
         cartStore.setItems(items)
-      }catch(e){ /* ignore */ }
+      }catch(e){ 
+        // Silently ignore auth errors (user not logged in)
+        // 405 is expected if no refresh token exists
+      }
     })()
   }, [])
 

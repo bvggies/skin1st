@@ -21,9 +21,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (sort === 'price_asc') orderBy['variants'] = { _min: { price: 'asc' } }
   if (sort === 'price_desc') orderBy['variants'] = { _max: { price: 'desc' } }
 
-  const total = await prisma.product.count({ where })
+  // Only get products that have variants (can be purchased)
+  const whereWithVariants = {
+    ...where,
+    variants: {
+      some: {} // At least one variant exists
+    }
+  }
+
+  const total = await prisma.product.count({ where: whereWithVariants })
   const products = await prisma.product.findMany({
-    where,
+    where: whereWithVariants,
     include: { images: true, variants: true, brand: true, category: true },
     skip: (page - 1) * perPage,
     take: perPage,

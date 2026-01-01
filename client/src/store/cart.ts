@@ -1,11 +1,11 @@
-import create from 'zustand'
+import { create } from 'zustand'
 import api from '../api/axios'
 
 type CartItem = { variantId: string; quantity: number }
 
 type State = { items: CartItem[]; setItems: (items: CartItem[]) => void; add: (item: CartItem) => Promise<void>; remove: (variantId: string) => Promise<void>; update: (variantId: string, qty: number) => Promise<void>; clear: () => Promise<void> }
 
-const useCart = create<State>((set,get)=>({
+const useCart = create<State>((set, get) => ({
   items: [],
   setItems(items){
     set({ items })
