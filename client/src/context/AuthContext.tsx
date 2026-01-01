@@ -28,9 +28,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }){
         const cartRes = await api.get('/cart')
         const items = (cartRes.data.cart.items||[]).map((it:any)=>({ variantId: it.variantId, quantity: it.quantity }))
         cartStore.setItems(items)
-      }catch(e){ 
+      }catch(e: any){ 
         // Silently ignore auth errors (user not logged in)
-        // 405 is expected if no refresh token exists
+        // 405/401 errors are expected when no refresh token exists (first visit)
+        // Only log unexpected errors
+        if (e?.response?.status !== 405 && e?.response?.status !== 401) {
+          console.error('Unexpected auth error:', e)
+        }
       }
     })()
   }, [])
