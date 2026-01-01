@@ -16,6 +16,11 @@
     }
   ],
   "routes": [
+    { "src": "/api/auth/refresh", "dest": "/api/auth/refresh.ts", "methods": ["POST", "OPTIONS"] },
+    { "src": "/api/auth/login", "dest": "/api/auth/login.ts", "methods": ["POST", "OPTIONS"] },
+    { "src": "/api/auth/logout", "dest": "/api/auth/logout.ts", "methods": ["POST", "OPTIONS"] },
+    { "src": "/api/auth/me", "dest": "/api/auth/me.ts", "methods": ["GET", "OPTIONS"] },
+    { "src": "/api/auth/register", "dest": "/api/auth/register.ts", "methods": ["POST", "OPTIONS"] },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/client/index.html" }
   ]
