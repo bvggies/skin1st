@@ -146,65 +146,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   yPos += 25
 
-  // Customer details box
-  doc.rect(50, yPos, 240, 120)
+  // Calculate box height based on content
+  let customerBoxHeight = 100 // Base height
+  if (order.alternativePhone) customerBoxHeight += 25
+  if (order.user?.email) customerBoxHeight += 25
+
+  // Customer details box (left side)
+  doc.rect(50, yPos, 240, customerBoxHeight)
     .fillColor('#f8f9fa')
     .fill()
     .strokeColor('#e0e0e0')
     .lineWidth(1)
     .stroke()
 
-  let customerY = yPos + 15
-  doc.fontSize(10)
+  let customerY = yPos + 12
+  doc.fontSize(9)
     .fillColor('#666666')
+    .font('Helvetica')
     .text('Customer Name:', 60, customerY)
   doc.fontSize(11)
     .fillColor('#000000')
     .font('Helvetica-Bold')
-    .text(order.customerName || order.user?.name || 'Guest Customer', 60, customerY + 12)
+    .text(order.customerName || order.user?.name || 'Guest Customer', 60, customerY + 10, { width: 220 })
 
-  customerY += 30
-  doc.fontSize(10)
+  customerY += 28
+  doc.fontSize(9)
     .fillColor('#666666')
+    .font('Helvetica')
     .text('Phone:', 60, customerY)
-  doc.fontSize(11)
+  doc.fontSize(10)
     .fillColor('#000000')
-    .text(order.phone || 'N/A', 60, customerY + 12)
+    .font('Helvetica')
+    .text(order.phone || 'N/A', 60, customerY + 10, { width: 220 })
 
   if (order.alternativePhone) {
-    customerY += 20
-    doc.fontSize(10)
+    customerY += 22
+    doc.fontSize(9)
       .fillColor('#666666')
+      .font('Helvetica')
       .text('Alt. Phone:', 60, customerY)
-    doc.fontSize(11)
+    doc.fontSize(10)
       .fillColor('#000000')
-      .text(order.alternativePhone, 60, customerY + 12)
+      .font('Helvetica')
+      .text(order.alternativePhone, 60, customerY + 10, { width: 220 })
   }
 
   if (order.user?.email) {
-    customerY += 20
-    doc.fontSize(10)
+    customerY += 22
+    doc.fontSize(9)
       .fillColor('#666666')
+      .font('Helvetica')
       .text('Email:', 60, customerY)
-    doc.fontSize(11)
+    doc.fontSize(10)
       .fillColor('#000000')
-      .text(order.user.email, 60, customerY + 12)
+      .font('Helvetica')
+      .text(order.user.email, 60, customerY + 10, { width: 220 })
   }
 
-  // Delivery address box
-  doc.rect(300, yPos, 245, 120)
-    .fillColor('#fff5f5')
-    .fill()
-    .strokeColor('#e0e0e0')
-    .lineWidth(1)
-    .stroke()
-
-  let addressY = yPos + 15
-  doc.fontSize(10)
-    .fillColor('#666666')
-    .text('DELIVERY ADDRESS:', 310, addressY)
-
-  addressY += 15
+  // Delivery address box (right side)
   const addressLines = [
     order.area || '',
     order.city || '',
@@ -213,22 +212,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     order.deliveryAddr || ''
   ].filter(Boolean)
 
-  doc.fontSize(11)
-    .fillColor('#000000')
-    .font('Helvetica-Bold')
-    .text(addressLines.join('\n'), 310, addressY, { width: 225, lineGap: 5 })
+  let addressBoxHeight = 15 + (addressLines.length * 12) + 10
+  if (order.deliveryNotes) addressBoxHeight += 25
+  addressBoxHeight = Math.max(addressBoxHeight, customerBoxHeight) // Match customer box height
 
-  if (order.deliveryNotes) {
-    addressY += addressLines.length * 15 + 10
-    doc.fontSize(9)
-      .fillColor('#666666')
-      .text('Notes:', 310, addressY)
+  doc.rect(300, yPos, 245, addressBoxHeight)
+    .fillColor('#fff5f5')
+    .fill()
+    .strokeColor('#e0e0e0')
+    .lineWidth(1)
+    .stroke()
+
+  let addressY = yPos + 12
+  doc.fontSize(9)
+    .fillColor('#666666')
+    .font('Helvetica-Bold')
+    .text('DELIVERY ADDRESS:', 310, addressY)
+
+  addressY += 15
+  if (addressLines.length > 0) {
     doc.fontSize(10)
       .fillColor('#000000')
-      .text(order.deliveryNotes, 310, addressY + 12, { width: 225 })
+      .font('Helvetica')
+      .text(addressLines.join('\n'), 310, addressY, { width: 225, lineGap: 4 })
+    addressY += addressLines.length * 12 + 5
+  } else {
+    doc.fontSize(10)
+      .fillColor('#000000')
+      .font('Helvetica')
+      .text(order.deliveryAddr || 'N/A', 310, addressY, { width: 225 })
+    addressY += 15
   }
 
-  yPos += 140
+  if (order.deliveryNotes) {
+    addressY += 5
+    doc.fontSize(9)
+      .fillColor('#666666')
+      .font('Helvetica')
+      .text('Notes:', 310, addressY)
+    doc.fontSize(9)
+      .fillColor('#000000')
+      .font('Helvetica')
+      .text(order.deliveryNotes, 310, addressY + 10, { width: 225 })
+  }
+
+  yPos += Math.max(customerBoxHeight, addressBoxHeight) + 15
 
   // Divider
   doc.moveTo(50, yPos)
@@ -286,8 +314,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .font('Helvetica')
       .fillColor('#000000')
       .text(`× ${item.quantity}`, 300, yPos + 8)
-      .text(`₵${(item.unitPrice / 100).toFixed(2)}`, 380, yPos + 8)
-      .text(`₵${((item.unitPrice * item.quantity) / 100).toFixed(2)}`, 460, yPos + 8, { align: 'right' })
+      .text(`Ghs ${(item.unitPrice / 100).toFixed(2)}`, 380, yPos + 8)
+      .text(`Ghs ${((item.unitPrice * item.quantity) / 100).toFixed(2)}`, 460, yPos + 8, { align: 'right' })
 
     yPos += itemHeight
   })
@@ -317,7 +345,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   doc.fontSize(24)
     .font('Helvetica-Bold')
     .fillColor('#e94560')
-    .text(`₵${(order.total / 100).toFixed(2)}`, 360, yPos + 30, { align: 'right', width: 175 })
+    .text(`Ghs ${(order.total / 100).toFixed(2)}`, 360, yPos + 30, { align: 'right', width: 175 })
 
   yPos += 80
 
@@ -347,7 +375,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const instructions = [
     '1. Verify customer identity before delivery',
-    '2. Collect payment amount: ₵' + (order.total / 100).toFixed(2),
+    '2. Collect payment amount: Ghs ' + (order.total / 100).toFixed(2),
     '3. Confirm delivery address matches the information above',
     '4. Contact customer if address is unclear',
     '5. Mark order as DELIVERED after successful delivery',
