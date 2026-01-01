@@ -27,9 +27,14 @@ export default function Login() {
 
   async function onSubmit(data: any) {
     try {
-      await auth.login(data.email, data.password)
+      const result = await auth.login(data.email, data.password)
       toast.success('Logged in')
-      navigate('/')
+      // Redirect admins to admin dashboard, regular users to home
+      if (result?.user?.role === 'ADMIN') {
+        navigate('/admin/orders')
+      } else {
+        navigate('/')
+      }
     } catch (e: any) {
       console.error(e)
       toast.error('Login failed')
@@ -41,6 +46,9 @@ export default function Login() {
       <Paper sx={{ p: 4, mt: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
           Login
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Admin users can login here to access the admin dashboard.
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
           <TextField

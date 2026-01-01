@@ -152,6 +152,11 @@ export default function Footer() {
                   Money-Back Guarantee
                 </MuiLink>
               </li>
+              <li>
+                <MuiLink component={Link} to="/login" color="primary" underline="hover" sx={{ display: 'block', mb: 1, fontWeight: 500 }}>
+                  Admin Login
+                </MuiLink>
+              </li>
             </Box>
           </Grid>
         </Grid>
