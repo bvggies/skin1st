@@ -16,26 +16,118 @@ import {
   Paper,
   Rating,
   Skeleton,
+  Avatar,
 } from '@mui/material'
 import {
-  ShoppingBag,
   LocalShipping,
   Security,
   FavoriteBorder,
   ArrowForward,
   SupportAgent,
   Autorenew,
+  Spa,
+  Face,
+  Opacity,
+  WaterDrop,
+  Sanitizer,
+  AutoAwesome,
 } from '@mui/icons-material'
 import api from '../api/axios'
 import Newsletter from '../components/Newsletter'
 
+// Sample categories with icons for display
+const sampleCategories = [
+  { id: '1', name: 'Face Care', slug: 'face-care', icon: Face, color: '#e94560' },
+  { id: '2', name: 'Body Oils', slug: 'body-oils', icon: Opacity, color: '#10b981' },
+  { id: '3', name: 'Serums', slug: 'serums', icon: WaterDrop, color: '#6366f1' },
+  { id: '4', name: 'Moisturizers', slug: 'moisturizers', icon: Spa, color: '#f59e0b' },
+  { id: '5', name: 'Cleansers', slug: 'cleansers', icon: Sanitizer, color: '#ec4899' },
+  { id: '6', name: 'Treatments', slug: 'treatments', icon: AutoAwesome, color: '#8b5cf6' },
+]
+
+// Sample products for display when API is empty
+const sampleProducts = [
+  {
+    id: '1',
+    name: 'Vitamin C Brightening Serum',
+    slug: 'vitamin-c-serum',
+    brand: { name: 'Skin1st' },
+    images: [{ url: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80' }],
+    variants: [{ price: 4500, discount: 500 }],
+    isNew: true,
+    isBestSeller: true,
+  },
+  {
+    id: '2',
+    name: 'Hydrating Rose Face Oil',
+    slug: 'rose-face-oil',
+    brand: { name: 'Pure Beauty' },
+    images: [{ url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80' }],
+    variants: [{ price: 3500, discount: 0 }],
+    isNew: true,
+  },
+  {
+    id: '3',
+    name: 'Anti-Aging Night Cream',
+    slug: 'anti-aging-cream',
+    brand: { name: 'Skin1st' },
+    images: [{ url: 'https://images.unsplash.com/photo-1570194065650-d99fb4b38b15?w=400&q=80' }],
+    variants: [{ price: 5500, discount: 1000 }],
+    isBestSeller: true,
+  },
+  {
+    id: '4',
+    name: 'Gentle Foaming Cleanser',
+    slug: 'foaming-cleanser',
+    brand: { name: 'Natural Glow' },
+    images: [{ url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80' }],
+    variants: [{ price: 2800, discount: 0 }],
+  },
+  {
+    id: '5',
+    name: 'Hyaluronic Acid Moisturizer',
+    slug: 'hyaluronic-moisturizer',
+    brand: { name: 'Skin1st' },
+    images: [{ url: 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80' }],
+    variants: [{ price: 4200, discount: 700 }],
+    isNew: true,
+  },
+  {
+    id: '6',
+    name: 'Tea Tree Spot Treatment',
+    slug: 'tea-tree-treatment',
+    brand: { name: 'Pure Beauty' },
+    images: [{ url: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=400&q=80' }],
+    variants: [{ price: 1800, discount: 0 }],
+    isBestSeller: true,
+  },
+  {
+    id: '7',
+    name: 'Collagen Boost Eye Cream',
+    slug: 'collagen-eye-cream',
+    brand: { name: 'Skin1st' },
+    images: [{ url: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=400&q=80' }],
+    variants: [{ price: 3200, discount: 400 }],
+  },
+  {
+    id: '8',
+    name: 'Niacinamide Pore Minimizer',
+    slug: 'niacinamide-serum',
+    brand: { name: 'Natural Glow' },
+    images: [{ url: 'https://images.unsplash.com/photo-1617897903246-719242758050?w=400&q=80' }],
+    variants: [{ price: 3800, discount: 0 }],
+    isNew: true,
+    isBestSeller: true,
+  },
+]
+
 export default function Home() {
-  const { data: categories } = useQuery(['categories'], async () => {
+  const { data: categoriesData } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
     return res.data.categories || []
   })
 
-  const { data: featured, isLoading: featuredLoading } = useQuery(
+  const { data: productsData, isLoading: productsLoading } = useQuery(
     ['products', 'featured'],
     async () => {
       const res = await api.get('/products?perPage=8')
@@ -43,23 +135,9 @@ export default function Home() {
     }
   )
 
-  const { data: bestSellers, isLoading: bestSellersLoading } = useQuery(
-    ['products', 'bestsellers'],
-    async () => {
-      const res = await api.get('/products?perPage=12')
-      const products = res.data.products || []
-      return products.filter((p: any) => p.isBestSeller).slice(0, 4)
-    }
-  )
-
-  const { data: newProducts, isLoading: newProductsLoading } = useQuery(
-    ['products', 'new'],
-    async () => {
-      const res = await api.get('/products?perPage=12')
-      const products = res.data.products || []
-      return products.filter((p: any) => p.isNew).slice(0, 4)
-    }
-  )
+  // Use API data if available, otherwise use sample data
+  const categories = categoriesData && categoriesData.length > 0 ? categoriesData : sampleCategories
+  const products = productsData && productsData.length > 0 ? productsData : sampleProducts
 
   // Product Card Component
   const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) => {
@@ -108,8 +186,8 @@ export default function Home() {
           <Link to={`/product/${product.slug}`}>
             <CardMedia
               component="img"
-              height="260"
-              image={product.images?.[0]?.url || 'https://placehold.co/400x300?text=Product'}
+              height="240"
+              image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80'}
               alt={product.name}
               className="product-image"
               sx={{
@@ -245,7 +323,7 @@ export default function Home() {
   // Skeleton Card
   const SkeletonProductCard = () => (
     <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
-      <Skeleton variant="rectangular" height={260} />
+      <Skeleton variant="rectangular" height={240} />
       <CardContent>
         <Skeleton variant="text" width="40%" height={16} />
         <Skeleton variant="text" width="80%" height={24} sx={{ mt: 1 }} />
@@ -255,92 +333,89 @@ export default function Home() {
     </Card>
   )
 
-  // Category Card
-  const CategoryCard = ({ category, index }: { category: any; index: number }) => (
-    <Card
-      component={Link}
-      to={`/shop?category=${category.slug}`}
-      sx={{
-        textAlign: 'center',
-        p: 3,
-        textDecoration: 'none',
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'grey.100',
-        boxShadow: 'none',
-        transition: 'all 0.3s ease',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        animation: `fadeInUp 0.5s ease-out ${index * 0.08}s both`,
-        '@keyframes fadeInUp': {
-          from: { opacity: 0, transform: 'translateY(20px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-        '&:hover': {
-          borderColor: 'primary.main',
-          boxShadow: '0 12px 40px rgba(26,26,46,0.15)',
-          transform: 'translateY(-6px)',
-          '& .category-icon': {
-            bgcolor: 'primary.main',
-            color: 'white',
-            transform: 'scale(1.1)',
-          },
-        },
-      }}
-    >
-      <Box
-        className="category-icon"
+  // Category Card with Icon
+  const CategoryCard = ({ category, index }: { category: any; index: number }) => {
+    const IconComponent = category.icon || Spa
+    const iconColor = category.color || '#e94560'
+    
+    return (
+      <Card
+        component={Link}
+        to={`/shop?category=${category.slug}`}
         sx={{
-          width: 72,
-          height: 72,
-          borderRadius: '50%',
-          bgcolor: 'grey.100',
+          textAlign: 'center',
+          p: 3,
+          textDecoration: 'none',
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'grey.100',
+          boxShadow: 'none',
+          transition: 'all 0.3s ease',
+          height: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          mb: 2,
-          transition: 'all 0.3s ease',
+          animation: `fadeInUp 0.5s ease-out ${index * 0.08}s both`,
+          '@keyframes fadeInUp': {
+            from: { opacity: 0, transform: 'translateY(20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+          '&:hover': {
+            borderColor: iconColor,
+            boxShadow: `0 12px 40px ${iconColor}25`,
+            transform: 'translateY(-6px)',
+            '& .category-icon': {
+              bgcolor: iconColor,
+              color: 'white',
+              transform: 'scale(1.1) rotate(5deg)',
+            },
+          },
         }}
       >
-        <ShoppingBag sx={{ fontSize: 32, color: 'primary.main' }} />
-      </Box>
-      <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-        {category.name}
-      </Typography>
-    </Card>
-  )
+        <Avatar
+          className="category-icon"
+          sx={{
+            width: 72,
+            height: 72,
+            bgcolor: `${iconColor}15`,
+            color: iconColor,
+            mb: 2,
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <IconComponent sx={{ fontSize: 32 }} />
+        </Avatar>
+        <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+          {category.name}
+        </Typography>
+      </Card>
+    )
+  }
 
   // Feature Card
   const FeatureCard = ({ icon, title, description, index }: { icon: React.ReactNode; title: string; description: string; index: number }) => (
     <Paper
       elevation={0}
       sx={{
-        p: 4,
+        p: 3,
         textAlign: 'center',
         borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'grey.100',
+        bgcolor: 'white',
         height: '100%',
         transition: 'all 0.3s ease',
         animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
-        '@keyframes fadeInUp': {
-          from: { opacity: 0, transform: 'translateY(20px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         '&:hover': {
-          borderColor: 'transparent',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.1)',
           transform: 'translateY(-4px)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.12)',
         },
       }}
     >
       <Box
         sx={{
-          width: 64,
-          height: 64,
+          width: 56,
+          height: 56,
           borderRadius: 2,
           bgcolor: 'primary.main',
           display: 'flex',
@@ -353,7 +428,7 @@ export default function Home() {
       >
         {icon}
       </Box>
-      <Typography variant="h6" fontWeight={600} gutterBottom>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
         {title}
       </Typography>
       <Typography variant="body2" color="text.secondary">
@@ -363,10 +438,10 @@ export default function Home() {
   )
 
   const features = [
-    { icon: <LocalShipping sx={{ fontSize: 28 }} />, title: 'Free Delivery', description: 'Fast 1-3 days delivery on all orders' },
-    { icon: <Security sx={{ fontSize: 28 }} />, title: 'Secure Payment', description: 'Safe & secure checkout with COD' },
-    { icon: <Autorenew sx={{ fontSize: 28 }} />, title: 'Money Back', description: '100% money-back guarantee' },
-    { icon: <SupportAgent sx={{ fontSize: 28 }} />, title: '24/7 Support', description: 'WhatsApp support anytime' },
+    { icon: <LocalShipping sx={{ fontSize: 26 }} />, title: 'Free Delivery', description: '1-3 days delivery' },
+    { icon: <Security sx={{ fontSize: 26 }} />, title: 'Secure Payment', description: 'Cash on delivery' },
+    { icon: <Autorenew sx={{ fontSize: 26 }} />, title: 'Money Back', description: '100% guarantee' },
+    { icon: <SupportAgent sx={{ fontSize: 26 }} />, title: '24/7 Support', description: 'WhatsApp support' },
   ]
 
   return (
@@ -376,8 +451,8 @@ export default function Home() {
         sx={{
           background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
           color: 'white',
-          pt: { xs: 8, md: 12 },
-          pb: { xs: 10, md: 14 },
+          pt: { xs: 6, md: 10 },
+          pb: { xs: 12, md: 16 },
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -408,37 +483,27 @@ export default function Home() {
             filter: 'blur(60px)',
           }}
         />
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-10%',
-            width: 500,
-            height: 500,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(15,52,96,0.5) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
-              <Box sx={{ animation: 'slideInLeft 0.8s ease-out' }}>
-                <Chip
-                  label="✨ Premium Quality Products"
+              <Box sx={{ animation: 'slideInLeft 0.8s ease-out', '@keyframes slideInLeft': { from: { opacity: 0, transform: 'translateX(-40px)' }, to: { opacity: 1, transform: 'translateX(0)' } } }}>
+                {/* Logo in Hero */}
+                <Box
+                  component="img"
+                  src="/skin1st.png"
+                  alt="Skin1st"
                   sx={{
-                    bgcolor: 'rgba(233,69,96,0.2)',
-                    color: '#ff6b8a',
-                    fontWeight: 600,
+                    height: 60,
+                    width: 'auto',
                     mb: 3,
-                    border: '1px solid rgba(233,69,96,0.3)',
+                    filter: 'brightness(0) invert(1)',
                   }}
                 />
                 <Typography
                   variant="h1"
                   sx={{
-                    fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                    fontSize: { xs: '2.25rem', md: '3rem', lg: '3.5rem' },
                     fontWeight: 800,
                     lineHeight: 1.1,
                     mb: 3,
@@ -473,7 +538,7 @@ export default function Home() {
                       bgcolor: '#e94560',
                       color: 'white',
                       px: 4,
-                      py: 1.75,
+                      py: 1.5,
                       fontSize: '1rem',
                       fontWeight: 600,
                       borderRadius: 2,
@@ -496,7 +561,7 @@ export default function Home() {
                       borderColor: 'rgba(255,255,255,0.4)',
                       color: 'white',
                       px: 4,
-                      py: 1.75,
+                      py: 1.5,
                       fontSize: '1rem',
                       fontWeight: 600,
                       borderRadius: 2,
@@ -509,20 +574,6 @@ export default function Home() {
                     Contact Us
                   </Button>
                 </Stack>
-
-                {/* Trust badges */}
-                <Stack direction="row" spacing={3} sx={{ mt: 5 }}>
-                  {[
-                    { value: '10K+', label: 'Happy Customers' },
-                    { value: '500+', label: 'Products' },
-                    { value: '4.9', label: 'Rating' },
-                  ].map((stat, i) => (
-                    <Box key={i}>
-                      <Typography variant="h5" fontWeight={700}>{stat.value}</Typography>
-                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>{stat.label}</Typography>
-                    </Box>
-                  ))}
-                </Stack>
               </Box>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -534,21 +585,6 @@ export default function Home() {
                     from: { opacity: 0, transform: 'translateX(40px)' },
                     to: { opacity: 1, transform: 'translateX(0)' },
                   },
-                  '@keyframes slideInLeft': {
-                    from: { opacity: 0, transform: 'translateX(-40px)' },
-                    to: { opacity: 1, transform: 'translateX(0)' },
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '10%',
-                    left: '10%',
-                    right: '-5%',
-                    bottom: '-5%',
-                    borderRadius: 4,
-                    bgcolor: 'rgba(233,69,96,0.2)',
-                    zIndex: 0,
-                  },
                 }}
               >
                 <Box
@@ -557,11 +593,9 @@ export default function Home() {
                   alt="Beauty Products"
                   sx={{
                     width: '100%',
-                    height: { xs: 320, md: 450 },
+                    height: { xs: 280, md: 400 },
                     objectFit: 'cover',
                     borderRadius: 4,
-                    position: 'relative',
-                    zIndex: 1,
                     boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
                   }}
                 />
@@ -571,9 +605,9 @@ export default function Home() {
         </Container>
       </Box>
 
-      {/* Features Section */}
-      <Container maxWidth="lg" sx={{ mt: -6, position: 'relative', zIndex: 10 }}>
-        <Grid container spacing={3}>
+      {/* Features Section - Overlapping */}
+      <Container maxWidth="lg" sx={{ mt: { xs: -6, md: -8 }, position: 'relative', zIndex: 10, mb: 6 }}>
+        <Grid container spacing={2}>
           {features.map((feature, index) => (
             <Grid item xs={6} md={3} key={index}>
               <FeatureCard {...feature} index={index} />
@@ -583,100 +617,88 @@ export default function Home() {
       </Container>
 
       {/* Categories Section */}
-      {categories && categories.length > 0 && (
-        <Box sx={{ py: { xs: 8, md: 12 } }}>
-          <Container maxWidth="lg">
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#fafafa' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography
+              variant="overline"
+              sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
+            >
+              Categories
+            </Typography>
+            <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
+              Shop by Category
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: 500, mx: 'auto' }}>
+              Explore our wide range of premium beauty products
+            </Typography>
+          </Box>
+          <Grid container spacing={3}>
+            {categories.slice(0, 6).map((category: any, index: number) => (
+              <Grid item xs={6} sm={4} md={2} key={category.id || index}>
+                <CategoryCard category={category} index={index} />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Featured Products */}
+      <Box sx={{ py: { xs: 6, md: 8 } }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mb: 4 }}>
+            <Box>
               <Typography
                 variant="overline"
                 sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
               >
-                Categories
+                Our Collection
               </Typography>
               <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
-                Shop by Category
+                Featured Products
               </Typography>
             </Box>
-            <Grid container spacing={3}>
-              {categories.slice(0, 6).map((category: any, index: number) => (
-                <Grid item xs={6} sm={4} md={2} key={category.id}>
-                  <CategoryCard category={category} index={index} />
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        </Box>
-      )}
-
-      {/* Featured Products */}
-      {featured && featured.length > 0 && (
-        <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: 'grey.50' }}>
-          <Container maxWidth="lg">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mb: 5 }}>
-              <Box>
-                <Typography
-                  variant="overline"
-                  sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
-                >
-                  Our Collection
-                </Typography>
-                <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
-                  Featured Products
-                </Typography>
-              </Box>
-              <Button
-                component={Link}
-                to="/shop"
-                variant="outlined"
-                endIcon={<ArrowForward />}
-                sx={{ display: { xs: 'none', sm: 'flex' } }}
-              >
-                View All
-              </Button>
-            </Box>
-            <Grid container spacing={3}>
-              {featuredLoading
-                ? Array.from({ length: 8 }).map((_, i) => (
-                    <Grid item xs={6} sm={4} md={3} key={i}>
-                      <SkeletonProductCard />
-                    </Grid>
-                  ))
-                : featured.slice(0, 8).map((product: any, index: number) => (
-                    <Grid item xs={6} sm={4} md={3} key={product.id}>
-                      <ProductCard product={product} index={index} />
-                    </Grid>
-                  ))}
-            </Grid>
-            <Box sx={{ textAlign: 'center', mt: 4, display: { xs: 'block', sm: 'none' } }}>
-              <Button component={Link} to="/shop" variant="contained" endIcon={<ArrowForward />}>
-                View All Products
-              </Button>
-            </Box>
-          </Container>
-        </Box>
-      )}
+            <Button
+              component={Link}
+              to="/shop"
+              variant="outlined"
+              endIcon={<ArrowForward />}
+              sx={{ display: { xs: 'none', sm: 'flex' } }}
+            >
+              View All
+            </Button>
+          </Box>
+          <Grid container spacing={3}>
+            {productsLoading
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <Grid item xs={6} sm={4} md={3} key={i}>
+                    <SkeletonProductCard />
+                  </Grid>
+                ))
+              : products.slice(0, 8).map((product: any, index: number) => (
+                  <Grid item xs={6} sm={4} md={3} key={product.id}>
+                    <ProductCard product={product} index={index} />
+                  </Grid>
+                ))}
+          </Grid>
+          <Box sx={{ textAlign: 'center', mt: 4, display: { xs: 'block', sm: 'none' } }}>
+            <Button component={Link} to="/shop" variant="contained" endIcon={<ArrowForward />}>
+              View All Products
+            </Button>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Promo Banner */}
       <Box
         sx={{
-          py: { xs: 8, md: 10 },
+          py: { xs: 6, md: 8 },
           background: 'linear-gradient(135deg, #e94560 0%, #ff6b8a 100%)',
           color: 'white',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: '50%',
-            opacity: 0.1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-          }}
-        />
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Grid container spacing={4} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={8} sx={{ textAlign: 'center' }}>
@@ -696,7 +718,7 @@ export default function Home() {
                   bgcolor: 'white',
                   color: '#e94560',
                   px: 5,
-                  py: 1.75,
+                  py: 1.5,
                   fontWeight: 700,
                   '&:hover': {
                     bgcolor: 'white',
@@ -713,93 +735,42 @@ export default function Home() {
       </Box>
 
       {/* Best Sellers */}
-      {bestSellers && bestSellers.length > 0 && (
-        <Box sx={{ py: { xs: 8, md: 10 } }}>
-          <Container maxWidth="lg">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mb: 5 }}>
-              <Box>
-                <Typography
-                  variant="overline"
-                  sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
-                >
-                  Top Rated
-                </Typography>
-                <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
-                  Best Sellers
-                </Typography>
-              </Box>
-              <Button
-                component={Link}
-                to="/shop"
-                variant="outlined"
-                endIcon={<ArrowForward />}
-                sx={{ display: { xs: 'none', sm: 'flex' } }}
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: '#fafafa' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mb: 4 }}>
+            <Box>
+              <Typography
+                variant="overline"
+                sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
               >
-                View All
-              </Button>
+                Top Rated
+              </Typography>
+              <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
+                Best Sellers
+              </Typography>
             </Box>
-            <Grid container spacing={3}>
-              {bestSellersLoading
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <Grid item xs={6} md={3} key={i}>
-                      <SkeletonProductCard />
-                    </Grid>
-                  ))
-                : bestSellers.map((product: any, index: number) => (
-                    <Grid item xs={6} md={3} key={product.id}>
-                      <ProductCard product={product} index={index} />
-                    </Grid>
-                  ))}
-            </Grid>
-          </Container>
-        </Box>
-      )}
-
-      {/* New Arrivals */}
-      {newProducts && newProducts.length > 0 && (
-        <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: 'grey.50' }}>
-          <Container maxWidth="lg">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mb: 5 }}>
-              <Box>
-                <Typography
-                  variant="overline"
-                  sx={{ color: 'secondary.main', fontWeight: 600, letterSpacing: '0.1em' }}
-                >
-                  Just In
-                </Typography>
-                <Typography variant="h3" fontWeight={700} sx={{ mt: 1 }}>
-                  New Arrivals
-                </Typography>
-              </Box>
-              <Button
-                component={Link}
-                to="/shop"
-                variant="outlined"
-                endIcon={<ArrowForward />}
-                sx={{ display: { xs: 'none', sm: 'flex' } }}
-              >
-                View All
-              </Button>
-            </Box>
-            <Grid container spacing={3}>
-              {newProductsLoading
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <Grid item xs={6} md={3} key={i}>
-                      <SkeletonProductCard />
-                    </Grid>
-                  ))
-                : newProducts.map((product: any, index: number) => (
-                    <Grid item xs={6} md={3} key={product.id}>
-                      <ProductCard product={product} index={index} />
-                    </Grid>
-                  ))}
-            </Grid>
-          </Container>
-        </Box>
-      )}
+            <Button
+              component={Link}
+              to="/shop"
+              variant="outlined"
+              endIcon={<ArrowForward />}
+              sx={{ display: { xs: 'none', sm: 'flex' } }}
+            >
+              View All
+            </Button>
+          </Box>
+          <Grid container spacing={3}>
+            {products.filter((p: any) => p.isBestSeller).slice(0, 4).map((product: any, index: number) => (
+              <Grid item xs={6} md={3} key={product.id}>
+                <ProductCard product={product} index={index} />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
 
       {/* Newsletter */}
-      <Box sx={{ py: { xs: 8, md: 10 } }}>
+      <Box sx={{ py: { xs: 6, md: 8 } }}>
         <Container maxWidth="lg">
           <Newsletter />
         </Container>

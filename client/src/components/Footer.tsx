@@ -75,6 +75,7 @@ export default function Footer() {
                   height: 50,
                   width: 'auto',
                   filter: 'brightness(0) invert(1)',
+                objectFit: 'contain',
                 }}
               />
             </Box>

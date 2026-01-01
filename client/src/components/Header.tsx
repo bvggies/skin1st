@@ -116,7 +116,7 @@ export default function Header() {
             component="img"
             src="/skin1st.png"
             alt="Skin1st"
-            sx={{ height: 40, width: 'auto' }}
+            sx={{ height: 40, width: 'auto', objectFit: 'contain' }}
           />
         </Box>
         <IconButton onClick={handleDrawerToggle}>
@@ -308,6 +308,7 @@ export default function Header() {
                   sx={{
                     height: { xs: 36, md: 44 },
                     width: 'auto',
+                    objectFit: 'contain',
                     transition: 'transform 0.2s ease',
                     '&:hover': {
                       transform: 'scale(1.02)',

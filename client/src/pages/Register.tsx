@@ -137,7 +137,7 @@ export default function Register() {
                 component="img"
                 src="/skin1st.png"
                 alt="Skin1st"
-                sx={{ height: 50, width: 'auto' }}
+                sx={{ height: 50, width: 'auto', objectFit: 'contain' }}
               />
             </Box>
             <Typography variant="h4" fontWeight={700} gutterBottom>
