@@ -29,11 +29,13 @@ import Wishlist from './pages/Wishlist'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 
+import { Container, Box } from '@mui/material'
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'grey.50' }}>
       <Header />
-      <main className="flex-1 max-w-6xl mx-auto p-6 w-full">
+      <Container maxWidth="lg" sx={{ flex: 1, py: 3, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -63,8 +65,8 @@ export default function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
         </Routes>
-      </main>
+      </Container>
       <Footer />
-    </div>
+    </Box>
   )
 }

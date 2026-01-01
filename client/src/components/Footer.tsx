@@ -1,62 +1,169 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import {
+  Container,
+  Box,
+  Grid,
+  Typography,
+  Link as MuiLink,
+  Divider,
+} from '@mui/material'
 import Newsletter from './Newsletter'
 
-export default function Footer(){
+export default function Footer() {
   return (
-    <footer className="bg-white border-t mt-12">
-      <div className="max-w-6xl mx-auto p-8">
-        <div className="mb-8">
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: 'background.paper',
+        borderTop: 1,
+        borderColor: 'divider',
+        mt: 4,
+      }}
+    >
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
           <Newsletter />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
-          <div>
-            <h3 className="font-semibold mb-3">Skin1st Beauty Therapy</h3>
-            <p className="text-sm text-gray-600">
+        </Box>
+
+        <Grid container spacing={4} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              Skin1st Beauty Therapy
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               Premium beauty and skin therapy products. Quality you can trust.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-3">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="text-gray-600 hover:text-indigo-600">Home</Link></li>
-              <li><Link to="/shop" className="text-gray-600 hover:text-indigo-600">Shop</Link></li>
-              <li><Link to="/about" className="text-gray-600 hover:text-indigo-600">About Us</Link></li>
-              <li><Link to="/faq" className="text-gray-600 hover:text-indigo-600">FAQ</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-indigo-600">Contact</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-3">My Account</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/profile" className="text-gray-600 hover:text-indigo-600">Profile</Link></li>
-              <li><Link to="/orders" className="text-gray-600 hover:text-indigo-600">My Orders</Link></li>
-              <li><Link to="/wishlist" className="text-gray-600 hover:text-indigo-600">Wishlist</Link></li>
-              <li><Link to="/orders/track" className="text-gray-600 hover:text-indigo-600">Track Order</Link></li>
-              <li><Link to="/guarantee/claim" className="text-gray-600 hover:text-indigo-600">Money-Back Guarantee</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-3">Customer Service</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}`} className="text-gray-600 hover:text-indigo-600" target="_blank" rel="noopener noreferrer">Contact WhatsApp</a></li>
-              <li className="text-gray-600">Delivery: 1-3 days</li>
-              <li className="text-gray-600">Payment: Cash on Delivery</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-3">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/terms" className="text-gray-600 hover:text-indigo-600">Terms & Conditions</Link></li>
-              <li><Link to="/privacy" className="text-gray-600 hover:text-indigo-600">Privacy Policy</Link></li>
-              <li><Link to="/guarantee/claim" className="text-gray-600 hover:text-indigo-600">Money-Back Guarantee</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t pt-6 text-center text-sm text-gray-600">
-          © {new Date().getFullYear()} Skin1st Beauty Therapy. All rights reserved.
-        </div>
-      </div>
-    </footer>
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              Quick Links
+            </Typography>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
+              <li>
+                <MuiLink component={Link} to="/" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Home
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/shop" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Shop
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/about" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  About Us
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/faq" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  FAQ
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/contact" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Contact
+                </MuiLink>
+              </li>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              My Account
+            </Typography>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
+              <li>
+                <MuiLink component={Link} to="/profile" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Profile
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/orders" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  My Orders
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/wishlist" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Wishlist
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/orders/track" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Track Order
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/guarantee/claim" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Money-Back Guarantee
+                </MuiLink>
+              </li>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              Customer Service
+            </Typography>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
+              <li>
+                <MuiLink
+                  href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}`}
+                  color="text.secondary"
+                  underline="hover"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Contact WhatsApp
+                </MuiLink>
+              </li>
+              <li>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Delivery: 1-3 days
+                </Typography>
+              </li>
+              <li>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Payment: Cash on Delivery
+                </Typography>
+              </li>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              Legal
+            </Typography>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
+              <li>
+                <MuiLink component={Link} to="/terms" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Terms & Conditions
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/privacy" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Privacy Policy
+                </MuiLink>
+              </li>
+              <li>
+                <MuiLink component={Link} to="/guarantee/claim" color="text.secondary" underline="hover" sx={{ display: 'block', mb: 1 }}>
+                  Money-Back Guarantee
+                </MuiLink>
+              </li>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ my: 3 }} />
+
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            © {new Date().getFullYear()} Skin1st Beauty Therapy. All rights reserved.
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
   )
 }

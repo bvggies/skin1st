@@ -1,61 +1,133 @@
-import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ShoppingCart, Moon, Sun } from 'lucide-react'
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Badge,
+  Box,
+  Container,
+  Stack,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material'
+import {
+  ShoppingCart,
+  DarkMode,
+  LightMode,
+  Menu as MenuIcon,
+} from '@mui/icons-material'
 import useCart from '../store/cart'
 import { SearchAutocomplete } from './SearchBar'
 
-export default function Header(){
-  const cart = useCart(state => state.items)
-  const [dark, setDark] = useState(false)
+export default function Header() {
+  const cart = useCart((state) => state.items)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [darkMode, setDarkMode] = useState(false)
 
-  useEffect(()=>{
-    document.documentElement.classList.toggle('dark', dark)
-  }, [dark])
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev)
+    // You can implement theme switching here if needed
+  }
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="text-lg font-semibold">Skin1st Beauty Therapy</Link>
-        <nav className="flex items-center gap-4">
-          <div className="hidden md:block w-64">
-            <SearchAutocomplete />
-          </div>
-          <Link to="/shop" className="text-sm">Shop</Link>
-          <Link to="/about" className="text-sm">About</Link>
-          <Link to="/faq" className="text-sm">FAQ</Link>
-          <Link to="/contact" className="text-sm">Contact</Link>
-          <a href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I want to order')}`} className="text-sm">WhatsApp</a>
-          <button onClick={()=>setDark(d=>!d)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-            {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+    <AppBar position="sticky" color="default" elevation={2} sx={{ bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ py: 1 }}>
+          <Typography
+            component={Link}
+            to="/"
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: 'text.primary',
+              mr: 4,
+            }}
+          >
+            Skin1st Beauty Therapy
+          </Typography>
 
-          {/* auth */}
-          {(() => {
-            try{
-              const { user, logout } = useAuth()
-              if (user) return (
-                <div className="flex items-center gap-3">
-                  <Link to="/wishlist" className="text-sm hover:text-indigo-600">Wishlist</Link>
-                  <Link to="/orders" className="text-sm hover:text-indigo-600">My Orders</Link>
-                  <Link to="/profile" className="text-sm hover:text-indigo-600">Profile</Link>
-                  <div className="text-sm">Hi, {user.name || user.email}</div>
-                  {user.role==='ADMIN' && <Link to="/admin/orders" className="text-sm hover:text-indigo-600">Admin</Link>}
-                  <button onClick={logout} className="text-sm text-red-500 hover:text-red-700">Logout</button>
-                </div>
-              )
-              return (<div className="flex items-center gap-3"><Link to="/login" className="text-sm hover:text-indigo-600">Login</Link><Link to="/register" className="text-sm hover:text-indigo-600">Sign up</Link></div>)
-            }catch(e){
-              return (<div className="flex items-center gap-3"><Link to="/login" className="text-sm hover:text-indigo-600">Login</Link><Link to="/register" className="text-sm hover:text-indigo-600">Sign up</Link></div>)
-            }
-          })()}
-          <Link to="/cart" className="relative inline-flex items-center">
-            <ShoppingCart />
-            <span className="ml-1 text-sm">Cart</span>
-            {cart.length>0 && <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1 rounded">{cart.length}</span>}
-          </Link>
-        </nav>
-      </div>
-    </header>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
+            <Box sx={{ width: 300 }}>
+              <SearchAutocomplete />
+            </Box>
+            <Button component={Link} to="/shop" color="inherit" size="small">
+              Shop
+            </Button>
+            <Button component={Link} to="/about" color="inherit" size="small">
+              About
+            </Button>
+            <Button component={Link} to="/faq" color="inherit" size="small">
+              FAQ
+            </Button>
+            <Button component={Link} to="/contact" color="inherit" size="small">
+              Contact
+            </Button>
+            <Button
+              href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I want to order')}`}
+              color="inherit"
+              size="small"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </Button>
+          </Box>
+
+          <Stack direction="row" spacing={1} alignItems="center">
+            <IconButton onClick={toggleDarkMode} size="small" color="inherit">
+              {darkMode ? <LightMode /> : <DarkMode />}
+            </IconButton>
+
+            {user ? (
+              <>
+                <Button component={Link} to="/wishlist" color="inherit" size="small">
+                  Wishlist
+                </Button>
+                <Button component={Link} to="/orders" color="inherit" size="small">
+                  Orders
+                </Button>
+                <Button component={Link} to="/profile" color="inherit" size="small">
+                  Profile
+                </Button>
+                {user.role === 'ADMIN' && (
+                  <Button component={Link} to="/admin/orders" color="inherit" size="small">
+                    Admin
+                  </Button>
+                )}
+                <Typography variant="body2" sx={{ mx: 1 }}>
+                  Hi, {user.name || user.email}
+                </Typography>
+                <Button onClick={logout} color="error" size="small">
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button component={Link} to="/login" color="inherit" size="small">
+                  Login
+                </Button>
+                <Button component={Link} to="/register" color="primary" variant="contained" size="small">
+                  Sign Up
+                </Button>
+              </>
+            )}
+
+            <IconButton component={Link} to="/cart" color="inherit">
+              <Badge badgeContent={cart.length} color="error">
+                <ShoppingCart />
+              </Badge>
+            </IconButton>
+          </Stack>
+        </Toolbar>
+      </Container>
+    </AppBar>
   )
 }

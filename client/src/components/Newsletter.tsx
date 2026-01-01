@@ -1,19 +1,20 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Box, TextField, Button, Typography, Paper } from '@mui/material'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
 const Schema = z.object({
-  email: z.string().email('Invalid email address')
+  email: z.string().email('Invalid email address'),
 })
 
 type Form = z.infer<typeof Schema>
 
 export default function Newsletter() {
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<Form>({
-    resolver: zodResolver(Schema)
+    resolver: zodResolver(Schema),
   })
 
   async function onSubmit(data: Form) {
@@ -27,30 +28,54 @@ export default function Newsletter() {
   }
 
   return (
-    <div className="bg-indigo-600 text-white rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-2">Subscribe to Our Newsletter</h3>
-      <p className="text-sm text-indigo-100 mb-4">
+    <Paper
+      sx={{
+        bgcolor: 'primary.main',
+        color: 'primary.contrastText',
+        p: 3,
+        borderRadius: 2,
+      }}
+    >
+      <Typography variant="h6" gutterBottom fontWeight={600}>
+        Subscribe to Our Newsletter
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
         Get updates on new products, special offers, and beauty tips!
-      </p>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
-        <input
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', gap: 2 }}>
+        <TextField
           {...register('email')}
           type="email"
           placeholder="Enter your email"
-          className="flex-1 px-4 py-2 rounded text-gray-900"
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          fullWidth
+          size="small"
+          sx={{
+            bgcolor: 'background.paper',
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'transparent',
+              },
+            },
+          }}
         />
-        <button
+        <Button
           type="submit"
+          variant="contained"
           disabled={isSubmitting}
-          className="bg-white text-indigo-600 px-6 py-2 rounded font-medium hover:bg-gray-100 disabled:opacity-50"
+          sx={{
+            bgcolor: 'background.paper',
+            color: 'primary.main',
+            '&:hover': {
+              bgcolor: 'grey.100',
+            },
+            whiteSpace: 'nowrap',
+          }}
         >
           {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-        </button>
-      </form>
-      {errors.email && (
-        <p className="text-sm text-red-200 mt-2">{errors.email.message}</p>
-      )}
-    </div>
+        </Button>
+      </Box>
+    </Paper>
   )
 }
-

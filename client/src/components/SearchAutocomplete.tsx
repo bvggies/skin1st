@@ -1,6 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
+import {
+  TextField,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Box,
+  Typography,
+  CircularProgress,
+} from '@mui/material'
 import api from '../api/axios'
 
 interface SearchAutocompleteProps {
@@ -50,10 +63,10 @@ export default function SearchAutocomplete({ onSelect }: SearchAutocompleteProps
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setSelectedIndex(prev => Math.min(prev + 1, products.length - 1))
+      setSelectedIndex((prev) => Math.min(prev + 1, products.length - 1))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      setSelectedIndex(prev => Math.max(prev - 1, -1))
+      setSelectedIndex((prev) => Math.max(prev - 1, -1))
     } else if (e.key === 'Enter' && selectedIndex >= 0 && products[selectedIndex]) {
       e.preventDefault()
       handleSelect(products[selectedIndex])
@@ -62,9 +75,14 @@ export default function SearchAutocomplete({ onSelect }: SearchAutocompleteProps
     }
   }
 
+  const minPrice = (product: any) => {
+    if (!product.variants || product.variants.length === 0) return 0
+    return Math.min(...product.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
+  }
+
   return (
-    <div ref={containerRef} className="relative w-full">
-      <input
+    <Box ref={containerRef} sx={{ position: 'relative', width: '100%' }}>
+      <TextField
         type="text"
         value={query}
         onChange={(e) => {
@@ -75,63 +93,92 @@ export default function SearchAutocomplete({ onSelect }: SearchAutocompleteProps
         onFocus={() => setShowResults(true)}
         onKeyDown={handleKeyDown}
         placeholder="Search products..."
-        className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        size="small"
+        fullWidth
       />
 
       {showResults && query.length >= 2 && (
-        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border max-h-96 overflow-y-auto">
+        <Paper
+          sx={{
+            position: 'absolute',
+            zIndex: 1300,
+            width: '100%',
+            mt: 0.5,
+            maxHeight: 400,
+            overflow: 'auto',
+          }}
+        >
           {isLoading ? (
-            <div className="p-4 text-center text-gray-500">Searching...</div>
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <CircularProgress size={24} />
+            </Box>
           ) : products.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">No products found</div>
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                No products found
+              </Typography>
+            </Box>
           ) : (
             <>
-              {products.map((product: any, idx: number) => {
-                const minPrice = product.variants && product.variants.length > 0
-                  ? Math.min(...product.variants.map((v: any) => (v.price - (v.discount || 0)) / 100))
-                  : 0
-
-                return (
-                  <button
+              <List dense>
+                {products.map((product: any, idx: number) => (
+                  <ListItem
                     key={product.id}
-                    onClick={() => handleSelect(product)}
-                    className={`w-full text-left p-3 hover:bg-gray-50 flex items-center gap-3 ${
-                      idx === selectedIndex ? 'bg-gray-50' : ''
-                    }`}
+                    disablePadding
+                    sx={{
+                      bgcolor: idx === selectedIndex ? 'action.selected' : 'transparent',
+                    }}
                   >
-                    <img
-                      src={product.images?.[0]?.url || 'https://placehold.co/60x60'}
-                      alt={product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{product.name}</div>
-                      <div className="text-xs text-gray-500">{product.brand?.name}</div>
-                      {minPrice > 0 && (
-                        <div className="text-xs text-indigo-600 font-semibold">From ₵{minPrice.toFixed(2)}</div>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
+                    <ListItemButton onClick={() => handleSelect(product)}>
+                      <ListItemAvatar>
+                        <Avatar
+                          src={product.images?.[0]?.url || 'https://placehold.co/60x60'}
+                          alt={product.name}
+                          variant="rounded"
+                        />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={product.name}
+                        secondary={
+                          <Box>
+                            <Typography variant="caption" color="text.secondary">
+                              {product.brand?.name}
+                            </Typography>
+                            {minPrice(product) > 0 && (
+                              <Typography variant="caption" color="primary" sx={{ display: 'block', fontWeight: 600 }}>
+                                From ₵{minPrice(product).toFixed(2)}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
               {query && (
-                <div className="border-t p-2">
-                  <button
+                <Box sx={{ borderTop: 1, borderColor: 'divider', p: 1 }}>
+                  <ListItemButton
                     onClick={() => {
                       navigate(`/shop?search=${encodeURIComponent(query)}`)
                       setShowResults(false)
                     }}
-                    className="w-full text-center text-sm text-indigo-600 hover:text-indigo-700 py-2"
                   >
-                    View all results for "{query}"
-                  </button>
-                </div>
+                    <ListItemText
+                      primary={`View all results for "${query}"`}
+                      primaryTypographyProps={{
+                        variant: 'body2',
+                        color: 'primary',
+                        sx: { textAlign: 'center' },
+                      }}
+                    />
+                  </ListItemButton>
+                </Box>
               )}
             </>
           )}
-        </div>
+        </Paper>
       )}
-    </div>
+    </Box>
   )
 }
-

@@ -1,11 +1,14 @@
 import React from 'react'
+import { Card, CardContent, Skeleton, Box } from '@mui/material'
 
-export default function SkeletonCard(){
+export default function SkeletonCard() {
   return (
-    <div className="animate-pulse bg-white rounded shadow p-3">
-      <div className="bg-gray-200 h-40 rounded w-full mb-3"></div>
-      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-    </div>
+    <Card>
+      <Skeleton variant="rectangular" height={200} />
+      <CardContent>
+        <Skeleton variant="text" height={24} width="75%" sx={{ mb: 1 }} />
+        <Skeleton variant="text" height={20} width="50%" />
+      </CardContent>
+    </Card>
   )
 }
