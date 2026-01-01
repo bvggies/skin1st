@@ -2,7 +2,8 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Box, TextField, Button, Typography, Paper } from '@mui/material'
+import { Box, TextField, Button, Typography, Paper, Grid, InputAdornment, Stack } from '@mui/material'
+import { Email, Send, LocalOffer, Notifications, CardGiftcard } from '@mui/icons-material'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
@@ -27,55 +28,136 @@ export default function Newsletter() {
     }
   }
 
+  const benefits = [
+    { icon: <LocalOffer />, text: 'Exclusive Discounts' },
+    { icon: <Notifications />, text: 'New Arrivals' },
+    { icon: <CardGiftcard />, text: 'Special Offers' },
+  ]
+
   return (
     <Paper
+      elevation={0}
       sx={{
-        bgcolor: 'primary.main',
-        color: 'primary.contrastText',
-        p: 3,
-        borderRadius: 2,
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+        color: 'white',
+        p: { xs: 4, md: 6 },
+        borderRadius: 4,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Typography variant="h6" gutterBottom fontWeight={600}>
-        Subscribe to Our Newsletter
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
-        Get updates on new products, special offers, and beauty tips!
-      </Typography>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', gap: 2 }}>
-        <TextField
-          {...register('email')}
-          type="email"
-          placeholder="Enter your email"
-          error={!!errors.email}
-          helperText={errors.email?.message}
-          fullWidth
-          size="small"
-          sx={{
-            bgcolor: 'background.paper',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: 'transparent',
-              },
-            },
-          }}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-          sx={{
-            bgcolor: 'background.paper',
-            color: 'primary.main',
-            '&:hover': {
-              bgcolor: 'grey.100',
-            },
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-        </Button>
-      </Box>
+      {/* Background decoration */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '-50%',
+          right: '-10%',
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(233,69,96,0.2) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+        }}
+      />
+
+      <Grid container spacing={4} alignItems="center" sx={{ position: 'relative', zIndex: 1 }}>
+        <Grid item xs={12} md={6}>
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            gutterBottom
+            sx={{ fontSize: { xs: '1.75rem', md: '2.25rem' } }}
+          >
+            Stay in the Loop
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ mb: 3, opacity: 0.85, maxWidth: 400 }}
+          >
+            Subscribe to our newsletter and never miss out on new products, 
+            exclusive deals, and beauty tips.
+          </Typography>
+          
+          <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+            {benefits.map((benefit, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ color: '#e94560' }}>{benefit.icon}</Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {benefit.text}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2,
+            }}
+          >
+            <TextField
+              {...register('email')}
+              type="email"
+              placeholder="Enter your email address"
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email sx={{ color: 'grey.400' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                bgcolor: 'white',
+                borderRadius: 2,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  '& fieldset': { borderColor: 'transparent' },
+                  '&:hover fieldset': { borderColor: 'transparent' },
+                  '&.Mui-focused fieldset': { borderColor: '#e94560', borderWidth: 2 },
+                },
+                '& .MuiFormHelperText-root': {
+                  color: '#ff6b8a',
+                },
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting}
+              endIcon={<Send />}
+              sx={{
+                bgcolor: '#e94560',
+                color: 'white',
+                px: 4,
+                py: 1.75,
+                borderRadius: 2,
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                minWidth: { xs: '100%', sm: 'auto' },
+                '&:hover': {
+                  bgcolor: '#c73e54',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(233,69,96,0.4)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+            </Button>
+          </Box>
+          <Typography variant="caption" sx={{ display: 'block', mt: 2, opacity: 0.6 }}>
+            We respect your privacy. Unsubscribe at any time.
+          </Typography>
+        </Grid>
+      </Grid>
     </Paper>
   )
 }
