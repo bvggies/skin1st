@@ -12,6 +12,14 @@
       "destination": "/api/products.reviews?slug=:slug"
     },
     {
+      "source": "/api/admin/orders/:id",
+      "destination": "/api/admin/orders.[id]?id=:id"
+    },
+    {
+      "source": "/api/admin/orders/:id/status",
+      "destination": "/api/admin/orders.[id].status?id=:id"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
