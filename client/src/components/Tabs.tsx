@@ -35,12 +35,33 @@ export default function Tabs({
 
   return (
     <Box>
-      <MuiTabs value={i} onChange={(_, value) => handleSelect(value)} sx={{ mb: 2 }}>
-        {tabs.map((t, idx) => (
+      <MuiTabs 
+        value={i} 
+        onChange={(_, value) => handleSelect(value)} 
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+        sx={{ 
+          mb: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+          '& .MuiTabs-scrollButtons': {
+            '&.Mui-disabled': { opacity: 0.3 },
+          },
+          '& .MuiTab-root': {
+            textTransform: 'none',
+            fontWeight: 500,
+            fontSize: { xs: '0.85rem', sm: '0.95rem' },
+            minWidth: { xs: 'auto', sm: 120 },
+            px: { xs: 2, sm: 3 },
+          },
+        }}
+      >
+        {tabs.map((t) => (
           <Tab key={t.id} label={t.title} id={`tab-${t.id}`} />
         ))}
       </MuiTabs>
-      <Paper id={tabs[i]?.id} sx={{ p: 3 }}>
+      <Paper id={tabs[i]?.id} sx={{ p: { xs: 2, sm: 3 } }}>
         {tabs[i]?.content}
       </Paper>
     </Box>
