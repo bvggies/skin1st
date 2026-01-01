@@ -4,13 +4,10 @@ import prisma from './db'
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Parse URL to check if this is a single product request
-  // For /api/products/mooyam-turmeric-face-cream
-  const url = req.url || ''
-  const pathMatch = url.match(/\/api\/products\/([^/?]+)/)
+  // Check if this is a single product request (slug in query)
+  const slug = req.query.slug as string | undefined
   
-  if (pathMatch && pathMatch[1] && pathMatch[1] !== 'related') {
-    const slug = pathMatch[1]
+  if (slug && slug !== 'related') {
     
     const product = await prisma.product.findUnique({
       where: { slug },

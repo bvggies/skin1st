@@ -10,15 +10,12 @@ const ReviewSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Parse URL to get slug from path /api/products/:slug/reviews
-  const url = req.url || ''
-  const pathMatch = url.match(/\/api\/products\/([^/]+)\/reviews/)
+  // Get slug from query (set by vercel.json rewrite)
+  const slug = req.query.slug as string | undefined
   
-  if (!pathMatch || !pathMatch[1]) {
+  if (!slug) {
     return res.status(400).json({ error: 'Invalid slug' })
   }
-  
-  const slug = pathMatch[1]
 
   if (req.method === 'GET') {
     const reviews = await prisma.review.findMany({ 

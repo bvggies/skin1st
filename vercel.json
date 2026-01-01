@@ -4,6 +4,14 @@
   "framework": null,
   "rewrites": [
     {
+      "source": "/api/products/:slug",
+      "destination": "/api/products?slug=:slug"
+    },
+    {
+      "source": "/api/products/:slug/reviews",
+      "destination": "/api/products.reviews?slug=:slug"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
