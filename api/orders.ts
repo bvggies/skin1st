@@ -91,6 +91,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const code = 'ORD-' + Math.random().toString(36).slice(2, 9).toUpperCase()
   const trackingCode = generateTrackingCode()
 
+  // Get user from auth if available (optional for guest orders)
+  let userId: string | null = null
+  try {
+    const { requireAuth } = await import('./middleware/auth')
+    const user = await requireAuth(req, res)
+    userId = user?.id || null
+  } catch (e) {
+    // Guest order - userId remains null
+  }
+
   // Use transaction to ensure stock is decremented atomically
   const order = await prisma.$transaction(async (tx) => {
     // Decrement stock
@@ -119,6 +129,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         deliveryAddr, 
         deliveryNotes,
         guestEmail: guestEmail || null,
+        userId: userId || null,
         items: { create: orderItemsData },
         statusHistory: {
           create: {
@@ -141,6 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       payload: { 
         orderId: order.id, 
         code,
+        trackingCode,
         coupon: coupon || null,
         couponDiscount: couponDiscount > 0 ? couponDiscount : null
       } 
@@ -177,3 +189,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     discount: couponDiscount > 0 ? couponDiscount : 0
   })
 }
+
