@@ -540,10 +540,17 @@ export default function Home() {
                     fontWeight: 800,
                     lineHeight: 1.1,
                     mb: 3,
-                    whiteSpace: 'pre-line',
                   }}
                 >
-                  {heroTitle}
+                  {heroTitle.includes('\n') ? (
+                    heroTitle.split('\n').map((line, i) => (
+                      <Box key={i} component="span" sx={i > 0 ? { color: '#e94560', display: 'block' } : {}}>
+                        {line}
+                      </Box>
+                    ))
+                  ) : (
+                    heroTitle
+                  )}
                 </Typography>
                 <Typography
                   variant="h6"
