@@ -419,7 +419,7 @@ export default function Product() {
                 </Typography>
                 <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
                   <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                    <ListItemText primary="30-day money-back guarantee" />
+                    <ListItemText primary="30-day money-back guarantee (on eligible products)" />
                   </ListItem>
                   <ListItem sx={{ display: 'list-item', pl: 1 }}>
                     <ListItemText primary="Products must be unopened and in original packaging" />
