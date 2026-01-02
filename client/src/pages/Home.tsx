@@ -542,11 +542,20 @@ export default function Home() {
                     mb: 3,
                   }}
                 >
-                  {heroTitle.split('\n').map((line, i) => (
-                    <Box key={i} component="span" sx={i > 0 ? { color: '#e94560', display: 'block' } : {}}>
-                      {line}
-                    </Box>
-                  ))}
+                  {heroTitle.includes('\n') ? (
+                    heroTitle.split('\n').map((line, i) => (
+                      <Box key={i} component="span" sx={i > 0 ? { color: '#e94560', display: 'block' } : {}}>
+                        {line}
+                      </Box>
+                    ))
+                  ) : (
+                    <>
+                      {heroTitle.split(' ').slice(0, -2).join(' ')}
+                      <Box component="span" sx={{ color: '#e94560', display: 'block' }}>
+                        {heroTitle.split(' ').slice(-2).join(' ')}
+                      </Box>
+                    </>
+                  )}
                 </Typography>
                 <Typography
                   variant="h6"
