@@ -446,56 +446,95 @@ export default function Product() {
       title: 'Money-Back Guarantee',
       content: (
         <Stack spacing={3}>
-          <Alert severity="info">
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              100% Satisfaction Guarantee
-            </Typography>
-            <Typography variant="body2">
-              We stand behind the quality of our products. If you're not completely satisfied, we'll make it right.
-            </Typography>
-          </Alert>
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              What's Covered
-            </Typography>
-            <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Full refund within 30 days of purchase" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Products that don't meet your expectations" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Defective or damaged items" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Wrong items received" />
-              </ListItem>
-            </List>
-          </Box>
-          <Box>
-            <Typography variant="h6" fontWeight={600} gutterBottom>
-              How to Claim
-            </Typography>
-            <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Contact us via WhatsApp or email within 30 days" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Provide your order number and reason for return" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="We'll arrange for product return (if applicable)" />
-              </ListItem>
-              <ListItem sx={{ display: 'list-item', pl: 1 }}>
-                <ListItemText primary="Receive your full refund within 5-7 business days" />
-              </ListItem>
-            </List>
-          </Box>
-          {data.moneyBackGuarantee && (
-            <Alert severity="warning">
-              <strong>This product is covered by our Money-Back Guarantee!</strong>
-            </Alert>
+          {data.eligibleForReturn !== false ? (
+            <>
+              <Alert severity="info">
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  100% Satisfaction Guarantee
+                </Typography>
+                <Typography variant="body2">
+                  We stand behind the quality of our products. If you're not completely satisfied, we'll make it right.
+                </Typography>
+              </Alert>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  What's Covered
+                </Typography>
+                <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Full refund within 30 days of purchase" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Products that don't meet your expectations" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Defective or damaged items" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Wrong items received" />
+                  </ListItem>
+                </List>
+              </Box>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  How to Claim
+                </Typography>
+                <List component="ol" sx={{ listStyle: 'decimal', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Contact us via WhatsApp or email within 30 days" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Provide your order number and reason for return" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="We'll arrange for product return (if applicable)" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Receive your full refund within 5-7 business days" />
+                  </ListItem>
+                </List>
+              </Box>
+              {data.moneyBackGuarantee && (
+                <Alert severity="success">
+                  <strong>This product is covered by our Money-Back Guarantee!</strong>
+                </Alert>
+              )}
+            </>
+          ) : (
+            <>
+              <Alert severity="warning">
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  This Product is Not Returnable
+                </Typography>
+                <Typography variant="body2">
+                  This product is not eligible for returns or refunds. Please review the product details carefully before making your purchase.
+                </Typography>
+              </Alert>
+              <Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Important Information
+                </Typography>
+                <List component="ul" sx={{ listStyle: 'disc', pl: 3 }}>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="This item cannot be returned or exchanged" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="No refunds will be issued for this product" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Please ensure this product meets your needs before purchasing" />
+                  </ListItem>
+                  <ListItem sx={{ display: 'list-item', pl: 1 }}>
+                    <ListItemText primary="Contact us if you have any questions before placing your order" />
+                  </ListItem>
+                </List>
+              </Box>
+              {data.moneyBackGuarantee && (
+                <Alert severity="info">
+                  <strong>Note:</strong> While this product has a money-back guarantee badge, it is marked as non-returnable. Please contact customer service for clarification if needed.
+                </Alert>
+              )}
+            </>
           )}
         </Stack>
       ),

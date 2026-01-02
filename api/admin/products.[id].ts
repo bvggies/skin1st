@@ -12,6 +12,7 @@ const UpdateProductSchema = z.object({
   isNew: z.boolean().optional(),
   isBestSeller: z.boolean().optional(),
   moneyBackGuarantee: z.boolean().optional(),
+  eligibleForReturn: z.boolean().optional(),
   // New fields
   howToUse: z.string().nullable().optional(),
   ingredients: z.string().nullable().optional(),
@@ -75,6 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (parse.data.isNew !== undefined) updateData.isNew = parse.data.isNew
     if (parse.data.isBestSeller !== undefined) updateData.isBestSeller = parse.data.isBestSeller
     if (parse.data.moneyBackGuarantee !== undefined) updateData.moneyBackGuarantee = parse.data.moneyBackGuarantee
+    if (parse.data.eligibleForReturn !== undefined) updateData.eligibleForReturn = parse.data.eligibleForReturn
     if (parse.data.howToUse !== undefined) updateData.howToUse = parse.data.howToUse
     if (parse.data.ingredients !== undefined) updateData.ingredients = parse.data.ingredients
     if (parse.data.pricingPackaging !== undefined) updateData.pricingPackaging = parse.data.pricingPackaging

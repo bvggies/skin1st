@@ -102,6 +102,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     isNew: false,
     isBestSeller: false,
     moneyBackGuarantee: false,
+    eligibleForReturn: true,
     // New fields
     howToUse: '',
     ingredients: '',
@@ -147,6 +148,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
         isNew: product.isNew || false,
         isBestSeller: product.isBestSeller || false,
         moneyBackGuarantee: product.moneyBackGuarantee || false,
+        eligibleForReturn: product.eligibleForReturn !== undefined ? product.eligibleForReturn : true,
         howToUse: product.howToUse || '',
         ingredients: product.ingredients || '',
         pricingPackaging: product.pricingPackaging || '',
@@ -493,6 +495,22 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
                       <Chip
                         label="Money-Back Guarantee"
                         color={formData.moneyBackGuarantee ? 'success' : 'default'}
+                        size="small"
+                      />
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.eligibleForReturn}
+                        onChange={(e) => setFormData({ ...formData, eligibleForReturn: e.target.checked })}
+                        color={formData.eligibleForReturn ? 'success' : 'default'}
+                      />
+                    }
+                    label={
+                      <Chip
+                        label={formData.eligibleForReturn ? 'Eligible for Returns' : 'Not Returnable'}
+                        color={formData.eligibleForReturn ? 'success' : 'error'}
                         size="small"
                       />
                     }
