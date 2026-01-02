@@ -140,6 +140,7 @@ export default function Analytics() {
   const ordersByStatus = data?.ordersByStatus || []
   const topProducts = data?.topProducts || []
   const recentOrders = data?.recentOrders || []
+  const revenueByDay = data?.revenueByDay || []
 
   // Prepare chart data
   const statusChartData = ordersByStatus.map((item: any) => ({
