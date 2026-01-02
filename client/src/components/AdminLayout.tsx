@@ -46,6 +46,8 @@ import {
 } from '@mui/icons-material'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useQuery } from '@tanstack/react-query'
+import api from '../api/axios'
 
 const drawerWidth = 280
 
@@ -58,9 +60,9 @@ interface MenuItem {
   badge?: number
 }
 
-const menuItems: MenuItem[] = [
+const baseMenuItems: Omit<MenuItem, 'badge'>[] = [
   { id: 'analytics', label: 'Dashboard', icon: <Dashboard />, path: '/admin/analytics' },
-  { id: 'orders', label: 'Orders', icon: <Receipt />, path: '/admin/orders', badge: 5 },
+  { id: 'orders', label: 'Orders', icon: <Receipt />, path: '/admin/orders' },
   {
     id: 'catalog',
     label: 'Catalog',
@@ -85,6 +87,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
+
+  // Fetch pending orders count
+  const { data: pendingOrdersCount } = useQuery(
+    ['admin:pending-orders-count'],
+    async () => {
+      try {
+        const res = await api.get('/admin/orders', {
+          params: { status: 'PENDING_CONFIRMATION', pageSize: 1 }
+        })
+        return res.data?.meta?.total || 0
+      } catch (error) {
+        return 0
+      }
+    },
+    {
+      refetchInterval: 30000, // Refresh every 30 seconds
+      staleTime: 10000, // Consider data fresh for 10 seconds
+    }
+  )
+
+  // Build menu items with dynamic badge
+  const menuItems: MenuItem[] = baseMenuItems.map(item => {
+    if (item.id === 'orders') {
+      return {
+        ...item,
+        badge: pendingOrdersCount && pendingOrdersCount > 0 ? pendingOrdersCount : undefined
+      }
+    }
+    return item
+  })
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -212,12 +244,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     }}
                   >
                     <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-                      {item.icon}
+                      {item.badge && item.badge > 0 ? (
+                        <Badge badgeContent={item.badge} color="error">
+                          {item.icon}
+                        </Badge>
+                      ) : (
+                        item.icon
+                      )}
                     </ListItemIcon>
                     <ListItemText primary={item.label} />
-                    {item.badge && (
-                      <Badge badgeContent={item.badge} color="error" sx={{ mr: 1 }} />
-                    )}
                   </ListItemButton>
                 </ListItem>
               )}
