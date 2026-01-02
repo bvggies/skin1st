@@ -104,8 +104,8 @@ export default function SiteSettings() {
                     onChange={(e) => setFormData({ ...formData, heroTitle: e.target.value })}
                     fullWidth
                     required
-                    helperText="Main heading displayed in the hero section"
-                    placeholder="Discover Your Natural Beauty"
+                    helperText="Main heading displayed in the hero section. Use a new line (press Enter) to split the title - the second line will appear in red."
+                    placeholder="Discover Your\nNatural Beauty"
                   />
                 </Grid>
                 <Grid item xs={12}>
