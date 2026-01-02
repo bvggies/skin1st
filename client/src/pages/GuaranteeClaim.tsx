@@ -55,7 +55,7 @@ export default function GuaranteeClaim() {
           About Our Guarantee
         </Typography>
         <Typography variant="body2">
-          We offer a 30-day money-back guarantee on all products. If you're not satisfied with your purchase, you
+          We provide refunds on eligible products that qualify for our money-back guarantee. Not all products are eligible for returns or refunds. If you're not satisfied with your purchase of an eligible product, you
           can file a claim for a full refund. Claims are typically reviewed within 2-3 business days.
         </Typography>
       </Alert>

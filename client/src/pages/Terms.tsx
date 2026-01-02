@@ -74,11 +74,11 @@ export default function Terms() {
               5. Returns and Refunds
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.8 }}>
-              We offer a 30-day money-back guarantee. Products must be unopened and in original packaging to be
+              We provide refunds on eligible products that qualify for our money-back guarantee program. Not all products are eligible for returns or refunds. Products must be unopened and in original packaging to be
               eligible for return.
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-              Refunds will be processed within 5-7 business days after we receive the returned product. For more
+              Please check the product page to see if your item is eligible for returns. Refunds will be processed within 5-7 business days after we receive the returned product. For more
               details, see our Money-Back Guarantee policy.
             </Typography>
           </Box>

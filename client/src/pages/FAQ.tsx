@@ -47,7 +47,7 @@ const faqs = [
       },
       {
         q: 'Do you offer samples?',
-        a: "We don't currently offer samples, but we have a 30-day money-back guarantee if you're not satisfied.",
+        a: "We don't currently offer samples, but we have a 30-day money-back guarantee on eligible products if you're not satisfied.",
       },
       {
         q: 'How do I know which product is right for me?',
@@ -64,7 +64,7 @@ const faqs = [
     questions: [
       {
         q: 'What is your return policy?',
-        a: 'We offer a 30-day money-back guarantee. Products must be unopened and in original packaging. Contact us to initiate a return.',
+        a: 'We offer a 30-day money-back guarantee on eligible products. Products must be unopened and in original packaging. Please check the product page to see if your item is eligible for returns. Contact us to initiate a return.',
       },
       {
         q: 'How do I return a product?',

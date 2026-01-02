@@ -356,8 +356,8 @@ export default function Product() {
                   Can I return this product?
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Yes! We offer a money-back guarantee. If you're not satisfied with your purchase, you can return it
-                  within 30 days for a full refund.
+                  We provide refunds on eligible products that qualify for our money-back guarantee. If this product is eligible and you're not satisfied with your purchase, you can return it
+                  within 30 days for a full refund. Please check the product details to confirm eligibility.
                 </Typography>
               </Box>
               <Divider />

@@ -51,7 +51,7 @@ export default function About() {
                 Customer Satisfaction
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Your satisfaction is our priority. We offer a 30-day money-back guarantee on all products.
+                Your satisfaction is our priority. We provide refunds on eligible products that qualify for our money-back guarantee program.
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -91,7 +91,7 @@ export default function About() {
                 <CheckCircle color="success" />
               </ListItemIcon>
               <Typography variant="body1" color="text.secondary">
-                <strong>Money-Back Guarantee:</strong> Not satisfied? Get a full refund within 30 days
+                <strong>Money-Back Guarantee:</strong> Not satisfied? Get a full refund within 30 days on eligible products
               </Typography>
             </ListItem>
             <ListItem>
