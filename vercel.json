@@ -16,6 +16,10 @@
       "destination": "/api/admin/orders?id=:id"
     },
     {
+      "source": "/api/admin/products/:id",
+      "destination": "/api/admin/products.[id]?id=:id"
+    },
+    {
       "source": "/api/admin/orders/:id/status",
       "destination": "/api/admin/orders.[id].status?id=:id"
     },
