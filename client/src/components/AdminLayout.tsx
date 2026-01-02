@@ -43,6 +43,7 @@ import {
   Search,
   Home,
   VerifiedUser,
+  Web,
 } from '@mui/icons-material'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -76,6 +77,7 @@ const baseMenuItems: Omit<MenuItem, 'badge'>[] = [
   { id: 'users', label: 'Customers', icon: <People />, path: '/admin/users' },
   { id: 'coupons', label: 'Coupons & Discounts', icon: <MonetizationOn />, path: '/admin/coupons' },
   { id: 'guarantee', label: 'Guarantee Claims', icon: <VerifiedUser />, path: '/admin/guarantee-claims' },
+  { id: 'settings', label: 'Site Settings', icon: <Web />, path: '/admin/site-settings' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

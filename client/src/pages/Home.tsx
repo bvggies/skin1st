@@ -127,6 +127,23 @@ const sampleProducts = [
 ]
 
 export default function Home() {
+  // Fetch site settings
+  const { data: siteSettings } = useQuery(
+    ['site-settings'],
+    async () => {
+      const res = await api.get('/site-settings')
+      return res.data
+    },
+    {
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  )
+
+  const heroTitle = siteSettings?.heroTitle || 'Discover Your Natural Beauty'
+  const heroSubtitle = siteSettings?.heroSubtitle || 'Premium beauty and skin therapy products. Quality you can trust, delivered to your doorstep with cash on delivery.'
+  const heroImageUrl = siteSettings?.heroImageUrl || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80'
+  const specialOfferTitle = siteSettings?.specialOfferTitle || 'Special Offer - 20% Off'
+  const specialOfferDescription = siteSettings?.specialOfferDescription || 'Use code FIRST20 on your first order. Limited time only!'
   const { data: categoriesData } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
     return res.data.categories || []
@@ -525,10 +542,11 @@ export default function Home() {
                     mb: 3,
                   }}
                 >
-                  Discover Your
-                  <Box component="span" sx={{ color: '#e94560', display: 'block' }}>
-                    Natural Beauty
-                  </Box>
+                  {heroTitle.split('\n').map((line, i) => (
+                    <Box key={i} component="span" sx={i > 0 ? { color: '#e94560', display: 'block' } : {}}>
+                      {line}
+                    </Box>
+                  ))}
                 </Typography>
                 <Typography
                   variant="h6"
@@ -540,8 +558,7 @@ export default function Home() {
                     maxWidth: 480,
                   }}
                 >
-                  Premium beauty and skin therapy products. Quality you can trust, 
-                  delivered to your doorstep with cash on delivery.
+                  {heroSubtitle}
                 </Typography>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                   <Button
@@ -605,7 +622,7 @@ export default function Home() {
               >
                 <Box
                   component="img"
-                  src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80"
+                  src={heroImageUrl}
                   alt="Beauty Products"
                   sx={{
                     width: '100%',
@@ -719,10 +736,10 @@ export default function Home() {
           <Grid container spacing={4} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={8} sx={{ textAlign: 'center' }}>
               <Typography variant="h3" fontWeight={800} gutterBottom>
-                Special Offer - 20% Off
+                {specialOfferTitle}
               </Typography>
               <Typography variant="h6" sx={{ mb: 4, opacity: 0.95, fontWeight: 400 }}>
-                Use code FIRST20 on your first order. Limited time only!
+                {specialOfferDescription}
               </Typography>
               <Button
                 component={Link}

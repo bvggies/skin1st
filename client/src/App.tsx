@@ -22,6 +22,7 @@ import AdminAnalytics from './pages/admin/Analytics'
 import AdminCoupons from './pages/admin/Coupons'
 import AdminCategories from './pages/admin/Categories'
 import AdminBrands from './pages/admin/Brands'
+import AdminSiteSettings from './pages/admin/SiteSettings'
 import GuaranteeClaim from './pages/GuaranteeClaim'
 import Profile from './pages/Profile'
 import Contact from './pages/Contact'
@@ -106,6 +107,7 @@ function AdminRoutes() {
         <Route path="/admin/coupons" element={<AdminCoupons />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
+        <Route path="/admin/site-settings" element={<AdminSiteSettings />} />
       </Routes>
     </AdminRouteGuard>
   )

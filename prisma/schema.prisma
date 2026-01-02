@@ -242,6 +242,17 @@ model GuaranteeClaim {
   updatedAt  DateTime        @updatedAt
 }
 
+model SiteSettings {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String
+  description       String?
+  updatedAt         DateTime @updatedAt
+  updatedBy         String?  // Admin user ID who last updated
+
+  @@map("SiteSettings")
+}
+
 model RefreshToken {
   id        String   @id @default(cuid())
   token     String   @unique
