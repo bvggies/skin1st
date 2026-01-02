@@ -1,6 +1,6 @@
 import api from './axios'
 
-export async function getOrders(params?: { page?: number; pageSize?: number; status?: string; q?: string; from?: string; to?: string }){
+export async function getOrders(params?: { page?: number; pageSize?: number; status?: string; q?: string; from?: string; to?: string; userId?: string }){
   const query = new URLSearchParams()
   if (params?.page) query.set('page', String(params.page))
   if (params?.pageSize) query.set('pageSize', String(params.pageSize))
@@ -8,6 +8,7 @@ export async function getOrders(params?: { page?: number; pageSize?: number; sta
   if (params?.q) query.set('q', params.q)
   if (params?.from) query.set('from', params.from)
   if (params?.to) query.set('to', params.to)
+  if (params?.userId) query.set('userId', params.userId)
 
   const res = await api.get(`/admin/orders?${query.toString()}`)
   return res.data

@@ -63,13 +63,23 @@ export default function Orders() {
   const [pageSize] = useState(15)
   const [status, setStatus] = useState<string | undefined>(undefined)
   const [q, setQ] = useState('')
+  const [userId, setUserId] = useState<string | undefined>(undefined)
   const navigate = useNavigate()
 
+  // Get userId from URL params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const userIdParam = params.get('userId')
+    if (userIdParam) {
+      setUserId(userIdParam)
+    }
+  }, [])
+
   const { data, isLoading, refetch, error } = useQuery(
-    ['admin:orders', page, pageSize, status, q],
+    ['admin:orders', page, pageSize, status, q, userId],
     async () => {
       try {
-        const result = await getOrders({ page, pageSize, status, q })
+        const result = await getOrders({ page, pageSize, status, q, userId })
         return result
       } catch (err: any) {
         console.error('Failed to fetch orders:', err)
@@ -112,10 +122,15 @@ export default function Orders() {
   const clearFilters = () => {
     setQ('')
     setStatus(undefined)
+    setUserId(undefined)
     setPage(1)
+    // Remove userId from URL
+    const params = new URLSearchParams(window.location.search)
+    params.delete('userId')
+    navigate(`/admin/orders?${params.toString()}`, { replace: true })
   }
 
-  const hasFilters = q || status
+  const hasFilters = q || status || userId
 
   // Calculate stats
   const stats = {

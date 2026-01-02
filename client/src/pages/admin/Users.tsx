@@ -47,11 +47,13 @@ import {
   Visibility,
   ShoppingBag,
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import AdminLayout from '../../components/AdminLayout'
 import toast from 'react-hot-toast'
 
 export default function Users() {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -158,6 +160,14 @@ export default function Users() {
         userId: selectedUser.id,
         role: 'CUSTOMER',
       })
+    }
+    handleMenuClose()
+  }
+
+  const handleViewOrders = () => {
+    if (selectedUser) {
+      // Navigate to orders page with user filter
+      navigate(`/admin/orders?userId=${selectedUser.id}`)
     }
     handleMenuClose()
   }
@@ -377,7 +387,7 @@ export default function Users() {
             <Visibility sx={{ mr: 1.5, fontSize: 20 }} />
             View Details
           </MenuItem>
-          <MenuItem onClick={() => { /* Navigate to orders */ handleMenuClose() }}>
+          <MenuItem onClick={handleViewOrders}>
             <ShoppingBag sx={{ mr: 1.5, fontSize: 20 }} />
             View Orders
           </MenuItem>
