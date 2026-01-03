@@ -1,5 +1,6 @@
 import React from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import Product from './pages/Product'
@@ -119,9 +120,19 @@ export default function App() {
 
   // Render admin routes without the public layout
   if (isAdminRoute) {
-    return <AdminRoutes />
+    return (
+      <>
+        <AdminRoutes />
+        <Analytics />
+      </>
+    )
   }
 
   // Render public routes with Header/Footer
-  return <PublicRoutes />
+  return (
+    <>
+      <PublicRoutes />
+      <Analytics />
+    </>
+  )
 }
