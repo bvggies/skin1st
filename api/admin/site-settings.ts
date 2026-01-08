@@ -10,6 +10,7 @@ const UpdateSettingsSchema = z.object({
   specialOfferTitle: z.string().optional(),
   specialOfferDescription: z.string().optional(),
   specialOfferCode: z.string().optional(),
+  homepageCategories: z.array(z.string()).optional(), // Array of category IDs
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -28,6 +29,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       settingsObj[s.key] = s.value
     })
 
+    // Parse homepageCategories from JSON string
+    let homepageCategories: string[] = []
+    if (settingsObj['homepageCategories']) {
+      try {
+        homepageCategories = JSON.parse(settingsObj['homepageCategories'])
+      } catch (e) {
+        homepageCategories = []
+      }
+    }
+
     // Return with defaults if not set
     return res.status(200).json({
       heroTitle: settingsObj['heroTitle'] || 'Discover Your Natural Beauty',
@@ -36,6 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       specialOfferTitle: settingsObj['specialOfferTitle'] || 'Special Offer - 20% Off',
       specialOfferDescription: settingsObj['specialOfferDescription'] || 'Use code FIRST20 on your first order. Limited time only!',
       specialOfferCode: settingsObj['specialOfferCode'] || 'FIRST20',
+      homepageCategories,
     })
   }
 
@@ -51,6 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { key: 'specialOfferTitle', value: updates.specialOfferTitle },
       { key: 'specialOfferDescription', value: updates.specialOfferDescription },
       { key: 'specialOfferCode', value: updates.specialOfferCode },
+      { key: 'homepageCategories', value: updates.homepageCategories ? JSON.stringify(updates.homepageCategories) : undefined },
     ].filter(item => item.value !== undefined)
 
     // Update or create each setting
@@ -82,6 +95,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       settingsObj[s.key] = s.value
     })
 
+    // Parse homepageCategories from JSON string
+    let homepageCategories: string[] = []
+    if (settingsObj['homepageCategories']) {
+      try {
+        homepageCategories = JSON.parse(settingsObj['homepageCategories'])
+      } catch (e) {
+        homepageCategories = []
+      }
+    } else if (updates.homepageCategories) {
+      homepageCategories = updates.homepageCategories
+    }
+
     return res.status(200).json({
       heroTitle: settingsObj['heroTitle'] || updates.heroTitle || 'Discover Your Natural Beauty',
       heroSubtitle: settingsObj['heroSubtitle'] || updates.heroSubtitle || 'Premium beauty and skin therapy products. Quality you can trust, delivered to your doorstep with cash on delivery.',
@@ -89,6 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       specialOfferTitle: settingsObj['specialOfferTitle'] || updates.specialOfferTitle || 'Special Offer - 20% Off',
       specialOfferDescription: settingsObj['specialOfferDescription'] || updates.specialOfferDescription || 'Use code FIRST20 on your first order. Limited time only!',
       specialOfferCode: settingsObj['specialOfferCode'] || updates.specialOfferCode || 'FIRST20',
+      homepageCategories,
     })
   }
 

@@ -157,8 +157,19 @@ export default function Home() {
     }
   )
 
-  // Use API data if available, otherwise use sample data
-  const categories = categoriesData && categoriesData.length > 0 ? categoriesData : sampleCategories
+  // Get homepage categories from settings
+  const homepageCategoryIds = siteSettings?.homepageCategories || []
+  
+  // Filter categories based on settings
+  let filteredCategories = categoriesData && categoriesData.length > 0 ? categoriesData : sampleCategories
+  
+  // If homepage categories are selected, filter to only show those
+  if (homepageCategoryIds.length > 0 && categoriesData && categoriesData.length > 0) {
+    filteredCategories = categoriesData.filter((cat: any) => homepageCategoryIds.includes(cat.id))
+  }
+  
+  // Use filtered categories, fallback to sample if empty
+  const categories = filteredCategories.length > 0 ? filteredCategories : sampleCategories
   const products = productsData && productsData.length > 0 ? productsData : sampleProducts
 
   // Fixed dimensions for consistent card sizes

@@ -14,6 +14,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     settingsObj[s.key] = s.value
   })
 
+  // Parse homepageCategories from JSON string
+  let homepageCategories: string[] = []
+  if (settingsObj['homepageCategories']) {
+    try {
+      homepageCategories = JSON.parse(settingsObj['homepageCategories'])
+    } catch (e) {
+      homepageCategories = []
+    }
+  }
+
   // Return with defaults if not set
   return res.status(200).json({
     heroTitle: settingsObj['heroTitle'] || 'Discover Your Natural Beauty',
@@ -22,6 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     specialOfferTitle: settingsObj['specialOfferTitle'] || 'Special Offer - 20% Off',
     specialOfferDescription: settingsObj['specialOfferDescription'] || 'Use code FIRST20 on your first order. Limited time only!',
     specialOfferCode: settingsObj['specialOfferCode'] || 'FIRST20',
+    homepageCategories,
   })
 }
 

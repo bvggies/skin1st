@@ -11,8 +11,16 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  OutlinedInput,
+  Checkbox,
+  ListItemText,
 } from '@mui/material'
-import { Save, Image as ImageIcon } from '@mui/icons-material'
+import { Save, Image as ImageIcon, Category } from '@mui/icons-material'
 import AdminLayout from '../../components/AdminLayout'
 import api from '../../api/axios'
 import toast from 'react-hot-toast'
@@ -26,6 +34,7 @@ export default function SiteSettings() {
     specialOfferTitle: '',
     specialOfferDescription: '',
     specialOfferCode: '',
+    homepageCategories: [] as string[],
   })
 
   const { data, isLoading } = useQuery(
@@ -43,8 +52,18 @@ export default function SiteSettings() {
           specialOfferTitle: data.specialOfferTitle || '',
           specialOfferDescription: data.specialOfferDescription || '',
           specialOfferCode: data.specialOfferCode || '',
+          homepageCategories: data.homepageCategories || [],
         })
       },
+    }
+  )
+
+  // Fetch all categories for selection
+  const { data: categoriesData } = useQuery(
+    ['admin:categories'],
+    async () => {
+      const res = await api.get('/admin/categories')
+      return res.data.categories || []
     }
   )
 
@@ -158,6 +177,57 @@ export default function SiteSettings() {
                       />
                     </Box>
                   )}
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Homepage Categories Section */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom sx={{ mb: 3 }}>
+                Homepage Categories
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel id="homepage-categories-label">Select Categories to Display</InputLabel>
+                    <Select
+                      labelId="homepage-categories-label"
+                      id="homepage-categories"
+                      multiple
+                      value={formData.homepageCategories}
+                      onChange={(e) => {
+                        const value = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value
+                        setFormData({ ...formData, homepageCategories: value as string[] })
+                      }}
+                      input={<OutlinedInput label="Select Categories to Display" />}
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {(selected as string[]).map((categoryId) => {
+                            const category = categoriesData?.find((c: any) => c.id === categoryId)
+                            return (
+                              <Chip
+                                key={categoryId}
+                                label={category?.name || categoryId}
+                                size="small"
+                                icon={<Category />}
+                              />
+                            )
+                          })}
+                        </Box>
+                      )}
+                    >
+                      {categoriesData?.map((category: any) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          <Checkbox checked={formData.homepageCategories.indexOf(category.id) > -1} />
+                          <ListItemText primary={category.name} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    Select the categories you want to display on the homepage. Up to 6 categories will be shown. 
+                    If no categories are selected, all categories will be displayed.
+                  </Alert>
                 </Grid>
               </Grid>
             </Paper>
