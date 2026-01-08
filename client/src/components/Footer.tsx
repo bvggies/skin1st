@@ -74,7 +74,17 @@ export default function Footer() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
-                whileHover={{ scale: 1.05, rotate: [0, -2, 2, -2, 0] }}
+                whileHover={{ 
+                  scale: 1.05,
+                  rotate: -2,
+                  transition: { 
+                    rotate: { 
+                      type: "spring", 
+                      stiffness: 300, 
+                      damping: 10 
+                    } 
+                  }
+                }}
                 whileTap={{ scale: 0.95 }}
                 style={{ display: 'inline-block' }}
               >
