@@ -79,9 +79,7 @@ export default function AdultShop() {
     {
       onError: (error: any) => {
         console.error('Error fetching products:', error)
-      }
-    },
-    {
+      },
       enabled: hasConsent, // Only fetch products if consent is given
     }
   )
