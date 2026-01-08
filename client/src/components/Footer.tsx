@@ -29,6 +29,7 @@ export default function Footer() {
       { label: 'New Arrivals', path: '/shop?sort=new' },
       { label: 'Best Sellers', path: '/shop?sort=bestseller' },
       { label: 'Special Offers', path: '/shop?sale=true' },
+      { label: 'Adult Products', path: '/adult-shop' },
     ],
     account: [
       { label: 'My Profile', path: '/profile' },

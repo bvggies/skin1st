@@ -152,7 +152,7 @@ export default function Home() {
   const { data: productsData, isLoading: productsLoading } = useQuery(
     ['products', 'featured'],
     async () => {
-      const res = await api.get('/products?perPage=8')
+      const res = await api.get('/products?perPage=8&adult=false')
       return res.data.products || []
     }
   )

@@ -41,11 +41,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const brand = req.query.brand as string | undefined
   const search = req.query.search as string | undefined
   const sort = req.query.sort as string | undefined
+  const adultParam = req.query.adult as string | undefined
 
   const where: any = {}
   if (category) where.category = { slug: category }
   if (brand) where.brand = { slug: brand }
   if (search) where.OR = [{ name: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }]
+  
+  // Filter adult items: only filter if adult parameter is explicitly set
+  // If adult=true, show only adult items; if adult=false, exclude adult items; if not set, show all
+  if (adultParam === 'true') {
+    where.isAdult = true
+  } else if (adultParam === 'false') {
+    where.isAdult = false
+  }
+  // If adult param is not set, don't filter by isAdult (show all products - useful for admin)
 
   // Order by updatedAt desc so new products and recently updated products appear first
   const orderBy: any = { updatedAt: 'desc' }

@@ -55,6 +55,20 @@ async function main() {
     create: { name: 'Soaps & Cleansing Bars', slug: 'soaps' }
   })
 
+  // Create Adult Category
+  const adultCategory = await prisma.category.upsert({
+    where: { slug: 'adult-products' },
+    update: {},
+    create: { name: 'Adult Products', slug: 'adult-products' }
+  })
+
+  // Create Adult Brand
+  const adultBrand = await prisma.brand.upsert({
+    where: { slug: 'intimate-care' },
+    update: {},
+    create: { name: 'Intimate Care', slug: 'intimate-care' }
+  })
+
   // Create Brands
   const skin1stBrand = await prisma.brand.upsert({
     where: { slug: 'skin1st' },
@@ -338,6 +352,110 @@ async function main() {
         { sku: 'ABS-250G', name: '250g Bar', price: 2500, discount: 300, stock: 60 }
       ],
       images: [{ url: 'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=600', alt: 'African Black Soap' }]
+    },
+
+    // ADULT PRODUCTS
+    {
+      name: 'Intimate Lubricant Gel',
+      slug: 'intimate-lubricant-gel',
+      description: 'A premium water-based intimate lubricant designed for comfort and safety. Hypoallergenic, pH-balanced formula that provides long-lasting smoothness without irritation. Suitable for sensitive skin and compatible with all types of protection.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: true,
+      isBestSeller: true,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Apply a small amount to desired area</li><li>Reapply as needed for comfort</li><li>Wash off with warm water after use</li><li>Store in a cool, dry place</li></ol>',
+      ingredients: '<p>Water, Glycerin, Propylene Glycol, Hydroxyethylcellulose, Citric Acid, Sodium Benzoate, Potassium Sorbate</p>',
+      variants: [
+        { sku: 'ILG-50ML', name: '50ml Tube', price: 3500, discount: 500, stock: 40 },
+        { sku: 'ILG-100ML', name: '100ml Bottle', price: 5500, discount: 800, stock: 30 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600', alt: 'Intimate Lubricant Gel' }]
+    },
+    {
+      name: 'Sensual Massage Oil',
+      slug: 'sensual-massage-oil',
+      description: 'A warming, aromatic massage oil enriched with natural oils and essential extracts. Creates a luxurious, silky texture perfect for intimate moments. Non-sticky formula that absorbs beautifully into the skin.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: true,
+      isBestSeller: false,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Warm a small amount in your hands</li><li>Apply to desired areas with gentle massage</li><li>Reapply as needed</li><li>Clean with warm water and mild soap after use</li></ol>',
+      ingredients: '<p>Sweet Almond Oil, Jojoba Oil, Vitamin E, Ylang-Ylang Essential Oil, Vanilla Extract</p>',
+      variants: [
+        { sku: 'SMO-100ML', name: '100ml Bottle', price: 4500, discount: 600, stock: 35 },
+        { sku: 'SMO-200ML', name: '200ml Bottle', price: 7500, discount: 1000, stock: 25 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600', alt: 'Sensual Massage Oil' }]
+    },
+    {
+      name: 'Intimate Cleansing Wash',
+      slug: 'intimate-cleansing-wash',
+      description: 'A gentle, pH-balanced intimate wash formulated with natural ingredients. Maintains natural pH levels while providing thorough, gentle cleansing. Free from harsh chemicals and suitable for daily use.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: false,
+      isBestSeller: true,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Apply a small amount to wet skin</li><li>Gently lather and cleanse</li><li>Rinse thoroughly with warm water</li><li>Use daily as part of your hygiene routine</li></ol>',
+      ingredients: '<p>Water, Aloe Vera Extract, Chamomile Extract, Tea Tree Oil, Glycerin, Lactic Acid</p>',
+      variants: [
+        { sku: 'ICW-200ML', name: '200ml Bottle', price: 3200, discount: 400, stock: 50 },
+        { sku: 'ICW-400ML', name: '400ml Bottle', price: 5500, discount: 700, stock: 35 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600', alt: 'Intimate Cleansing Wash' }]
+    },
+    {
+      name: 'Arousal Enhancement Gel',
+      slug: 'arousal-enhancement-gel',
+      description: 'A premium warming gel designed to enhance sensitivity and pleasure. Creates a gentle warming sensation that increases blood flow and sensitivity. Made with natural ingredients for a safe, enjoyable experience.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: true,
+      isBestSeller: true,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Apply a small amount to clean, dry skin</li><li>Wait 30-60 seconds for warming effect</li><li>Start with a small amount to test sensitivity</li><li>Wash off with warm water after use</li></ol><p><strong>Note:</strong> Avoid contact with eyes and broken skin</p>',
+      ingredients: '<p>Water, Glycerin, Menthol, Capsaicin Extract, Aloe Vera, Vitamin E</p>',
+      variants: [
+        { sku: 'AEG-30ML', name: '30ml Tube', price: 4200, discount: 600, stock: 40 },
+        { sku: 'AEG-50ML', name: '50ml Tube', price: 6500, discount: 1000, stock: 25 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600', alt: 'Arousal Enhancement Gel' }]
+    },
+    {
+      name: 'Relaxing Intimate Oil',
+      slug: 'relaxing-intimate-oil',
+      description: 'A soothing oil blend designed to help with relaxation and comfort. Enriched with calming botanical extracts and natural oils that provide gentle moisturization and ease tension.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: false,
+      isBestSeller: false,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Apply a few drops to fingertips</li><li>Gently massage into desired area</li><li>Allow to absorb naturally</li><li>Use as needed for comfort</li></ol>',
+      ingredients: '<p>Jojoba Oil, Sweet Almond Oil, Lavender Essential Oil, Chamomile Extract, Vitamin E</p>',
+      variants: [
+        { sku: 'RIO-50ML', name: '50ml Bottle', price: 3800, discount: 500, stock: 30 },
+        { sku: 'RIO-100ML', name: '100ml Bottle', price: 6500, discount: 800, stock: 20 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600', alt: 'Relaxing Intimate Oil' }]
+    },
+    {
+      name: 'Sensual Body Mist',
+      slug: 'sensual-body-mist',
+      description: 'A light, alluring body mist with a subtle, sensual fragrance. Perfect for creating a romantic atmosphere. Long-lasting scent that enhances confidence and allure.',
+      categoryId: adultCategory.id,
+      brandId: adultBrand.id,
+      isNew: true,
+      isBestSeller: false,
+      isAdult: true,
+      howToUse: '<p><strong>How to Use:</strong></p><ol><li>Spray lightly on pulse points</li><li>Can be applied to body or used as room mist</li><li>Reapply as desired</li><li>Avoid contact with eyes</li></ol>',
+      ingredients: '<p>Water, Fragrance, Alcohol, Glycerin, Essential Oils Blend</p>',
+      variants: [
+        { sku: 'SBM-100ML', name: '100ml Spray', price: 2800, discount: 300, stock: 45 },
+        { sku: 'SBM-200ML', name: '200ml Spray', price: 4800, discount: 600, stock: 30 }
+      ],
+      images: [{ url: 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=600', alt: 'Sensual Body Mist' }]
     }
   ]
 
@@ -429,19 +547,32 @@ async function main() {
     }
   })
 
+  const adultProductsCount = products.filter(p => p.isAdult).length
+  const regularProductsCount = products.length - adultProductsCount
+
   console.log(`✅ Seeding completed!`)
-  console.log(`📦 Created ${products.length} beauty products including:`)
+  console.log(`📦 Created ${products.length} products:`)
+  console.log(`   • ${regularProductsCount} regular beauty products`)
+  console.log(`   • ${adultProductsCount} adult products`)
+  console.log(``)
+  console.log(`Regular Products:`)
   console.log(`   • Mooyam Sunscreen SPF 50+`)
   console.log(`   • Mooyam Niacinamide 10% Serum`)
   console.log(`   • Lemon Turmeric Brightening Soap`)
   console.log(`   • Collagen Boost Eye Cream`)
   console.log(`   • NIDA Brightening & Moisturizing Cream`)
-  console.log(`   • Mooyam Turmeric Face Cream`)
-  console.log(`   • African Black Soap`)
   console.log(`   • And more...`)
   console.log(``)
-  console.log(`🏷️ Categories: Face Care, Body Oils, Serums, Moisturizers, Cleansers, Treatments, Sunscreen, Soaps`)
-  console.log(`🏢 Brands: Skin1st, Mooyam, NIDA, Pure Beauty, Natural Glow, Elite Skincare`)
+  console.log(`Adult Products:`)
+  console.log(`   • Intimate Lubricant Gel`)
+  console.log(`   • Sensual Massage Oil`)
+  console.log(`   • Intimate Cleansing Wash`)
+  console.log(`   • Arousal Enhancement Gel`)
+  console.log(`   • Relaxing Intimate Oil`)
+  console.log(`   • Sensual Body Mist`)
+  console.log(``)
+  console.log(`🏷️ Categories: Face Care, Body Oils, Serums, Moisturizers, Cleansers, Treatments, Sunscreen, Soaps, Adult Products`)
+  console.log(`🏢 Brands: Skin1st, Mooyam, NIDA, Pure Beauty, Natural Glow, Elite Skincare, Intimate Care`)
   console.log(``)
   console.log(`👤 Admin Login:`)
   console.log(`   Email: admin@skin1st.com`)

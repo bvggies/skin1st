@@ -31,7 +31,7 @@ export default function SearchAutocomplete({ onSelect }: SearchAutocompleteProps
     ['products', 'search', query],
     async () => {
       if (!query || query.length < 2) return { products: [] }
-      const res = await api.get(`/products?search=${encodeURIComponent(query)}&perPage=5`)
+      const res = await api.get(`/products?search=${encodeURIComponent(query)}&perPage=5&adult=false`)
       return res.data
     },
     { enabled: query.length >= 2 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Box,
@@ -14,21 +14,43 @@ import {
   Chip,
   Pagination,
   Stack,
-  CircularProgress,
+  Alert,
 } from '@mui/material'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import api from '../api/axios'
 import SearchBar from '../components/SearchBar'
 import SkeletonCard from '../components/SkeletonCard'
+import AgeVerification from '../components/AgeVerification'
 
-export default function Shop() {
+export default function AdultShop() {
+  const [hasConsent, setHasConsent] = useState(false)
+  const [showVerification, setShowVerification] = useState(false)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedBrand, setSelectedBrand] = useState<string>('')
   const [sort, setSort] = useState<string>('')
   const [perPage] = useState(12)
+
+  // Check for consent on mount
+  useEffect(() => {
+    const consent = localStorage.getItem('adultContentConsent')
+    if (consent === 'true') {
+      setHasConsent(true)
+    } else {
+      setShowVerification(true)
+    }
+  }, [])
+
+  const handleConsentConfirm = () => {
+    setHasConsent(true)
+    setShowVerification(false)
+  }
+
+  const handleConsentCancel = () => {
+    setShowVerification(false)
+  }
 
   const { data: categories } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
@@ -41,7 +63,7 @@ export default function Shop() {
   })
 
   const { data, isLoading, error } = useQuery(
-    ['products', page, search, selectedCategory, selectedBrand, sort],
+    ['products', 'adult', page, search, selectedCategory, selectedBrand, sort],
     async () => {
       const qs = []
       if (search) qs.push(`search=${encodeURIComponent(search)}`)
@@ -50,7 +72,7 @@ export default function Shop() {
       if (sort) qs.push(`sort=${encodeURIComponent(sort)}`)
       qs.push(`page=${page}`)
       qs.push(`perPage=${perPage}`)
-      qs.push(`adult=false`) // Exclude adult items from main shop
+      qs.push(`adult=true`) // Only show adult items
       const res = await api.get(`/products?${qs.join('&')}`)
       return res.data
     },
@@ -58,6 +80,9 @@ export default function Shop() {
       onError: (error: any) => {
         console.error('Error fetching products:', error)
       }
+    },
+    {
+      enabled: hasConsent, // Only fetch products if consent is given
     }
   )
 
@@ -228,11 +253,28 @@ export default function Shop() {
     )
   }
 
+  // Show age verification if consent hasn't been given
+  if (!hasConsent) {
+    return (
+      <AgeVerification
+        open={showVerification}
+        onConfirm={handleConsentConfirm}
+        onCancel={handleConsentCancel}
+      />
+    )
+  }
+
   return (
     <Box>
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="body2">
+          <strong>18+ Only:</strong> This section contains adult products. You must be 18 years or older to view and purchase these items.
+        </Typography>
+      </Alert>
+
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
         <Typography variant="h4" component="h1" fontWeight={600}>
-          Shop
+          Adult Products
         </Typography>
         <Box sx={{ width: { xs: '100%', md: 300 } }}>
           <SearchBar value={search} onChange={(v) => { setPage(1); setSearch(v) }} />
@@ -370,3 +412,4 @@ export default function Shop() {
     </Box>
   )
 }
+

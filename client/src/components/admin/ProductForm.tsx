@@ -103,6 +103,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     isBestSeller: false,
     moneyBackGuarantee: false,
     eligibleForReturn: true,
+    isAdult: false,
     // New fields
     howToUse: '',
     ingredients: '',
@@ -149,6 +150,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
         isBestSeller: product.isBestSeller || false,
         moneyBackGuarantee: product.moneyBackGuarantee || false,
         eligibleForReturn: product.eligibleForReturn !== undefined ? product.eligibleForReturn : true,
+        isAdult: product.isAdult || false,
         howToUse: product.howToUse || '',
         ingredients: product.ingredients || '',
         pricingPackaging: product.pricingPackaging || '',
@@ -511,6 +513,22 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
                       <Chip
                         label={formData.eligibleForReturn ? 'Eligible for Returns' : 'Not Returnable'}
                         color={formData.eligibleForReturn ? 'success' : 'error'}
+                        size="small"
+                      />
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.isAdult}
+                        onChange={(e) => setFormData({ ...formData, isAdult: e.target.checked })}
+                        color={formData.isAdult ? 'error' : 'default'}
+                      />
+                    }
+                    label={
+                      <Chip
+                        label={formData.isAdult ? 'Adult Product' : 'Regular Product'}
+                        color={formData.isAdult ? 'error' : 'default'}
                         size="small"
                       />
                     }

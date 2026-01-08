@@ -13,6 +13,7 @@ const ProductSchema = z.object({
   isBestSeller: z.boolean().optional(),
   moneyBackGuarantee: z.boolean().optional(),
   eligibleForReturn: z.boolean().optional(),
+  isAdult: z.boolean().optional(),
   // New fields
   howToUse: z.string().optional(),
   ingredients: z.string().optional(),
@@ -41,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { 
     name, slug, description, categoryId, brandId, 
-    isNew, isBestSeller, moneyBackGuarantee, eligibleForReturn,
+    isNew, isBestSeller, moneyBackGuarantee, eligibleForReturn, isAdult,
     howToUse, ingredients, pricingPackaging, faq, deliveryReturns,
     images, variants 
   } = parse.data
@@ -61,6 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       isBestSeller: isBestSeller || false,
       moneyBackGuarantee: moneyBackGuarantee || false,
       eligibleForReturn: eligibleForReturn !== undefined ? eligibleForReturn : true,
+      isAdult: isAdult || false,
       howToUse: howToUse || null,
       ingredients: ingredients || null,
       pricingPackaging: pricingPackaging || null,

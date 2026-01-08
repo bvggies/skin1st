@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
+import AdultShop from './pages/AdultShop'
 import Product from './pages/Product'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
@@ -70,6 +71,7 @@ function PublicRoutes() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 } }}><Shop /></Container>} />
+        <Route path="/adult-shop" element={<Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 } }}><AdultShop /></Container>} />
         <Route path="/product/:slug" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Product /></Container>} />
         <Route path="/cart" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Cart /></Container>} />
         <Route path="/checkout" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Checkout /></Container>} />
