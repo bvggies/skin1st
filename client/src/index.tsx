@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'
+import { Analytics } from '@vercel/analytics/react'
 import App from './App'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
@@ -250,6 +251,7 @@ root.render(
                 },
               }}
             />
+            <Analytics />
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
