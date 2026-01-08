@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   Container,
   Box,
@@ -68,16 +69,37 @@ export default function Footer() {
           {/* Brand Column */}
           <Grid item xs={12} md={4}>
             <Box component={Link} to="/" sx={{ display: 'inline-block', mb: 3 }}>
-              <Box
-                component="img"
-                src="/assets/skin1stwhite.png"
-                alt="Skin1st Beauty Therapy"
-                sx={{
-                  height: 50,
-                  width: 'auto',
-                  objectFit: 'contain',
-                }}
-              />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                whileHover={{ scale: 1.05, rotate: [0, -2, 2, -2, 0] }}
+                whileTap={{ scale: 0.95 }}
+                style={{ display: 'inline-block' }}
+              >
+                <Box
+                  component="img"
+                  src="/assets/skin1stwhite.png"
+                  alt="Skin1st Beauty Therapy"
+                  sx={{
+                    height: 50,
+                    width: 'auto',
+                    objectFit: 'contain',
+                    filter: 'brightness(1)',
+                    transition: 'filter 4s ease-in-out',
+                    animation: 'pulseFooter 4s ease-in-out infinite',
+                    '@keyframes pulseFooter': {
+                      '0%, 100%': {
+                        filter: 'brightness(1)',
+                      },
+                      '50%': {
+                        filter: 'brightness(1.15)',
+                      },
+                    },
+                  }}
+                />
+              </motion.div>
             </Box>
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 3, maxWidth: 300 }}>
               Premium beauty and skin therapy products. Quality you can trust, 

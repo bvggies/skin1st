@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { motion } from 'framer-motion'
 import {
   AppBar,
   Toolbar,
@@ -112,12 +113,34 @@ export default function Header() {
         borderColor: 'grey.200',
       }}>
         <Box component={Link} to="/" onClick={handleDrawerToggle}>
-          <Box
-            component="img"
-            src="/assets/skin1st.png"
-            alt="Skin1st"
-            sx={{ height: 40, width: 'auto', objectFit: 'contain' }}
-          />
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            whileHover={{ scale: 1.05 }}
+          >
+            <Box
+              component="img"
+              src="/assets/skin1st.png"
+              alt="Skin1st"
+              sx={{
+                height: 40,
+                width: 'auto',
+                objectFit: 'contain',
+                filter: 'brightness(1)',
+                transition: 'filter 3s ease-in-out',
+                animation: 'pulse 3s ease-in-out infinite',
+                '@keyframes pulse': {
+                  '0%, 100%': {
+                    filter: 'brightness(1)',
+                  },
+                  '50%': {
+                    filter: 'brightness(1.1)',
+                  },
+                },
+              }}
+            />
+          </motion.div>
         </Box>
         <IconButton onClick={handleDrawerToggle}>
           <Close />
@@ -312,20 +335,36 @@ export default function Header() {
                   mr: { xs: 'auto', md: 4 },
                 }}
               >
-                <Box
-                  component="img"
-                  src="/assets/skin1st.png"
-                  alt="Skin1st Beauty Therapy"
-                  sx={{
-                    height: { xs: 36, md: 44 },
-                    width: 'auto',
-                    objectFit: 'contain',
-                    transition: 'transform 0.2s ease',
-                    '&:hover': {
-                      transform: 'scale(1.02)',
-                    },
-                  }}
-                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  whileHover={{ scale: 1.05, rotate: [0, -2, 2, -2, 0] }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{ display: 'inline-block' }}
+                >
+                  <Box
+                    component="img"
+                    src="/assets/skin1st.png"
+                    alt="Skin1st Beauty Therapy"
+                    sx={{
+                      height: { xs: 36, md: 44 },
+                      width: 'auto',
+                      objectFit: 'contain',
+                      filter: 'brightness(1)',
+                      transition: 'filter 3s ease-in-out',
+                      animation: 'pulse 3s ease-in-out infinite',
+                      '@keyframes pulse': {
+                        '0%, 100%': {
+                          filter: 'brightness(1)',
+                        },
+                        '50%': {
+                          filter: 'brightness(1.1)',
+                        },
+                      },
+                    }}
+                  />
+                </motion.div>
               </Box>
 
               {/* Desktop Navigation */}
