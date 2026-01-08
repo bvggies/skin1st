@@ -71,20 +71,9 @@ export default function Footer() {
             <Box component={Link} to="/" sx={{ display: 'inline-block', mb: 3 }}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
-                whileHover={{ 
-                  scale: 1.05,
-                  rotate: -2,
-                  transition: { 
-                    rotate: { 
-                      type: "spring", 
-                      stiffness: 300, 
-                      damping: 10 
-                    } 
-                  }
-                }}
+                whileHover={{ scale: 1.05, rotate: -2 }}
                 whileTap={{ scale: 0.95 }}
                 style={{ display: 'inline-block' }}
               >
