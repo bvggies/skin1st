@@ -13,6 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const parse = CartSchema.safeParse(req.body || {})
   if (!parse.success) return res.status(400).json({ error: parse.error.errors })
 
-  const merged = await mergeCart(user.id, parse.data.items)
+  // TypeScript type assertion - Zod validation ensures items have required properties
+  const merged = await mergeCart(user.id, parse.data.items as { variantId: string; quantity: number }[])
   return res.status(200).json({ cart: merged })
 }

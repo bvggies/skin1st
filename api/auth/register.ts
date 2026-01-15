@@ -58,7 +58,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // merge guest cart if provided
   let mergedCart = null
   if (cart && Array.isArray(cart)) {
-    mergedCart = await mergeCart(user.id, cart)
+    // Filter out any items with missing required properties
+    const validCartItems = cart.filter((item): item is { variantId: string; quantity: number } => 
+      typeof item.variantId === 'string' && typeof item.quantity === 'number' && item.quantity > 0
+    )
+    if (validCartItems.length > 0) {
+      mergedCart = await mergeCart(user.id, validCartItems)
+    }
   }
 
   // merge server-side guest cart if cookie present
