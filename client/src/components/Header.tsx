@@ -339,17 +339,7 @@ export default function Header() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    rotate: -2,
-                    transition: { 
-                      rotate: { 
-                        type: "spring", 
-                        stiffness: 300, 
-                        damping: 10 
-                      } 
-                    }
-                  }}
+                  whileHover={{ scale: 1.05, rotate: -2 }}
                   whileTap={{ scale: 0.95 }}
                   style={{ display: 'inline-block' }}
                 >

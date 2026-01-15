@@ -80,7 +80,7 @@ export default function AgeVerification({ open, onConfirm, onCancel }: AgeVerifi
               Important Notice
             </Typography>
             <Typography variant="body2">
-              This section contains adult products intended for individuals who are 18 years of age or older. 
+              This section contains pleasure products intended for individuals who are 18 years of age or older. 
               By proceeding, you confirm that you meet the age requirement and consent to viewing adult content.
             </Typography>
           </Alert>
@@ -107,7 +107,7 @@ export default function AgeVerification({ open, onConfirm, onCancel }: AgeVerifi
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 • You understand that this website and its operators are not responsible for any consequences 
-                  resulting from your access to or use of adult products
+                  resulting from your access to or use of pleasure products
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 • You agree to use this section responsibly and in accordance with applicable laws

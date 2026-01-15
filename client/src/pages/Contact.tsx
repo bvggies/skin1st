@@ -56,8 +56,8 @@ export default function Contact() {
                 Phone
               </Typography>
             </Box>
-            <Link href={`tel:${process.env.REACT_APP_WHATSAPP_NUMBER}`} color="primary" underline="hover">
-              {process.env.REACT_APP_WHATSAPP_NUMBER || 'Contact us'}
+            <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER || process.env.REACT_APP_WHATSAPP_NUMBER}`} color="primary" underline="hover">
+              {process.env.REACT_APP_PHONE_NUMBER || process.env.REACT_APP_WHATSAPP_NUMBER || 'Contact us'}
             </Link>
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -84,8 +84,8 @@ export default function Contact() {
                 Email
               </Typography>
             </Box>
-            <Link href="mailto:support@skin1st.com" color="primary" underline="hover">
-              support@skin1st.com
+            <Link href="mailto:info@skin1stbeauty.com" color="primary" underline="hover">
+              info@skin1stbeauty.com
             </Link>
           </Grid>
           <Grid item xs={12} sm={6}>

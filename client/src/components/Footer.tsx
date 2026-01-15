@@ -30,7 +30,7 @@ export default function Footer() {
       { label: 'New Arrivals', path: '/shop?sort=new' },
       { label: 'Best Sellers', path: '/shop?sort=bestseller' },
       { label: 'Special Offers', path: '/shop?sale=true' },
-      { label: 'Adult Products', path: '/adult-shop' },
+      { label: 'Everything Pleasure', path: '/adult-shop' },
     ],
     account: [
       { label: 'My Profile', path: '/profile' },
@@ -241,7 +241,7 @@ export default function Footer() {
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                 <Email sx={{ color: '#e94560', fontSize: 20, mt: 0.3 }} />
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                  support@skin1st.com
+                  info@skin1stbeauty.com
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>

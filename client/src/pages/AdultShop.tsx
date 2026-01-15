@@ -266,13 +266,13 @@ export default function AdultShop() {
     <Box>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>18+ Only:</strong> This section contains adult products. You must be 18 years or older to view and purchase these items.
+          <strong>18+ Only:</strong> This section contains pleasure products. You must be 18 years or older to view and purchase these items.
         </Typography>
       </Alert>
 
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
         <Typography variant="h4" component="h1" fontWeight={600}>
-          Adult Products
+          Everything Pleasure
         </Typography>
         <Box sx={{ width: { xs: '100%', md: 300 } }}>
           <SearchBar value={search} onChange={(v) => { setPage(1); setSearch(v) }} />

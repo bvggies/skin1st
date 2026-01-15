@@ -527,7 +527,7 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
                     }
                     label={
                       <Chip
-                        label={formData.isAdult ? 'Adult Product' : 'Regular Product'}
+                        label={formData.isAdult ? 'Pleasure Product' : 'Regular Product'}
                         color={formData.isAdult ? 'error' : 'default'}
                         size="small"
                       />

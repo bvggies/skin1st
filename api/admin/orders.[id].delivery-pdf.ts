@@ -46,9 +46,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const companyInfo = {
     name: 'Skin1st Beauty Therapy',
     address: 'Accra, Ghana',
-    phone: process.env.COMPANY_PHONE || '+233 XX XXX XXXX',
-    email: process.env.COMPANY_EMAIL || 'info@skin1st.com',
-    website: process.env.COMPANY_WEBSITE || 'www.skin1st.com'
+    phone: process.env.COMPANY_PHONE || '+233539064833',
+    email: process.env.COMPANY_EMAIL || 'info@skin1stbeauty.com',
+    website: process.env.COMPANY_WEBSITE || 'www.skin1stbeauty.com'
   }
 
   // Create PDF

@@ -33,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Send email to support (non-blocking)
   try {
     await sendEmail({
-      to: process.env.SUPPORT_EMAIL || 'support@skin1st.com',
+      to: process.env.SUPPORT_EMAIL || 'info@skin1stbeauty.com',
       subject: `Contact Form: ${sanitizedSubject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
