@@ -11,6 +11,7 @@ import {
   Container,
   Grid,
   Link,
+  Stack,
 } from '@mui/material'
 import { Phone, WhatsApp, Email, Schedule } from '@mui/icons-material'
 import api from '../api/axios'
@@ -56,9 +57,23 @@ export default function Contact() {
                 Phone
               </Typography>
             </Box>
-            <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER || process.env.REACT_APP_WHATSAPP_NUMBER}`} color="primary" underline="hover">
-              {process.env.REACT_APP_PHONE_NUMBER || process.env.REACT_APP_WHATSAPP_NUMBER || 'Contact us'}
-            </Link>
+            <Stack spacing={1}>
+              {process.env.REACT_APP_PHONE_NUMBER && (
+                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`} color="primary" underline="hover" display="block">
+                  {process.env.REACT_APP_PHONE_NUMBER}
+                </Link>
+              )}
+              {process.env.REACT_APP_PHONE_NUMBER_2 && (
+                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`} color="primary" underline="hover" display="block">
+                  {process.env.REACT_APP_PHONE_NUMBER_2}
+                </Link>
+              )}
+              {!process.env.REACT_APP_PHONE_NUMBER && !process.env.REACT_APP_PHONE_NUMBER_2 && (
+                <Typography variant="body2" color="text.secondary">
+                  Contact us
+                </Typography>
+              )}
+            </Stack>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>

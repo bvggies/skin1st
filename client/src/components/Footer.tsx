@@ -223,6 +223,39 @@ export default function Footer() {
             </Typography>
             <Stack spacing={2}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                <Phone sx={{ color: '#e94560', fontSize: 20, mt: 0.3 }} />
+                <Stack spacing={0.5}>
+                  {process.env.REACT_APP_PHONE_NUMBER && (
+                    <MuiLink
+                      href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`}
+                      sx={{
+                        color: 'rgba(255,255,255,0.7)',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        display: 'block',
+                        '&:hover': { color: '#e94560' },
+                      }}
+                    >
+                      {process.env.REACT_APP_PHONE_NUMBER}
+                    </MuiLink>
+                  )}
+                  {process.env.REACT_APP_PHONE_NUMBER_2 && (
+                    <MuiLink
+                      href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`}
+                      sx={{
+                        color: 'rgba(255,255,255,0.7)',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        display: 'block',
+                        '&:hover': { color: '#e94560' },
+                      }}
+                    >
+                      {process.env.REACT_APP_PHONE_NUMBER_2}
+                    </MuiLink>
+                  )}
+                </Stack>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                 <WhatsApp sx={{ color: '#25D366', fontSize: 20, mt: 0.3 }} />
                 <MuiLink
                   href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || ''}`}
