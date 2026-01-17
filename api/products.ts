@@ -50,6 +50,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   // Filter adult items: only filter if adult parameter is explicitly set
   // If adult=true, show only adult items; if adult=false, exclude adult items; if not set, show all
+  // IMPORTANT: When adult=false, always exclude adult products regardless of category filter
+  // This ensures that even if adult-products category is selected, adult products won't show
   if (adultParam === 'true') {
     where.isAdult = true
   } else if (adultParam === 'false') {

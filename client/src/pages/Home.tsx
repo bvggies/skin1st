@@ -146,7 +146,9 @@ export default function Home() {
   const specialOfferDescription = siteSettings?.specialOfferDescription || 'Use code FIRST20 on your first order. Limited time only!'
   const { data: categoriesData } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
-    return res.data.categories || []
+    // Filter out adult products category from homepage
+    const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
+    return filtered
   })
 
   const { data: productsData, isLoading: productsLoading } = useQuery(
@@ -164,8 +166,14 @@ export default function Home() {
   let filteredCategories = categoriesData && categoriesData.length > 0 ? categoriesData : sampleCategories
   
   // If homepage categories are selected, filter to only show those
+  // Also ensure adult-products category is never shown on homepage
   if (homepageCategoryIds.length > 0 && categoriesData && categoriesData.length > 0) {
-    filteredCategories = categoriesData.filter((cat: any) => homepageCategoryIds.includes(cat.id))
+    filteredCategories = categoriesData.filter((cat: any) => 
+      homepageCategoryIds.includes(cat.id) && cat.slug !== 'adult-products'
+    )
+  } else {
+    // Even if no specific categories are selected, filter out adult-products
+    filteredCategories = filteredCategories.filter((cat: any) => cat.slug !== 'adult-products')
   }
   
   // Use filtered categories, fallback to sample if empty

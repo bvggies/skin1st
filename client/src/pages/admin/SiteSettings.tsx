@@ -58,12 +58,13 @@ export default function SiteSettings() {
     }
   )
 
-  // Fetch all categories for selection
+  // Fetch all categories for selection (excluding adult-products category)
   const { data: categoriesData } = useQuery(
     ['admin:categories'],
     async () => {
       const res = await api.get('/admin/categories')
-      return res.data.categories || []
+      // Filter out adult-products category from homepage category selection
+      return (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
     }
   )
 

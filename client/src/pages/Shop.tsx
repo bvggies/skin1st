@@ -32,7 +32,9 @@ export default function Shop() {
 
   const { data: categories } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
-    return res.data.categories || []
+    // Filter out adult products category from main shop
+    const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
+    return filtered
   })
 
   const { data: brands } = useQuery(['brands'], async () => {
