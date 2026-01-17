@@ -43,21 +43,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const sort = req.query.sort as string | undefined
   const adultParam = req.query.adult as string | undefined
 
-  const where: any = {}
-  if (category) where.category = { slug: category }
-  if (brand) where.brand = { slug: brand }
-  if (search) where.OR = [{ name: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }]
+  // Build where clause step by step
+  const whereConditions: any[] = []
+  
+  // Handle category filter
+  if (category) {
+    whereConditions.push({ category: { slug: category } })
+  }
+  
+  // Handle brand filter
+  if (brand) {
+    whereConditions.push({ brand: { slug: brand } })
+  }
+  
+  // Handle search filter
+  if (search) {
+    whereConditions.push({
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } }
+      ]
+    })
+  }
   
   // Filter adult items: only filter if adult parameter is explicitly set
-  // If adult=true, show only adult items; if adult=false, exclude adult items; if not set, show all
-  // IMPORTANT: When adult=false, always exclude adult products regardless of category filter
-  // This ensures that even if adult-products category is selected, adult products won't show
+  // IMPORTANT: When adult=false, exclude products from adult-products category AND products with isAdult=true
+  // This ensures that products in the adult-products category never appear on homepage or main shop
+  // When adult=true, show products that are adult (either flagged as adult OR in adult-products category)
   if (adultParam === 'true') {
-    where.isAdult = true
+    // Show products that are adult (either flagged as adult OR in adult-products category)
+    whereConditions.push({
+      OR: [
+        { isAdult: true },
+        { category: { slug: 'adult-products' } }
+      ]
+    })
   } else if (adultParam === 'false') {
-    where.isAdult = false
+    // Exclude products that are adult (either flagged as adult OR in adult-products category)
+    whereConditions.push({ isAdult: false })
+    whereConditions.push({ category: { slug: { not: 'adult-products' } } })
   }
   // If adult param is not set, don't filter by isAdult (show all products - useful for admin)
+  
+  // Combine all conditions with AND
+  const where = whereConditions.length > 0 ? { AND: whereConditions } : {}
 
   // Order by updatedAt desc so new products and recently updated products appear first
   const orderBy: any = { updatedAt: 'desc' }
@@ -80,6 +109,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     take: perPage,
     orderBy
   })
+
+  // Debug logging for adult products
+  if (adultParam === 'true') {
+    console.log(`[Products API] Adult products query - Total: ${total}, Found: ${products.length}, Where:`, JSON.stringify(whereWithVariants, null, 2))
+  }
 
   res.status(200).json({ products, meta: { total, page, perPage } })
 }

@@ -73,12 +73,16 @@ export default function AdultShop() {
       qs.push(`page=${page}`)
       qs.push(`perPage=${perPage}`)
       qs.push(`adult=true`) // Only show adult items
-      const res = await api.get(`/products?${qs.join('&')}`)
+      const url = `/products?${qs.join('&')}`
+      console.log('[AdultShop] Fetching products from:', url)
+      const res = await api.get(url)
+      console.log('[AdultShop] Products response:', { total: res.data.meta?.total, productsCount: res.data.products?.length, products: res.data.products })
       return res.data
     },
     {
       onError: (error: any) => {
-        console.error('Error fetching products:', error)
+        console.error('[AdultShop] Error fetching products:', error)
+        console.error('[AdultShop] Error details:', error.response?.data)
       },
       enabled: hasConsent, // Only fetch products if consent is given
     }
@@ -376,8 +380,13 @@ export default function AdultShop() {
         </Grid>
       ) : products.length === 0 ? (
         <Paper sx={{ p: 6, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            No products found matching your criteria.
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            No products found
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {hasActiveFilters 
+              ? 'No products match your current filters. Try clearing the filters to see all available products.'
+              : 'No adult products are currently available. Please check back later or contact support if you believe this is an error.'}
           </Typography>
           {hasActiveFilters && (
             <Button onClick={clearFilters} variant="contained" color="primary" sx={{ mt: 2 }}>
