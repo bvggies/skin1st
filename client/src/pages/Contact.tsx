@@ -57,14 +57,19 @@ export default function Contact() {
                 Phone
               </Typography>
             </Box>
-            <Stack spacing={1}>
+            <Box>
               {process.env.REACT_APP_PHONE_NUMBER && (
-                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`} color="primary" underline="hover" display="block">
+                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`} color="primary" underline="hover" sx={{ mr: 1 }}>
                   {process.env.REACT_APP_PHONE_NUMBER}
                 </Link>
               )}
+              {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER_2 && (
+                <Typography component="span" variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
+                  /
+                </Typography>
+              )}
               {process.env.REACT_APP_PHONE_NUMBER_2 && (
-                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`} color="primary" underline="hover" display="block">
+                <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`} color="primary" underline="hover">
                   {process.env.REACT_APP_PHONE_NUMBER_2}
                 </Link>
               )}
@@ -73,7 +78,7 @@ export default function Contact() {
                   Contact us
                 </Typography>
               )}
-            </Stack>
+            </Box>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
