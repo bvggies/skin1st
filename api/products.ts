@@ -1,7 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from './db'
+import { setSecurityHeaders } from './middleware/security'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
   // Check if this is a single product request (slug in query)

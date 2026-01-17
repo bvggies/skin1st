@@ -1,16 +1,15 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { authGuard } from '../middleware/auth'
 import prisma from '../db'
+import { setSecurityHeaders } from '../middleware/security'
+import { sanitizeOrder } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   const user = await authGuard(req, res)
   if (!user) return
-
-  // Log for debugging (remove in production)
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Fetching orders for user:', user.id, user.email)
-  }
 
   const orders = await prisma.order.findMany({ 
     where: { userId: user.id }, 
@@ -34,11 +33,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     orderBy: { createdAt: 'desc' } 
   })
   
-  // Log for debugging (remove in production)
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Found orders:', orders.length, 'for user:', user.id)
-  }
+  // Sanitize orders - users can see their own full order data
+  const sanitizedOrders = orders.map(o => sanitizeOrder(o, true, false))
   
-  res.status(200).json({ orders })
+  res.status(200).json({ orders: sanitizedOrders })
 }
 

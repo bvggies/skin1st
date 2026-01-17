@@ -5,11 +5,15 @@ import bcrypt from 'bcryptjs'
 import { signAccessToken, signRefreshToken, hashToken } from '../utils/jwt'
 import { mergeCart } from '../cart.utils'
 import { authRateLimit } from '../middleware/rateLimit'
+import { setSecurityHeaders } from '../middleware/security'
+import { sanitizeUser } from '../utils/responseSanitizer'
 
 const CartItem = z.object({ variantId: z.string(), quantity: z.number().min(1) })
 const LoginSchema = z.object({ email: z.string().email(), password: z.string(), cart: z.array(CartItem).optional() })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   
   // Rate limiting
@@ -60,5 +64,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  return res.status(200).json({ user: { id: user.id, email: user.email, name: user.name, role: user.role }, accessToken, cart: mergedCart })
+  // Sanitize user data before sending (user can see their own full data except password)
+  const sanitizedUser = sanitizeUser(user, true)
+  
+  return res.status(200).json({ user: sanitizedUser, accessToken, cart: mergedCart })
 }

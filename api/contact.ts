@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { sanitizeString, sanitizeEmail } from './utils/sanitize'
 import { sendEmail } from './utils/email'
 import { apiRateLimit } from './middleware/rateLimit'
+import { setSecurityHeaders } from './middleware/security'
 
 const ContactSchema = z.object({
   name: z.string().min(1),
@@ -13,6 +14,8 @@ const ContactSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Rate limiting

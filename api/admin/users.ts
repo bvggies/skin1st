@@ -1,8 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from '../db'
 import { authGuard } from '../middleware/auth'
+import { setSecurityHeaders } from '../middleware/security'
+import { sanitizeUser } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   const user = await authGuard(req, res)
   if (!user) return
   if (user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' })
@@ -39,6 +43,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     take: ps
   })
 
-  res.status(200).json({ users, meta: { page: p, pageSize: ps, total } })
+  // Sanitize user data - admins can see full data but still remove password
+  const sanitizedUsers = users.map(u => sanitizeUser(u, true))
+
+  res.status(200).json({ users: sanitizedUsers, meta: { page: p, pageSize: ps, total } })
 }
 

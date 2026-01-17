@@ -1,8 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from '../db'
 import { authGuard } from '../middleware/auth'
+import { setSecurityHeaders } from '../middleware/security'
+import { sanitizeOrder } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   const user = await authGuard(req, res)
   if (!user) return
   if (user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' })
@@ -17,5 +21,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const events = await prisma.eventTracking.findMany({ where: { orderId: id }, orderBy: { createdAt: 'desc' } })
 
-  res.status(200).json({ order, events })
+  // Sanitize order data - admin can see full data
+  const sanitizedOrder = sanitizeOrder(order, false, true)
+
+  res.status(200).json({ order: sanitizedOrder, events })
 }

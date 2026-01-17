@@ -1,8 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from '../db'
 import { authGuard } from '../middleware/auth'
+import { setSecurityHeaders } from '../middleware/security'
+import { sanitizeOrder } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setSecurityHeaders(req, res)
+  
   const user = await authGuard(req, res)
   if (!user) return
   if (user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' })
@@ -81,6 +85,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).send(csv)
   }
 
-  res.status(200).json({ orders, meta: { page: p, pageSize: ps, total } })
+  // Sanitize orders - admins can see full data
+  const sanitizedOrders = orders.map(o => sanitizeOrder(o, false, true))
+
+  res.status(200).json({ orders: sanitizedOrders, meta: { page: p, pageSize: ps, total } })
 }
 
