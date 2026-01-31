@@ -43,10 +43,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!order) return res.status(404).json({ error: 'Order not found' })
 
   // Company information
+  const companyPhone = process.env.COMPANY_PHONE && process.env.COMPANY_PHONE !== '+233539064833' 
+    ? process.env.COMPANY_PHONE 
+    : ''
   const companyInfo = {
     name: 'Skin1st Beauty Therapy',
     address: 'Accra, Ghana',
-    phone: process.env.COMPANY_PHONE || '+233539064833',
+    phone: companyPhone,
     email: process.env.COMPANY_EMAIL || 'info@skin1stbeauty.com',
     website: process.env.COMPANY_WEBSITE || 'www.skin1stbeauty.com'
   }
@@ -400,7 +403,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .fillColor('#666666')
     .text(companyInfo.name, 50, footerY + 10)
     .text(companyInfo.address, 50, footerY + 20)
-    .text(`Phone: ${companyInfo.phone} | Email: ${companyInfo.email}`, 50, footerY + 30)
+    .text(companyInfo.phone ? `Phone: ${companyInfo.phone} | Email: ${companyInfo.email}` : `Email: ${companyInfo.email}`, 50, footerY + 30)
     .text(`Website: ${companyInfo.website}`, 50, footerY + 40)
 
   doc.fontSize(8)

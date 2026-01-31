@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import {
   Box,
   Typography,
@@ -23,12 +24,26 @@ import SearchBar from '../components/SearchBar'
 import SkeletonCard from '../components/SkeletonCard'
 
 export default function Shop() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedBrand, setSelectedBrand] = useState<string>('')
   const [sort, setSort] = useState<string>('')
   const [perPage] = useState(12)
+
+  // Read URL params on mount and when they change
+  useEffect(() => {
+    const categoryParam = searchParams.get('category')
+    if (categoryParam) {
+      setSelectedCategory(categoryParam)
+    }
+  }, [searchParams])
+
+  // Scroll to top when component mounts or filters change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [page, selectedCategory, selectedBrand, sort, search])
 
   const { data: categories } = useQuery(['categories'], async () => {
     const res = await api.get('/categories')
@@ -75,6 +90,7 @@ export default function Shop() {
     setSort('')
     setSearch('')
     setPage(1)
+    setSearchParams({}) // Clear URL params
   }
 
   const hasActiveFilters = selectedCategory || selectedBrand || sort || search

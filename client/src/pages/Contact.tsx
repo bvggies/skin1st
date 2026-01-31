@@ -58,22 +58,22 @@ export default function Contact() {
               </Typography>
             </Box>
             <Box>
-              {process.env.REACT_APP_PHONE_NUMBER && (
+              {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER !== '+233539064833' && (
                 <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`} color="primary" underline="hover" sx={{ mr: 1 }}>
                   {process.env.REACT_APP_PHONE_NUMBER}
                 </Link>
               )}
-              {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER_2 && (
+              {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER !== '+233539064833' && process.env.REACT_APP_PHONE_NUMBER_2 && process.env.REACT_APP_PHONE_NUMBER_2 !== '+233539064833' && (
                 <Typography component="span" variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
                   /
                 </Typography>
               )}
-              {process.env.REACT_APP_PHONE_NUMBER_2 && (
+              {process.env.REACT_APP_PHONE_NUMBER_2 && process.env.REACT_APP_PHONE_NUMBER_2 !== '+233539064833' && (
                 <Link href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`} color="primary" underline="hover">
                   {process.env.REACT_APP_PHONE_NUMBER_2}
                 </Link>
               )}
-              {!process.env.REACT_APP_PHONE_NUMBER && !process.env.REACT_APP_PHONE_NUMBER_2 && (
+              {(!process.env.REACT_APP_PHONE_NUMBER || process.env.REACT_APP_PHONE_NUMBER === '+233539064833') && (!process.env.REACT_APP_PHONE_NUMBER_2 || process.env.REACT_APP_PHONE_NUMBER_2 === '+233539064833') && (
                 <Typography variant="body2" color="text.secondary">
                   Contact us
                 </Typography>

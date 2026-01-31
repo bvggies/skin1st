@@ -291,9 +291,15 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
     const submitData = {
       ...formData,
-      categoryId: formData.categoryId || undefined,
-      brandId: formData.brandId || undefined,
-      faq: validFaqs.length > 0 ? JSON.stringify(validFaqs) : undefined,
+      // Send null for empty nullable fields instead of undefined
+      categoryId: formData.categoryId ? formData.categoryId : null,
+      brandId: formData.brandId ? formData.brandId : null,
+      faq: validFaqs.length > 0 ? JSON.stringify(validFaqs) : null,
+      // Handle nullable string fields
+      howToUse: formData.howToUse || null,
+      ingredients: formData.ingredients || null,
+      pricingPackaging: formData.pricingPackaging || null,
+      deliveryReturns: formData.deliveryReturns || null,
       variants: validVariants.map((v) => ({
         sku: v.sku,
         name: v.name,

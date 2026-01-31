@@ -72,18 +72,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (parse.data.name !== undefined) updateData.name = parse.data.name
     if (parse.data.slug !== undefined) updateData.slug = parse.data.slug
     if (parse.data.description !== undefined) updateData.description = parse.data.description
-    if (parse.data.categoryId !== undefined) updateData.categoryId = parse.data.categoryId
-    if (parse.data.brandId !== undefined) updateData.brandId = parse.data.brandId
+    // Handle nullable fields - explicitly check for null or undefined
+    if (parse.data.categoryId !== undefined) {
+      updateData.categoryId = parse.data.categoryId === null || parse.data.categoryId === '' ? null : parse.data.categoryId
+    }
+    if (parse.data.brandId !== undefined) {
+      updateData.brandId = parse.data.brandId === null || parse.data.brandId === '' ? null : parse.data.brandId
+    }
     if (parse.data.isNew !== undefined) updateData.isNew = parse.data.isNew
     if (parse.data.isBestSeller !== undefined) updateData.isBestSeller = parse.data.isBestSeller
     if (parse.data.moneyBackGuarantee !== undefined) updateData.moneyBackGuarantee = parse.data.moneyBackGuarantee
     if (parse.data.eligibleForReturn !== undefined) updateData.eligibleForReturn = parse.data.eligibleForReturn
     if (parse.data.isAdult !== undefined) updateData.isAdult = parse.data.isAdult
-    if (parse.data.howToUse !== undefined) updateData.howToUse = parse.data.howToUse
-    if (parse.data.ingredients !== undefined) updateData.ingredients = parse.data.ingredients
-    if (parse.data.pricingPackaging !== undefined) updateData.pricingPackaging = parse.data.pricingPackaging
-    if (parse.data.faq !== undefined) updateData.faq = parse.data.faq
-    if (parse.data.deliveryReturns !== undefined) updateData.deliveryReturns = parse.data.deliveryReturns
+    // Handle nullable string fields
+    if (parse.data.howToUse !== undefined) {
+      updateData.howToUse = parse.data.howToUse === null || parse.data.howToUse === '' ? null : parse.data.howToUse
+    }
+    if (parse.data.ingredients !== undefined) {
+      updateData.ingredients = parse.data.ingredients === null || parse.data.ingredients === '' ? null : parse.data.ingredients
+    }
+    if (parse.data.pricingPackaging !== undefined) {
+      updateData.pricingPackaging = parse.data.pricingPackaging === null || parse.data.pricingPackaging === '' ? null : parse.data.pricingPackaging
+    }
+    if (parse.data.faq !== undefined) {
+      updateData.faq = parse.data.faq === null || parse.data.faq === '' ? null : parse.data.faq
+    }
+    if (parse.data.deliveryReturns !== undefined) {
+      updateData.deliveryReturns = parse.data.deliveryReturns === null || parse.data.deliveryReturns === '' ? null : parse.data.deliveryReturns
+    }
 
     // Handle images update - delete existing and create new
     if (parse.data.images) {

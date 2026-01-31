@@ -225,7 +225,7 @@ export default function Footer() {
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                 <Phone sx={{ color: '#e94560', fontSize: 20, mt: 0.3 }} />
                 <Box>
-                  {process.env.REACT_APP_PHONE_NUMBER && (
+                  {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER !== '+233539064833' && (
                     <MuiLink
                       href={`tel:${process.env.REACT_APP_PHONE_NUMBER}`}
                       sx={{
@@ -239,12 +239,12 @@ export default function Footer() {
                       {process.env.REACT_APP_PHONE_NUMBER}
                     </MuiLink>
                   )}
-                  {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER_2 && (
+                  {process.env.REACT_APP_PHONE_NUMBER && process.env.REACT_APP_PHONE_NUMBER !== '+233539064833' && process.env.REACT_APP_PHONE_NUMBER_2 && process.env.REACT_APP_PHONE_NUMBER_2 !== '+233539064833' && (
                     <Typography component="span" variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', mx: 0.5 }}>
                       /
                     </Typography>
                   )}
-                  {process.env.REACT_APP_PHONE_NUMBER_2 && (
+                  {process.env.REACT_APP_PHONE_NUMBER_2 && process.env.REACT_APP_PHONE_NUMBER_2 !== '+233539064833' && (
                     <MuiLink
                       href={`tel:${process.env.REACT_APP_PHONE_NUMBER_2}`}
                       sx={{
