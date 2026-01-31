@@ -167,10 +167,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       include: { variant: { include: { product: true } } }
     })
     const emailContent = orderConfirmationEmail(order, orderItems)
-    await sendEmail({
-      to: order.phone ? `${order.phone}@sms.gateway` : (order.userId ? undefined : undefined), // Adjust based on your email service
-      ...emailContent
-    })
+    
+    // Get user email if logged in, or use guest email
+    let recipientEmail: string | undefined
+    if (order.userId) {
+      const orderWithUser = await prisma.order.findUnique({
+        where: { id: order.id },
+        include: { user: { select: { email: true } } }
+      })
+      recipientEmail = orderWithUser?.user?.email
+    } else if (order.guestEmail) {
+      recipientEmail = order.guestEmail
+    }
+    
+    // Send email only if we have a recipient email
+    if (recipientEmail) {
+      await sendEmail({
+        to: recipientEmail,
+        ...emailContent
+      })
+    }
   } catch (e) {
     console.error('Failed to send order confirmation email:', e)
     // Don't fail order creation if email fails
