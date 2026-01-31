@@ -90,7 +90,7 @@ export default function Shop() {
     setSort('')
     setSearch('')
     setPage(1)
-    setSearchParams({}) // Clear URL params
+    setSearchParams(new URLSearchParams()) // Clear URL params
   }
 
   const hasActiveFilters = selectedCategory || selectedBrand || sort || search
