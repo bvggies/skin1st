@@ -260,12 +260,14 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
   const updateMutation = useMutation(
     (data: any) => api.put(`/admin/products/${product?.id}`, data),
     {
-      onSuccess: () => {
+      onSuccess: (response) => {
         toast.success('Product updated successfully')
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to update product')
+        const errorMessage = e.response?.data?.error || e.message || 'Failed to update product'
+        console.error('Update error:', e)
+        toast.error(Array.isArray(errorMessage) ? errorMessage.map((err: any) => err.message || err).join(', ') : errorMessage)
       },
     }
   )
