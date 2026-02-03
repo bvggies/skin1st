@@ -48,9 +48,9 @@ export default function Footer() {
   }
 
   const socialLinks = [
-    { icon: <Facebook />, href: '#', label: 'Facebook' },
-    { icon: <Instagram />, href: '#', label: 'Instagram' },
-    { icon: <Twitter />, href: '#', label: 'Twitter' },
+    { icon: <Facebook />, href: 'https://www.facebook.com/share/17U9s1tUzv/?mibextid=wwXIfr', label: 'Facebook' },
+    { icon: <Instagram />, href: 'https://www.instagram.com/skin1stbeautytherapy?igsh=bDY4emJldnBsMzEw&utm_source=qr', label: 'Instagram' },
+    { icon: <Twitter />, href: 'https://x.com/skin1stbeauty?s=11', label: 'X (Twitter)' },
     { icon: <WhatsApp />, href: `https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || ''}`, label: 'WhatsApp' },
   ]
 

@@ -83,15 +83,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Send email notification for status updates (non-blocking)
   try {
+    let recipientEmail: string | undefined
+    
+    // Get user email if logged in, or use guest email
     if (order.userId) {
       const user = await prisma.user.findUnique({ where: { id: order.userId } })
-      if (user && user.email) {
-        const emailContent = orderStatusUpdateEmail(order, parse.data.status)
-        await sendEmail({
-          to: user.email,
-          ...emailContent
-        })
-      }
+      recipientEmail = user?.email
+    } else if (order.guestEmail) {
+      recipientEmail = order.guestEmail
+    }
+    
+    // Send email if we have a recipient
+    if (recipientEmail) {
+      const emailContent = orderStatusUpdateEmail(order, parse.data.status)
+      await sendEmail({
+        to: recipientEmail,
+        ...emailContent
+      })
     }
   } catch (err) {
     console.error('Failed to send status update email:', err)
