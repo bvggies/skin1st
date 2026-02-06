@@ -144,19 +144,23 @@ export default function Home() {
   const heroImageUrl = siteSettings?.heroImageUrl || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80'
   const specialOfferTitle = siteSettings?.specialOfferTitle || 'Special Offer - 20% Off'
   const specialOfferDescription = siteSettings?.specialOfferDescription || 'Use code FIRST20 on your first order. Limited time only!'
-  const { data: categoriesData } = useQuery(['categories'], async () => {
-    const res = await api.get('/categories')
-    // Filter out adult products category from homepage
-    const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
-    return filtered
-  })
+  const { data: categoriesData } = useQuery(
+    ['categories'],
+    async () => {
+      const res = await api.get('/categories')
+      const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
+      return filtered
+    },
+    { staleTime: 5 * 60 * 1000 } // 5 min — categories change rarely
+  )
 
   const { data: productsData, isLoading: productsLoading } = useQuery(
     ['products', 'featured'],
     async () => {
       const res = await api.get('/products?perPage=8&adult=false')
       return res.data.products || []
-    }
+    },
+    { staleTime: 2 * 60 * 1000 } // 2 min — avoid refetch on every Home visit
   )
 
   // Get homepage categories from settings

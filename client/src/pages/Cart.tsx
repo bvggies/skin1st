@@ -31,7 +31,7 @@ export default function Cart() {
       const res = await api.get(`/variants?ids=${ids.join(',')}`)
       return res.data
     },
-    { enabled: ids.length > 0 }
+    { enabled: ids.length > 0, staleTime: 60 * 1000 } // API is cached
   )
 
   const subtotal = (data?.variants || []).reduce((s: any, v: any) => {

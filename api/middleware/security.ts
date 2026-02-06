@@ -36,6 +36,22 @@ export function setSecurityHeaders(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Set cache headers for read-heavy GET responses. Reduces Neon compute by allowing
+ * edge/browser cache so the same request doesn't hit the DB every time.
+ * @param res - Vercel response
+ * @param maxAge - CDN cache TTL in seconds (default 60)
+ * @param staleWhileRevalidate - Optional stale-while-revalidate in seconds (default 300)
+ */
+export function setCacheHeaders(
+  res: VercelResponse,
+  maxAge: number = 60,
+  staleWhileRevalidate?: number
+) {
+  const swr = staleWhileRevalidate != null ? `, stale-while-revalidate=${staleWhileRevalidate}` : ''
+  res.setHeader('Cache-Control', `public, s-maxage=${maxAge}${swr}`)
+}
+
+/**
  * CORS configuration
  */
 export function configureCORS(req: VercelRequest, res: VercelResponse) {

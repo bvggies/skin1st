@@ -99,19 +99,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     count: s._count.status
   }))
 
-  // Get top products with details
-  const topProductsWithDetails = await Promise.all(
-    topProducts.map(async (item) => {
-      const variant = await prisma.variant.findUnique({
-        where: { id: item.variantId },
+  // Get top products with details — single batch query instead of N+1
+  const variantIds = topProducts.map((item) => item.variantId).filter(Boolean)
+  const variantsWithProduct = variantIds.length
+    ? await prisma.variant.findMany({
+        where: { id: { in: variantIds } },
         include: { product: { select: { name: true } } }
       })
-      return {
-        productName: variant?.product?.name || 'Unknown',
-        quantity: item._sum.quantity || 0
-      }
-    })
-  )
+    : []
+  const variantMap = new Map(variantsWithProduct.map((v) => [v.id, v]))
+  const topProductsWithDetails = topProducts.map((item) => ({
+    productName: variantMap.get(item.variantId)?.product?.name || 'Unknown',
+    quantity: item._sum.quantity || 0
+  }))
 
     res.status(200).json({
       stats: {

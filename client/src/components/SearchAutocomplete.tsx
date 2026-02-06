@@ -34,7 +34,7 @@ export default function SearchAutocomplete({ onSelect }: SearchAutocompleteProps
       const res = await api.get(`/products?search=${encodeURIComponent(query)}&perPage=5&adult=false`)
       return res.data
     },
-    { enabled: query.length >= 2 }
+    { enabled: query.length >= 2, staleTime: 60 * 1000 } // 1 min — same query not refetched
   )
 
   const products = data?.products || []

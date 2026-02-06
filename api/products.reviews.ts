@@ -2,6 +2,8 @@ import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from './db'
 import { z } from 'zod'
 import { requireAuth } from './middleware/auth'
+import { setCacheHeaders } from './middleware/security'
+import { apiRateLimit } from './middleware/rateLimit'
 
 const ReviewSchema = z.object({ 
   rating: z.number().min(1).max(5), 
@@ -18,11 +20,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
-    const reviews = await prisma.review.findMany({ 
-      where: { product: { slug } }, 
-      include: { user: { select: { id: true, name: true, email: true } } }, 
-      orderBy: { createdAt: 'desc' } 
+    if (!apiRateLimit(req, res)) return
+    const reviews = await prisma.review.findMany({
+      where: { product: { slug } },
+      include: { user: { select: { id: true, name: true, email: true } } },
+      orderBy: { createdAt: 'desc' }
     })
+    setCacheHeaders(res, 60, 300)
     return res.status(200).json({ reviews })
   }
 

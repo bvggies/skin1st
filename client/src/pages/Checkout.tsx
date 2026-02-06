@@ -91,7 +91,7 @@ export default function Checkout() {
       const res = await api.get(`/variants?ids=${variantIds.join(',')}`)
       return res.data
     },
-    { enabled: variantIds.length > 0 }
+    { enabled: variantIds.length > 0, staleTime: 60 * 1000 } // API is cached
   )
 
   const subtotal = (variantsData?.variants || []).reduce((s: any, v: any) => {

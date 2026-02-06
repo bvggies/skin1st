@@ -26,10 +26,14 @@ const ReviewSchema = z.object({
 type ReviewInput = z.infer<typeof ReviewSchema>
 
 export function ReviewsList({ slug }: { slug: string }) {
-  const { data, isLoading } = useQuery(['reviews', slug], async () => {
-    const r = await api.get(`/products/${slug}/reviews`)
-    return r.data.reviews
-  })
+  const { data, isLoading } = useQuery(
+    ['reviews', slug],
+    async () => {
+      const r = await api.get(`/products/${slug}/reviews`)
+      return r.data.reviews
+    },
+    { staleTime: 2 * 60 * 1000 } // 2 min — API is cached; avoid refetch on remount
+  )
 
   if (isLoading) {
     return (

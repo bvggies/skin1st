@@ -1,11 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from './db'
-import { setSecurityHeaders } from './middleware/security'
+import { setSecurityHeaders, setCacheHeaders } from './middleware/security'
+import { apiRateLimit } from './middleware/rateLimit'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   setSecurityHeaders(req, res)
-  
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+  if (!apiRateLimit(req, res)) return
 
   // Check if this is a single product request (slug in query)
   const slug = req.query.slug as string | undefined
@@ -34,6 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     })
     if (!product) return res.status(404).json({ error: 'Product not found' })
+    setCacheHeaders(res, 60, 300)
     return res.status(200).json({ product })
   }
 
@@ -113,10 +115,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     orderBy
   })
 
-  // Debug logging for adult products
-  if (adultParam === 'true') {
-    console.log(`[Products API] Adult products query - Total: ${total}, Found: ${products.length}, Where:`, JSON.stringify(whereWithVariants, null, 2))
-  }
-
+  setCacheHeaders(res, 60, 300)
   res.status(200).json({ products, meta: { total, page, perPage } })
 }

@@ -32,7 +32,7 @@ export default function RecentlyViewed() {
         products: allProducts.filter((p: any) => productIds.includes(p.id)),
       }
     },
-    { enabled: productIds.length > 0 }
+    { enabled: productIds.length > 0, staleTime: 2 * 60 * 1000 } // 2 min — API is cached
   )
 
   if (!productIds.length || !data?.products?.length) return null

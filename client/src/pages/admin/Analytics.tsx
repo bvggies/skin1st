@@ -132,7 +132,8 @@ export default function Analytics() {
       return res.data
     },
     {
-      refetchInterval: 60000, // Refresh every minute
+      staleTime: 2 * 60 * 1000, // 2 minutes — no polling; use manual refetch or refetchOnWindowFocus
+      refetchOnWindowFocus: true,
     }
   )
 

@@ -41,7 +41,7 @@ export default function Product() {
       const res = await api.get(`/products/${slug}`)
       return res.data.product
     },
-    { enabled: !!slug }
+    { enabled: !!slug, staleTime: 2 * 60 * 1000 } // 2 min — API is cached
   )
 
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null)

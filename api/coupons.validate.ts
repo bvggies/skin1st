@@ -1,8 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from './db'
+import { apiRateLimit } from './middleware/rateLimit'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+  if (!apiRateLimit(req, res)) return
 
   const { code, total } = req.body
   if (!code || typeof code !== 'string') {

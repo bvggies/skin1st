@@ -90,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const location = useLocation()
   const { user, logout } = useAuth()
 
-  // Fetch pending orders count
+  // Fetch pending orders count — no polling to save Neon compute; refetch on focus/window only
   const { data: pendingOrdersCount } = useQuery(
     ['admin:pending-orders-count'],
     async () => {
@@ -104,8 +104,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     },
     {
-      refetchInterval: 30000, // Refresh every 30 seconds
-      staleTime: 10000, // Consider data fresh for 10 seconds
+      staleTime: 2 * 60 * 1000, // 2 minutes — no refetchInterval
+      refetchOnWindowFocus: true, // Refetch when admin returns to tab
     }
   )
 

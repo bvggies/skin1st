@@ -128,15 +128,23 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
   // FAQs
   const [faqs, setFaqs] = useState<FAQItem[]>([{ question: '', answer: '' }])
 
-  const { data: categories } = useQuery(['categories'], async () => {
-    const res = await api.get('/categories')
-    return res.data.categories || []
-  })
+  const { data: categories } = useQuery(
+    ['categories'],
+    async () => {
+      const res = await api.get('/categories')
+      return res.data.categories || []
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
-  const { data: brands } = useQuery(['brands'], async () => {
-    const res = await api.get('/brands')
-    return res.data.brands || []
-  })
+  const { data: brands } = useQuery(
+    ['brands'],
+    async () => {
+      const res = await api.get('/brands')
+      return res.data.brands || []
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
   useEffect(() => {
     if (product) {

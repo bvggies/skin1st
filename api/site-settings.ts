@@ -1,8 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import prisma from './db'
+import { setCacheHeaders } from './middleware/security'
+import { apiRateLimit } from './middleware/rateLimit'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+  if (!apiRateLimit(req, res)) return
 
   const settings = await prisma.siteSettings.findMany({
     orderBy: { key: 'asc' }
@@ -24,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Return with defaults if not set
+  setCacheHeaders(res, 300, 600) // Settings change rarely
   return res.status(200).json({
     heroTitle: settingsObj['heroTitle'] || 'Discover Your Natural Beauty',
     heroSubtitle: settingsObj['heroSubtitle'] || 'Premium beauty and skin therapy products. Quality you can trust, delivered to your doorstep with cash on delivery.',

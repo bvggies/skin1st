@@ -45,17 +45,24 @@ export default function Shop() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [page, selectedCategory, selectedBrand, sort, search])
 
-  const { data: categories } = useQuery(['categories'], async () => {
-    const res = await api.get('/categories')
-    // Filter out adult products category from main shop
-    const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
-    return filtered
-  })
+  const { data: categories } = useQuery(
+    ['categories'],
+    async () => {
+      const res = await api.get('/categories')
+      const filtered = (res.data.categories || []).filter((cat: any) => cat.slug !== 'adult-products')
+      return filtered
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
-  const { data: brands } = useQuery(['brands'], async () => {
-    const res = await api.get('/brands')
-    return res.data.brands || []
-  })
+  const { data: brands } = useQuery(
+    ['brands'],
+    async () => {
+      const res = await api.get('/brands')
+      return res.data.brands || []
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
   const { data, isLoading, error } = useQuery(
     ['products', page, search, selectedCategory, selectedBrand, sort],
@@ -72,6 +79,7 @@ export default function Shop() {
       return res.data
     },
     {
+      staleTime: 2 * 60 * 1000,
       onError: (error: any) => {
         console.error('Error fetching products:', error)
       }

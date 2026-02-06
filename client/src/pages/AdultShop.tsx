@@ -52,15 +52,23 @@ export default function AdultShop() {
     setShowVerification(false)
   }
 
-  const { data: categories } = useQuery(['categories'], async () => {
-    const res = await api.get('/categories')
-    return res.data.categories || []
-  })
+  const { data: categories } = useQuery(
+    ['categories'],
+    async () => {
+      const res = await api.get('/categories')
+      return res.data.categories || []
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
-  const { data: brands } = useQuery(['brands'], async () => {
-    const res = await api.get('/brands')
-    return res.data.brands || []
-  })
+  const { data: brands } = useQuery(
+    ['brands'],
+    async () => {
+      const res = await api.get('/brands')
+      return res.data.brands || []
+    },
+    { staleTime: 5 * 60 * 1000 }
+  )
 
   const { data, isLoading, error } = useQuery(
     ['products', 'adult', page, search, selectedCategory, selectedBrand, sort],
@@ -80,6 +88,7 @@ export default function AdultShop() {
       return res.data
     },
     {
+      staleTime: 2 * 60 * 1000,
       onError: (error: any) => {
         console.error('[AdultShop] Error fetching products:', error)
         console.error('[AdultShop] Error details:', error.response?.data)

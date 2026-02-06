@@ -12,12 +12,12 @@ export default function RelatedProducts({
   categorySlug?: string
 }) {
   const { data, isLoading } = useQuery(
-    ['related', productId],
+    ['related', productId, categorySlug],
     async () => {
       const res = await api.get(`/products/related?category=${encodeURIComponent(categorySlug || '')}`)
       return res.data.products
     },
-    { enabled: !!categorySlug }
+    { enabled: !!categorySlug, staleTime: 2 * 60 * 1000 } // 2 min — API is cached
   )
 
   if (isLoading) {
