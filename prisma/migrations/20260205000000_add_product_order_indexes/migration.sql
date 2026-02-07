@@ -1,3 +1,6 @@
+-- AlterTable (isAdult was in schema but missing from prior migrations)
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isAdult" BOOLEAN NOT NULL DEFAULT false;
+
 -- CreateIndex
 CREATE INDEX "Product_categoryId_idx" ON "Product"("categoryId");
 
