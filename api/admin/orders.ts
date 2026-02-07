@@ -1,10 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { authGuard } from '../middleware/auth'
 import { setSecurityHeaders } from '../middleware/security'
 import { sanitizeOrder } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   setSecurityHeaders(req, res)
   
   const user = await authGuard(req, res)

@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { authGuard } from '../middleware/auth'
 import { z } from 'zod'
 import { sendWhatsappNotification } from '../utils/notifications'
@@ -31,6 +31,7 @@ function getDefaultStatusNote(status: string): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   const user = await authGuard(req, res)
   if (!user) return
   if (user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' })

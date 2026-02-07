@@ -1,6 +1,7 @@
-import prisma from './db'
+import { getPrisma } from './db'
 
 export async function mergeCart(userId: string, items: { variantId: string; quantity: number }[]) {
+  const prisma = await getPrisma()
   if (!Array.isArray(items) || items.length === 0) {
     const cart = await prisma.cart.findFirst({ where: { userId }, include: { items: { include: { variant: { include: { product: true } } } } } })
     return cart

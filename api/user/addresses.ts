@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { authGuard } from '../middleware/auth'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { z } from 'zod'
 
 const AddressSchema = z.object({
@@ -17,6 +17,7 @@ const AddressSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   const user = await authGuard(req, res)
   if (!user) return
 

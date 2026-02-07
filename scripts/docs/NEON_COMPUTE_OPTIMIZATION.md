@@ -1,6 +1,6 @@
-# Neon PostgreSQL Compute Optimization
+# PostgreSQL Compute Optimization (Neon → AWS Aurora)
 
-This document summarizes **high-compute anti-patterns** that were identified and fixed to keep the app safe on Neon's free tier (0.25–1 CU), and the rules enforced going forward.
+This document summarizes **high-compute anti-patterns** that were identified and fixed. The app has been **migrated to AWS Aurora PostgreSQL (Serverless v2)**; the same rules (connection limit, caching, no polling, rate limiting) apply to keep Aurora compute and connections under control.
 
 ---
 

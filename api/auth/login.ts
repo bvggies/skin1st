@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { signAccessToken, signRefreshToken, hashToken } from '../utils/jwt'
@@ -12,6 +12,7 @@ const CartItem = z.object({ variantId: z.string(), quantity: z.number().min(1) }
 const LoginSchema = z.object({ email: z.string().email(), password: z.string(), cart: z.array(CartItem).optional() })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   setSecurityHeaders(req, res)
   
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })

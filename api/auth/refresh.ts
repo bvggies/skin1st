@@ -1,8 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { verifyRefreshToken, signRefreshToken, signAccessToken, hashToken } from '../utils/jwt'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const cookies = parseCookies(req.headers.cookie || '')

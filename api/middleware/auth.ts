@@ -1,8 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { verify as verifyJwt } from 'jsonwebtoken'
-import prisma from '../db'
+import { getPrisma } from '../db'
 
 export async function requireAuth(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   const authHeader = req.headers['authorization'] || req.headers['Authorization']
   const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null
   if (!token) return null

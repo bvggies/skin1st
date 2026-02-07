@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
+import { getPrisma } from './db'
 import { z } from 'zod'
 import { requireAuth } from './middleware/auth'
 import { setCacheHeaders } from './middleware/security'
@@ -12,6 +12,7 @@ const ReviewSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   // Get slug from query (set by vercel.json rewrite)
   const slug = req.query.slug as string | undefined
   

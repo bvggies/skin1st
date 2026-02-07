@@ -1,8 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from './db'
+import { getPrisma } from './db'
 import { requireAuth } from './middleware/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
   const { id } = req.query

@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { z } from 'zod'
-import prisma from './db'
+import { getPrisma } from './db'
 import { orderRateLimit } from './middleware/rateLimit'
 import { sendEmail, orderConfirmationEmail } from './utils/email'
 import { requireAuth } from './middleware/auth'
@@ -29,6 +29,7 @@ function generateTrackingCode(): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   
   // Rate limiting

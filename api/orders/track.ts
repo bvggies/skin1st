@@ -1,10 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import prisma from '../db'
+import { getPrisma } from '../db'
 import { setSecurityHeaders } from '../middleware/security'
 import { apiRateLimit } from '../middleware/rateLimit'
 import { maskPhone, maskEmail } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   setSecurityHeaders(req, res)
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   if (!apiRateLimit(req, res)) return

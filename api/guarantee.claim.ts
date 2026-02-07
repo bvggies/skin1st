@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { z } from 'zod'
-import prisma from './db'
+import { getPrisma } from './db'
 import { requireAuth } from './middleware/auth'
 
 const ClaimSchema = z.object({
@@ -9,6 +9,7 @@ const ClaimSchema = z.object({
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const parse = ClaimSchema.safeParse(req.body || {})

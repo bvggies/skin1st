@@ -1,6 +1,7 @@
+import { PrismaClient } from '@prisma/client'
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { requireAuth } from './middleware/auth'
-import prisma from './db'
+import { getPrisma } from './db'
 
 function parseCookies(cookieHeader: string) {
   return cookieHeader.split(';').map(c => c.trim()).filter(Boolean).reduce((acc: any, cur: string) => {
@@ -15,16 +16,17 @@ function cuid() {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const prisma = await getPrisma()
   if (req.method === 'GET') {
-    return handleGet(req, res)
+    return handleGet(req, res, prisma)
   } else if (req.method === 'PUT') {
-    return handlePut(req, res)
+    return handlePut(req, res, prisma)
   } else {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 }
 
-async function handleGet(req: VercelRequest, res: VercelResponse) {
+async function handleGet(req: VercelRequest, res: VercelResponse, prisma: PrismaClient) {
   const user = await requireAuth(req, res)
   if (user) {
     const cart = await prisma.cart.findFirst({ where: { userId: user.id }, include: { items: { include: { variant: { include: { product: true } } } } } })
@@ -43,7 +45,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   res.status(200).json({ cart: { items: [] } })
 }
 
-async function handlePut(req: VercelRequest, res: VercelResponse) {
+async function handlePut(req: VercelRequest, res: VercelResponse, prisma: PrismaClient) {
   const parse = req.body
   if (!parse || !Array.isArray(parse.items)) return res.status(400).json({ error: 'Invalid payload' })
 

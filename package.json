@@ -1,7 +1,10 @@
 {
   "name": "skin1st-monorepo",
   "private": true,
-  "workspaces": ["client", "api"],
+  "workspaces": [
+    "client",
+    "api"
+  ],
   "scripts": {
     "start:client": "cd client && npm start",
     "build:client": "cd client && npm run build",
@@ -11,6 +14,10 @@
     "prisma:seed": "cd api && npm run prisma:seed",
     "prisma:create-admin": "node prisma/scripts/create-admin.js",
     "setup:env": "node scripts/setup-env.js",
-    "generate:secrets": "node scripts/generate-secrets.js"
+    "generate:secrets": "node scripts/generate-secrets.js",
+    "apply-schema-aurora": "node scripts/apply-schema-aurora.js"
+  },
+  "dependencies": {
+    "botid": "^1.5.10"
   }
-} 
+}
