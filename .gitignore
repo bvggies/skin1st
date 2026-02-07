@@ -12,3 +12,4 @@ coverage/
 *.log
 *.sqlite
 /prisma/dev.db
+.vercel

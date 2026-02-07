@@ -579,6 +579,7 @@ export default function Product() {
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel id="variant-select-label">Select Package</InputLabel>
             <Select
+              id="variant-select"
               labelId="variant-select-label"
               value={selectedVariant || ''}
               label="Select Package"

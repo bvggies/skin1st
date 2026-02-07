@@ -43,8 +43,8 @@ export default function Login() {
       navigate('/')
       }
     } catch (e: any) {
-      console.error(e)
-      toast.error('Invalid email or password')
+      const msg = typeof e?.response?.data?.error === 'string' ? e.response.data.error : null
+      toast.error(msg || 'Invalid email or password')
     }
   }
 

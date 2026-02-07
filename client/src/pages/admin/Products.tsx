@@ -219,8 +219,10 @@ export default function Products() {
             </Grid>
             <Grid item xs={6} md={3}>
               <FormControl size="small" fullWidth>
-                <InputLabel>Category</InputLabel>
+                <InputLabel id="admin-products-category-label">Category</InputLabel>
                 <Select
+                  id="admin-products-category"
+                  labelId="admin-products-category-label"
                   value={categoryFilter}
                   label="Category"
                   onChange={(e) => {
@@ -237,8 +239,10 @@ export default function Products() {
             </Grid>
             <Grid item xs={6} md={3}>
               <FormControl size="small" fullWidth>
-                <InputLabel>Brand</InputLabel>
+                <InputLabel id="admin-products-brand-label">Brand</InputLabel>
                 <Select
+                  id="admin-products-brand"
+                  labelId="admin-products-brand-label"
                   value={brandFilter}
                   label="Brand"
                   onChange={(e) => {

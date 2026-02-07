@@ -212,8 +212,8 @@ export default function Analytics() {
             </Typography>
           </Box>
           <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Time Period</InputLabel>
-            <Select value={period} label="Time Period" onChange={(e) => setPeriod(e.target.value)}>
+            <InputLabel id="analytics-period-label">Time Period</InputLabel>
+            <Select id="analytics-period" labelId="analytics-period-label" value={period} label="Time Period" onChange={(e) => setPeriod(e.target.value)}>
               <MenuItem value="7">Last 7 days</MenuItem>
               <MenuItem value="30">Last 30 days</MenuItem>
               <MenuItem value="90">Last 90 days</MenuItem>

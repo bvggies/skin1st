@@ -362,12 +362,19 @@ export default function Shop() {
         </Grid>
       ) : products.length === 0 ? (
         <Paper sx={{ p: 6, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            No products found matching your criteria.
+          <Typography variant="h6" gutterBottom>
+            {hasActiveFilters ? 'No products found matching your criteria.' : 'No products in the shop yet.'}
           </Typography>
-          {hasActiveFilters && (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {hasActiveFilters ? 'Try clearing filters or browse all categories.' : 'Check back soon or explore our homepage for featured picks.'}
+          </Typography>
+          {hasActiveFilters ? (
             <Button onClick={clearFilters} variant="contained" color="primary" sx={{ mt: 2 }}>
               Clear Filters
+            </Button>
+          ) : (
+            <Button component={Link} to="/" variant="contained" color="primary" sx={{ mt: 2 }}>
+              Go to Home
             </Button>
           )}
         </Paper>

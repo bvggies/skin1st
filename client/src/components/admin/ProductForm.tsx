@@ -431,8 +431,10 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
+                  <InputLabel id="product-form-category-label">Category</InputLabel>
                   <Select
+                    labelId="product-form-category-label"
+                    id="product-form-category"
                     value={formData.categoryId}
                     label="Category"
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
@@ -448,8 +450,10 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Brand</InputLabel>
+                  <InputLabel id="product-form-brand-label">Brand</InputLabel>
                   <Select
+                    labelId="product-form-brand-label"
+                    id="product-form-brand"
                     value={formData.brandId}
                     label="Brand"
                     onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}

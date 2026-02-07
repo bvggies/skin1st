@@ -51,28 +51,32 @@ async function main() {
     const dbName = (db === 'neondb' ? 'postgres' : db)
     let pass = (password && password.trim()) ? password : null
     if (!pass) {
-      console.error('migrate-deploy: set AWS_POSTGRES_PASSWORD (or POSTGRES_PASSWORD, RDS_PASSWORD) in api/.env for RDS, or set DATABASE_URL to full RDS URL')
-      const { Signer } = require('@aws-sdk/rds-signer')
-      const region =
-        process.env.AWS_REGION ||
-        process.env.AWS_DEFAULT_REGION ||
-        (host.match(/\.([a-z]{2}-[a-z]+-\d+)\.rds\.amazonaws\.com/) || [])[1] ||
-        'us-east-1'
-      const signer = new Signer({
-        hostname: host,
-        port: parseInt(port, 10),
-        username: user,
-        region,
-      })
-      pass = await signer.getAuthToken()
+      try {
+        const { Signer } = require('@aws-sdk/rds-signer')
+        const region =
+          process.env.AWS_REGION ||
+          process.env.AWS_DEFAULT_REGION ||
+          (host.match(/\.([a-z]{2}-[a-z]+-\d+)\.rds\.amazonaws\.com/) || [])[1] ||
+          'us-east-1'
+        const signer = new Signer({
+          hostname: host,
+          port: parseInt(port, 10),
+          username: user,
+          region,
+        })
+        pass = await signer.getAuthToken()
+      } catch (iamErr) {
+        console.warn('migrate-deploy: no RDS password and IAM auth failed at build time — skipping migrations.', iamErr.message)
+        process.exit(0)
+      }
     }
     const encoded = encodeURIComponent(pass)
     databaseUrl = `postgresql://${user}:${encoded}@${host}:${port}/${dbName}?sslmode=${sslMode}&connection_limit=${connectionLimit}`
   }
 
   if (!databaseUrl) {
-    console.error('migrate-deploy: set DATABASE_URL or AWS_PGHOST (and AWS_PGUSER, etc.) in Vercel env')
-    process.exit(1)
+    console.warn('migrate-deploy: DATABASE_URL not set at build time — skipping migrations. Set DATABASE_URL in Vercel env for build if you want migrations on deploy.')
+    process.exit(0)
   }
 
   process.env.DATABASE_URL = databaseUrl

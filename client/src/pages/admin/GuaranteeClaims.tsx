@@ -79,8 +79,10 @@ export default function GuaranteeClaims() {
             Guarantee Claims
           </Typography>
           <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Status</InputLabel>
+            <InputLabel id="guarantee-claims-status-label">Status</InputLabel>
             <Select
+              id="guarantee-claims-status"
+              labelId="guarantee-claims-status-label"
               value={status}
               label="Status"
               onChange={(e) => {

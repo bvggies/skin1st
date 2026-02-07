@@ -204,8 +204,10 @@ function CouponForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
               fullWidth
             />
             <FormControl fullWidth>
-              <InputLabel>Type *</InputLabel>
+              <InputLabel id="coupon-form-type-label">Type *</InputLabel>
               <Select
+                id="coupon-form-type"
+                labelId="coupon-form-type-label"
                 value={formData.type}
                 label="Type *"
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as 'percentage' | 'fixed' })}

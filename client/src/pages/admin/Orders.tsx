@@ -82,8 +82,8 @@ export default function Orders() {
         const result = await getOrders({ page, pageSize, status, q, userId })
         return result
       } catch (err: any) {
-        console.error('Failed to fetch orders:', err)
-        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to fetch orders'
+        const msg = err?.response?.data?.error
+        const errorMessage = typeof msg === 'string' ? msg : (typeof err?.message === 'string' ? err.message : 'Failed to fetch orders')
         throw new Error(errorMessage)
       }
     },
@@ -92,7 +92,8 @@ export default function Orders() {
       retry: 2,
       refetchOnWindowFocus: false,
       onError: (err: any) => {
-        console.error('Orders query error:', err)
+        const msg = err?.message
+        console.error('Orders query error:', typeof msg === 'string' ? msg : 'Failed to fetch orders')
       }
     }
   )
@@ -245,8 +246,10 @@ export default function Orders() {
             </Grid>
             <Grid item xs={8} md={4}>
               <FormControl size="small" fullWidth>
-                <InputLabel>Status</InputLabel>
+                <InputLabel id="orders-status-label">Status</InputLabel>
                 <Select
+                  id="orders-status"
+                  labelId="orders-status-label"
                   value={status || ''}
                   label="Status"
                   onChange={(e) => {

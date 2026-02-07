@@ -26,6 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { email, password, cart } = parse.data
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+  if (!user.enabled) return res.status(403).json({ error: 'Account is disabled. Contact support.' })
 
   const ok = await bcrypt.compare(password, user.password)
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' })
