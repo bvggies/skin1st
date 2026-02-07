@@ -60,7 +60,7 @@ async function main() {
         'us-east-1'
       const signer = new Signer({
         hostname: host,
-        port: Number(port, 10),
+        port: parseInt(port, 10),
         username: user,
         region,
       })

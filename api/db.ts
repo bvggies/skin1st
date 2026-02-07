@@ -41,7 +41,7 @@ function getAwsRegion(): string {
 async function getIamAuthToken(host: string, port: string, user: string): Promise<string> {
   const signer = new Signer({
     hostname: host,
-    port: Number(port, 10),
+    port: parseInt(port, 10),
     username: user,
     region: getAwsRegion(),
   })
