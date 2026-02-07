@@ -10,6 +10,8 @@ async function main() {
   const apiDir = path.join(__dirname, '..')
   try {
     require('dotenv').config({ path: path.join(apiDir, '.env') })
+    // Also load root .env so "node scripts/migrate-deploy.js" from repo root finds vars
+    require('dotenv').config({ path: path.join(apiDir, '..', '.env') })
   } catch (_) {}
 
   const host =
@@ -30,7 +32,8 @@ async function main() {
     process.env.AWS_POSTGRES_PASSWORD ||
     process.env.AWS_PGPASSWORD ||
     process.env.PGPASSWORD ||
-    process.env.POSTGRES_PASSWORD
+    process.env.POSTGRES_PASSWORD ||
+    process.env.RDS_PASSWORD
   const port =
     process.env.AWS_POSTGRES_PORT ||
     process.env.PGPORT ||
@@ -40,12 +43,15 @@ async function main() {
   const connectionLimit = 5
 
   let databaseUrl = process.env.DATABASE_URL
+  // Use DATABASE_URL as-is when it's already a full RDS URL (not Neon). Otherwise build from AWS_* when host is set.
+  const useAwsVars = host && (!databaseUrl || databaseUrl.includes('neon.tech'))
 
-  if (host) {
+  if (useAwsVars) {
     // Aurora default DB is "postgres"; if env still has Neon's "neondb", use postgres
     const dbName = (db === 'neondb' ? 'postgres' : db)
     let pass = (password && password.trim()) ? password : null
     if (!pass) {
+      console.error('migrate-deploy: set AWS_POSTGRES_PASSWORD (or POSTGRES_PASSWORD, RDS_PASSWORD) in api/.env for RDS, or set DATABASE_URL to full RDS URL')
       const { Signer } = require('@aws-sdk/rds-signer')
       const region =
         process.env.AWS_REGION ||
