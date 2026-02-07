@@ -21,9 +21,8 @@
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^6.10.1",
     "pdfkit": "^0.14.0",
+    "prisma": "^5.11.0",
     "zod": "^3.25.76"
   },
-  "devDependencies": {
-    "prisma": "^5.11.0"
-  }
+  "devDependencies": {}
 }

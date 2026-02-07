@@ -68,14 +68,21 @@ async function main() {
   }
 
   process.env.DATABASE_URL = databaseUrl
-  execSync('npx prisma migrate deploy --schema=../prisma/schema.prisma', {
-    cwd: apiDir,
-    env: process.env,
-    stdio: 'inherit',
-  })
+  try {
+    execSync('npx prisma migrate deploy --schema=../prisma/schema.prisma', {
+      cwd: apiDir,
+      env: process.env,
+      stdio: 'inherit',
+    })
+  } catch (err) {
+    if (err.stdout) process.stdout.write(err.stdout)
+    if (err.stderr) process.stderr.write(err.stderr)
+    console.error('migrate-deploy: prisma migrate deploy failed', err.message)
+    process.exit(err.status == null ? 1 : err.status)
+  }
 }
 
 main().catch((err) => {
-  console.error(err)
+  console.error('migrate-deploy:', err.message || err)
   process.exit(1)
 })
