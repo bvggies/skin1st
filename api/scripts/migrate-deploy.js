@@ -42,6 +42,8 @@ async function main() {
   let databaseUrl = process.env.DATABASE_URL
 
   if (host) {
+    // Aurora default DB is "postgres"; if env still has Neon's "neondb", use postgres
+    const dbName = (db === 'neondb' ? 'postgres' : db)
     let pass = (password && password.trim()) ? password : null
     if (!pass) {
       const { Signer } = require('@aws-sdk/rds-signer')
@@ -59,7 +61,7 @@ async function main() {
       pass = await signer.getAuthToken()
     }
     const encoded = encodeURIComponent(pass)
-    databaseUrl = `postgresql://${user}:${encoded}@${host}:${port}/${db}?sslmode=${sslMode}&connection_limit=${connectionLimit}`
+    databaseUrl = `postgresql://${user}:${encoded}@${host}:${port}/${dbName}?sslmode=${sslMode}&connection_limit=${connectionLimit}`
   }
 
   if (!databaseUrl) {

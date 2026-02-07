@@ -62,11 +62,13 @@ function getConnectionUrl(): string {
     process.env.AWS_POSTGRES_HOST ||
     process.env.AWS_PGHOST ||
     process.env.PGHOST
-  const db =
+  let db =
     process.env.AWS_POSTGRES_DB ||
     process.env.PGDATABASE ||
     process.env.POSTGRES_DATABASE ||
     'postgres'
+  // Aurora default DB is "postgres"; if env still has Neon's "neondb", use postgres
+  if (db === 'neondb') db = 'postgres'
   const user =
     process.env.AWS_POSTGRES_USER ||
     process.env.AWS_PGUSER ||
