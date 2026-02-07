@@ -1,0 +1,81 @@
+/**
+ * Run Prisma migrations using Aurora when AWS_PGHOST (or AWS_POSTGRES_HOST) is set.
+ * Builds DATABASE_URL from AWS_* env vars (with IAM token if no password) so the
+ * Vercel build uses Aurora instead of Neon. Run from repo root: cd api && node scripts/migrate-deploy.js
+ */
+const path = require('path')
+const { execSync } = require('child_process')
+
+async function main() {
+  const apiDir = path.join(__dirname, '..')
+  try {
+    require('dotenv').config({ path: path.join(apiDir, '.env') })
+  } catch (_) {}
+
+  const host =
+    process.env.AWS_POSTGRES_HOST ||
+    process.env.AWS_PGHOST ||
+    process.env.PGHOST
+  const db =
+    process.env.AWS_POSTGRES_DB ||
+    process.env.PGDATABASE ||
+    process.env.POSTGRES_DATABASE ||
+    'postgres'
+  const user =
+    process.env.AWS_POSTGRES_USER ||
+    process.env.AWS_PGUSER ||
+    process.env.PGUSER ||
+    'postgres'
+  const password =
+    process.env.AWS_POSTGRES_PASSWORD ||
+    process.env.AWS_PGPASSWORD ||
+    process.env.PGPASSWORD ||
+    process.env.POSTGRES_PASSWORD
+  const port =
+    process.env.AWS_POSTGRES_PORT ||
+    process.env.PGPORT ||
+    process.env.POSTGRES_PORT ||
+    '5432'
+  const sslMode = 'require'
+  const connectionLimit = 5
+
+  let databaseUrl = process.env.DATABASE_URL
+
+  if (host) {
+    let pass = (password && password.trim()) ? password : null
+    if (!pass) {
+      const { Signer } = require('@aws-sdk/rds-signer')
+      const region =
+        process.env.AWS_REGION ||
+        process.env.AWS_DEFAULT_REGION ||
+        (host.match(/\.([a-z]{2}-[a-z]+-\d+)\.rds\.amazonaws\.com/) || [])[1] ||
+        'us-east-1'
+      const signer = new Signer({
+        hostname: host,
+        port: Number(port, 10),
+        username: user,
+        region,
+      })
+      pass = await signer.getAuthToken()
+    }
+    const encoded = encodeURIComponent(pass)
+    databaseUrl = `postgresql://${user}:${encoded}@${host}:${port}/${db}?sslmode=${sslMode}&connection_limit=${connectionLimit}`
+  }
+
+  if (!databaseUrl) {
+    console.error('migrate-deploy: set DATABASE_URL or AWS_PGHOST (and AWS_PGUSER, etc.) in Vercel env')
+    process.exit(1)
+  }
+
+  process.env.DATABASE_URL = databaseUrl
+  execSync('npx prisma migrate deploy --schema=../prisma/schema.prisma', {
+    cwd: apiDir,
+    env: process.env,
+    stdio: 'inherit',
+  })
+}
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
