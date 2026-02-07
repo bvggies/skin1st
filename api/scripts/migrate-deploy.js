@@ -70,15 +70,20 @@ async function main() {
   }
 
   process.env.DATABASE_URL = databaseUrl
-  // If a previous deploy left a migration as failed (e.g. P3009), mark it rolled back so deploy can retry
-  const failedMigrationToResolve = '20250102000000_add_eligible_for_return'
-  try {
-    execSync(
-      `npx prisma migrate resolve --rolled-back "${failedMigrationToResolve}" --schema=../prisma/schema.prisma`,
-      { cwd: apiDir, env: process.env, stdio: 'pipe' }
-    )
-  } catch (_) {
-    // Ignore: migration may not be in failed state
+  // If a previous deploy left migrations as failed (P3009), mark them rolled back so deploy can retry
+  const failedMigrationsToResolve = [
+    '20250102000000_add_eligible_for_return',
+    '20260205000000_add_product_order_indexes',
+  ]
+  for (const name of failedMigrationsToResolve) {
+    try {
+      execSync(
+        `npx prisma migrate resolve --rolled-back "${name}" --schema=../prisma/schema.prisma`,
+        { cwd: apiDir, env: process.env, stdio: 'pipe' }
+      )
+    } catch (_) {
+      // Ignore: migration may not be in failed state
+    }
   }
   try {
     execSync('npx prisma migrate deploy --schema=../prisma/schema.prisma', {
