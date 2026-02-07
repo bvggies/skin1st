@@ -126,6 +126,9 @@ const sampleProducts = [
   },
 ]
 
+// Slugs used only for placeholder display; linking goes to /shop to avoid 404s
+const SAMPLE_PRODUCT_SLUGS = new Set(sampleProducts.map((p: any) => p.slug))
+
 export default function Home() {
   // Fetch site settings
   const { data: siteSettings } = useQuery(
@@ -188,7 +191,8 @@ export default function Home() {
   const CARD_IMAGE_HEIGHT = 220
   const CARD_MIN_HEIGHT = 380
 
-  // Product Card Component
+  // Product Card Component (sample products link to /shop to avoid 404)
+  const productLink = (slug: string) => SAMPLE_PRODUCT_SLUGS.has(slug) ? '/shop' : `/product/${slug}`
   const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) => {
     const minPrice = product.variants?.length > 0
       ? Math.min(...product.variants.map((v: any) => v.price - (v.discount || 0)))
@@ -234,7 +238,7 @@ export default function Home() {
       >
         {/* Image Container - Fixed Height */}
         <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: 'grey.50', height: CARD_IMAGE_HEIGHT, minHeight: CARD_IMAGE_HEIGHT }}>
-          <Link to={`/product/${product.slug}`}>
+          <Link to={productLink(product.slug)}>
             <CardMedia
               component="img"
               image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80'}
@@ -347,7 +351,7 @@ export default function Home() {
           
           <Typography
             component={Link}
-            to={`/product/${product.slug}`}
+            to={productLink(product.slug)}
             sx={{
               fontWeight: 600,
               fontSize: '0.9rem',

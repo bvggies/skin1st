@@ -1,12 +1,82 @@
-# Migrate data from Neon PostgreSQL to AWS Aurora PostgreSQL
+# Migrate data from Neon PostgreSQL to AWS Aurora/RDS PostgreSQL
 
-Follow these steps to backup all data from Neon and load it into Aurora. Business logic and schema are unchanged; only the database host is switched.
+Follow these steps to copy all data from Neon into your new database (Aurora or RDS). Schema must already exist on the target (run Prisma migrations first).
+
+---
+
+## Option A: Node.js script (recommended on Windows)
+
+No `pg_dump`/`psql` required. Uses the `pg` package to copy table-by-table.
+
+### 1. Install dependency and set env
+
+From project root:
+
+```bash
+npm install
+```
+
+Set environment variables:
+
+- **DATABASE_URL_SOURCE** – Your Neon connection string (e.g. from `.env` or `api/.env`).
+- **DATABASE_URL_TARGET** – Your RDS/Aurora connection string.
+
+Example (PowerShell):
+
+```powershell
+$env:DATABASE_URL_SOURCE = "postgresql://neondb_owner:PASSWORD@ep-xxx-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+$env:DATABASE_URL_TARGET = "postgresql://postgres:PASSWORD@skin1st-db.xxx.eu-north-1.rds.amazonaws.com:5432/postgres?sslmode=require"
+```
+
+Example (bash):
+
+```bash
+export DATABASE_URL_SOURCE="postgresql://..."
+export DATABASE_URL_TARGET="postgresql://..."
+```
+
+### 2. Ensure target schema is up to date
+
+Migrations must be applied on the **target** DB first:
+
+```bash
+cd api
+node -r dotenv/config ../node_modules/.bin/prisma migrate deploy --schema=../prisma/schema.prisma
+```
+
+Use a `.env` in `api/` that has `DATABASE_URL` pointing at RDS (or set `DATABASE_URL` in the shell for this command).
+
+### 3. Run the copy script
+
+From project root:
+
+```bash
+npm run copy-neon-to-rds
+```
+
+Or with env from a file:
+
+```bash
+node -r dotenv/config scripts/copy-neon-to-rds.js
+```
+
+(Add `DATABASE_URL_SOURCE` and `DATABASE_URL_TARGET` to `.env` if you use this.)
+
+The script copies all tables in FK-safe order. Rows that already exist (e.g. an admin user you created on RDS) are skipped (ON CONFLICT DO NOTHING). To get an exact clone of Neon, truncate the target tables (or drop and re-run migrations) before running the script.
+
+### 4. Verify and switch app
+
+- Point the app at RDS (`DATABASE_URL` or `AWS_POSTGRES_*` in Vercel and local).
+- Call `GET /api/health` and check row counts for User, Product, Order.
+
+---
+
+## Option B: pg_dump + psql (Linux/macOS or Docker)
 
 ## Prerequisites
 
-- **Neon** connection string (source) and **Aurora** connection string (target).
-- **PostgreSQL client tools** installed: `pg_dump` and `psql` (from [PostgreSQL downloads](https://www.postgresql.org/download/) or use a Docker one-off).
-- **Node/npm** for Prisma migrations.
+- **Neon** connection string (source) and **Aurora/RDS** connection string (target).
+- **PostgreSQL client tools** installed: `pg_dump` and `psql`, or use Docker.
 
 ## Step 1: Apply schema on Aurora (migrations)
 

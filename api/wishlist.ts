@@ -3,6 +3,7 @@ import { getPrisma } from './db'
 import { authGuard } from './middleware/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
   const prisma = await getPrisma()
   const user = await authGuard(req, res)
   if (!user) return
@@ -73,5 +74,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   return res.status(405).json({ error: 'Method not allowed' })
+  } catch (err) {
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error' })
+  }
 }
 

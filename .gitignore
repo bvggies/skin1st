@@ -11,5 +11,6 @@ build/
 coverage/
 *.log
 *.sqlite
+scripts/neon_data.sql
 /prisma/dev.db
 .vercel

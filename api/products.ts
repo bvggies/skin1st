@@ -4,6 +4,7 @@ import { setSecurityHeaders, setCacheHeaders } from './middleware/security'
 import { apiRateLimit } from './middleware/rateLimit'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
   const prisma = await getPrisma()
   setSecurityHeaders(req, res)
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
@@ -118,4 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   setCacheHeaders(res, 60, 300)
   res.status(200).json({ products, meta: { total, page, perPage } })
+  } catch (err) {
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error' })
+  }
 }

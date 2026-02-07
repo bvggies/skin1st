@@ -15,9 +15,13 @@
     "prisma:create-admin": "node prisma/scripts/create-admin.js",
     "setup:env": "node scripts/setup-env.js",
     "generate:secrets": "node scripts/generate-secrets.js",
-    "apply-schema-aurora": "node scripts/apply-schema-aurora.js"
+    "apply-schema-aurora": "node scripts/apply-schema-aurora.js",
+    "copy-neon-to-rds": "node scripts/copy-neon-to-rds.js"
   },
   "dependencies": {
     "botid": "^1.5.10"
+  },
+  "devDependencies": {
+    "pg": "^8.11.3"
   }
 }
