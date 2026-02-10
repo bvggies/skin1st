@@ -165,22 +165,48 @@ export default function Checkout() {
         coupon: appliedCoupon?.coupon?.code || undefined,
       })
 
+      console.log('Order API response:', res.data)
+
       // Validate response has order data
       if (!res.data?.order) {
         console.error('Invalid API response:', res.data)
         toast.error('Order placed but confirmation data is missing. Please contact support.')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Validate order structure before navigation
+      const orderData = res.data.order
+      if (!orderData || !orderData.id || !orderData.code) {
+        console.error('Invalid order response:', res.data)
+        toast.error('Order placed but confirmation data is invalid. Please contact support with order code.')
+        setIsSubmitting(false)
         return
       }
 
       // Only clear cart if not using Buy Now
       if (!buyNowItem) {
-        cart.clear()
+        await cart.clear()
       }
       
       // Navigate to order confirmation page with order details
+      console.log('Navigating to order confirmation with:', {
+        id: orderData.id,
+        code: orderData.code,
+        trackingCode: orderData.trackingCode,
+        status: orderData.status,
+        total: orderData.total,
+      })
+      
       navigate('/order-confirmation', {
         state: {
-          order: res.data.order,
+          order: {
+            id: orderData.id,
+            code: orderData.code,
+            trackingCode: orderData.trackingCode || null,
+            status: orderData.status || 'PENDING_CONFIRMATION',
+            total: orderData.total || 0,
+          },
           isGuestOrder: res.data.isGuestOrder
         },
         replace: true // Use replace to prevent back button issues

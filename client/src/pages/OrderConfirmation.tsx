@@ -12,6 +12,7 @@ import {
   IconButton,
   Tooltip,
   Chip,
+  CircularProgress,
 } from '@mui/material'
 import {
   CheckCircle,
@@ -41,30 +42,42 @@ export default function OrderConfirmation() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Get order data from navigation state
-    const state = location.state as { order?: OrderData; isGuestOrder?: boolean }
-    
-    if (state?.order) {
-      // Validate order data has required fields (trackingCode optional for legacy orders)
-      if (state.order.id && state.order.code) {
-        setOrder(state.order)
-        setIsLoading(false)
+    try {
+      // Get order data from navigation state
+      const state = location.state as { order?: OrderData; isGuestOrder?: boolean }
+      
+      console.log('OrderConfirmation - location.state:', state)
+      console.log('OrderConfirmation - location.pathname:', location.pathname)
+      
+      if (state?.order) {
+        // Validate order data has required fields (trackingCode optional for legacy orders)
+        if (state.order.id && state.order.code) {
+          console.log('OrderConfirmation - Setting order:', state.order)
+          setOrder(state.order)
+          setIsLoading(false)
+        } else {
+          console.error('Invalid order data:', state.order)
+          toast.error('Invalid order data. Redirecting...')
+          setTimeout(() => {
+            navigate('/', { replace: true })
+          }, 2000)
+        }
       } else {
-        console.error('Invalid order data:', state.order)
-        toast.error('Invalid order data. Redirecting...')
+        // If no order data, show error and redirect to home
+        console.warn('No order data in navigation state. State:', state)
+        toast.error('Order data not found. Redirecting...')
         setTimeout(() => {
           navigate('/', { replace: true })
         }, 2000)
       }
-    } else {
-      // If no order data, show error and redirect to home
-      console.warn('No order data in navigation state')
-      toast.error('Order data not found. Redirecting...')
+    } catch (err) {
+      console.error('OrderConfirmation useEffect error:', err)
+      toast.error('An error occurred. Redirecting...')
       setTimeout(() => {
         navigate('/', { replace: true })
       }, 2000)
     }
-  }, [location.state, navigate])
+  }, [location.state, location.pathname, navigate])
 
   const copyToClipboard = async (text: string, type: 'code' | 'tracking') => {
     try {
@@ -82,11 +95,23 @@ export default function OrderConfirmation() {
   // Show loading state while checking for order data
   if (isLoading || !order) {
     return (
-      <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}>
-        <Typography variant="h6" color="text.secondary">
-          Loading order confirmation...
-        </Typography>
-      </Container>
+      <Box sx={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <Box>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Loading order confirmation...
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            If this takes too long, you may have been redirected incorrectly.
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => navigate('/')}
+          >
+            Go Home
+          </Button>
+        </Box>
+      </Box>
     )
   }
 
