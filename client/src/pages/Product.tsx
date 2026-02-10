@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Box,
@@ -32,10 +32,11 @@ import { ReviewsList, ReviewForm } from '../components/Reviews'
 import toast from 'react-hot-toast'
 import { useTrackProductView } from '../components/RecentlyViewed'
 import RecentlyViewed from '../components/RecentlyViewed'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function Product() {
   const { slug } = useParams()
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, error, isError } = useQuery(
     ['product', slug],
     async () => {
       const res = await api.get(`/products/${slug}`)
@@ -79,10 +80,22 @@ export default function Product() {
 
   useTrackProductView(data?.id)
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
         <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (isError || !data) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="h5" fontWeight={600} gutterBottom>Product not found</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          This product may have been removed or the link is incorrect.
+        </Typography>
+        <Button variant="contained" component={Link} to="/shop">Browse shop</Button>
       </Box>
     )
   }
@@ -549,6 +562,7 @@ export default function Product() {
 
   return (
     <Box>
+      <Breadcrumbs extraCrumbs={[{ label: 'Shop', path: '/shop' }, { label: data.name }]} />
       <Grid container spacing={4} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
           <ImageGallery images={data.images || []} />

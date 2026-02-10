@@ -32,8 +32,11 @@ import About from './pages/About'
 import Wishlist from './pages/Wishlist'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
+import NotFound from './pages/NotFound'
 import WhatsAppFloat from './components/WhatsAppFloat'
+import BackToTop from './components/BackToTop'
 import AdminRouteGuard from './components/AdminRouteGuard'
+import ErrorBoundary from './components/ErrorBoundary'
 
 import { Container, Box } from '@mui/material'
 
@@ -48,9 +51,12 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
         bgcolor: '#fafafa',
       }}
     >
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Header />
       <Box 
         component="main"
+        id="main-content"
+        tabIndex={-1}
         sx={{ 
           flex: 1, 
           width: '100%',
@@ -60,6 +66,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
       </Box>
       <Footer />
       <WhatsAppFloat />
+      <BackToTop />
     </Box>
   )
 }
@@ -89,6 +96,7 @@ function PublicRoutes() {
         <Route path="/terms" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Terms /></Container>} />
         <Route path="/privacy" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><Privacy /></Container>} />
         <Route path="/guarantee/claim" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><GuaranteeClaim /></Container>} />
+        <Route path="*" element={<Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}><NotFound /></Container>} />
       </Routes>
     </PublicLayout>
   )
@@ -110,6 +118,7 @@ function AdminRoutes() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/guarantee-claims" element={<AdminGuaranteeClaims />} />
         <Route path="/admin/site-settings" element={<AdminSiteSettings />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AdminRouteGuard>
   )
@@ -121,9 +130,17 @@ export default function App() {
 
   // Render admin routes without the public layout
   if (isAdminRoute) {
-    return <AdminRoutes />
+    return (
+      <ErrorBoundary>
+        <AdminRoutes />
+      </ErrorBoundary>
+    )
   }
 
   // Render public routes with Header/Footer
-  return <PublicRoutes />
+  return (
+    <ErrorBoundary>
+      <PublicRoutes />
+    </ErrorBoundary>
+  )
 }

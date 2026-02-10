@@ -73,18 +73,21 @@ export default function Checkout() {
   const [couponError, setCouponError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Ensure cart.items is always an array (avoid blank page if store state is wrong)
+  const cartItems = Array.isArray(cart?.items) ? cart.items : []
+
   // Check if coming from "Buy Now" with a direct item
   const buyNowItem = location.state?.buyNowItem
 
   const variantIds = buyNowItem 
     ? [buyNowItem.variantId] 
-    : cart.items.map((i) => i.variantId)
+    : cartItems.map((i: any) => i.variantId)
   
   const itemsToCheckout = buyNowItem 
     ? [buyNowItem] 
-    : cart.items
+    : cartItems
 
-  const { data: variantsData } = useQuery(
+  const { data: variantsData, isLoading: variantsLoading, error: variantsError } = useQuery(
     ['variants', variantIds],
     async () => {
       if (variantIds.length === 0) return { variants: [] }
@@ -94,7 +97,8 @@ export default function Checkout() {
     { enabled: variantIds.length > 0, staleTime: 60 * 1000 } // API is cached
   )
 
-  const subtotal = (variantsData?.variants || []).reduce((s: any, v: any) => {
+  const variantsList = variantsData?.variants ?? []
+  const subtotal = variantsList.reduce((s: number, v: any) => {
     const item = itemsToCheckout.find((it: any) => it.variantId === v.id)
     const qty = item?.quantity || 0
     const price = v.price - (v.discount || 0)
@@ -205,6 +209,24 @@ export default function Checkout() {
         >
           Continue Shopping
         </Button>
+      </Box>
+    )
+  }
+
+  // While loading variants for cart items, show loading (avoids blank or broken layout)
+  if (variantsLoading && variantsList.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Typography variant="body1" color="text.secondary">Loading checkout...</Typography>
+      </Box>
+    )
+  }
+
+  if (variantsError) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 6 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>Failed to load cart items. Please try again.</Alert>
+        <Button onClick={() => navigate('/cart')} variant="contained">Back to Cart</Button>
       </Box>
     )
   }
@@ -379,7 +401,7 @@ export default function Checkout() {
 
           <Stack spacing={1} sx={{ my: 3 }}>
             {itemsToCheckout.map((item: any) => {
-              const variant = variantsData?.variants?.find((v: any) => v.id === item.variantId)
+              const variant = variantsList.find((v: any) => v.id === item.variantId)
               if (!variant) return null
               const price = (variant.price - (variant.discount || 0)) / 100
               return (

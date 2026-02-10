@@ -21,13 +21,14 @@ import {
   WhatsApp,
   Home,
   TrackChanges,
+  Print,
 } from '@mui/icons-material'
 import toast from 'react-hot-toast'
 
 interface OrderData {
   id: string
   code: string
-  trackingCode: string
+  trackingCode?: string | null
   status: string
   total: number
 }
@@ -44,8 +45,8 @@ export default function OrderConfirmation() {
     const state = location.state as { order?: OrderData; isGuestOrder?: boolean }
     
     if (state?.order) {
-      // Validate order data has required fields
-      if (state.order.id && state.order.code && state.order.trackingCode) {
+      // Validate order data has required fields (trackingCode optional for legacy orders)
+      if (state.order.id && state.order.code) {
         setOrder(state.order)
         setIsLoading(false)
       } else {
@@ -122,70 +123,72 @@ export default function OrderConfirmation() {
         </Typography>
       </Box>
 
-      {/* Important: Tracking Code for Guests */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 4,
-          mb: 3,
-          bgcolor: 'warning.lighter',
-          border: '2px solid',
-          borderColor: 'warning.main',
-          borderRadius: 3,
-        }}
-      >
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-          <LocalShipping color="warning" />
-          <Typography variant="h6" fontWeight={600} color="warning.dark">
-            ⚠️ Important: Save Your Tracking Code!
-          </Typography>
-        </Stack>
-        
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          This is your unique tracking code. You'll need it to track your order status.
-          <strong> Please save it somewhere safe!</strong>
-        </Typography>
-
-        <Box
+      {/* Important: Tracking Code for Guests (only when present) */}
+      {order.trackingCode && (
+        <Paper
+          elevation={0}
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            p: 3,
-            bgcolor: 'white',
-            borderRadius: 2,
-            border: '2px dashed',
+            p: 4,
+            mb: 3,
+            bgcolor: 'warning.lighter',
+            border: '2px solid',
             borderColor: 'warning.main',
+            borderRadius: 3,
           }}
         >
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            fontFamily="monospace"
-            letterSpacing={2}
-            sx={{ color: 'warning.dark' }}
-          >
-            {order.trackingCode}
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <LocalShipping color="warning" />
+            <Typography variant="h6" fontWeight={600} color="warning.dark">
+              ⚠️ Important: Save Your Tracking Code!
+            </Typography>
+          </Stack>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This is your unique tracking code. You'll need it to track your order status.
+            <strong> Please save it somewhere safe!</strong>
           </Typography>
-          <Tooltip title={copied === 'tracking' ? 'Copied!' : 'Copy tracking code'}>
-            <IconButton
-              onClick={() => copyToClipboard(order.trackingCode, 'tracking')}
-              color={copied === 'tracking' ? 'success' : 'default'}
-              sx={{
-                bgcolor: copied === 'tracking' ? 'success.light' : 'grey.100',
-                '&:hover': { bgcolor: copied === 'tracking' ? 'success.light' : 'grey.200' },
-              }}
-            >
-              <ContentCopy />
-            </IconButton>
-          </Tooltip>
-        </Box>
 
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
-          💡 Tip: Take a screenshot or write this code down. You can use it to track your order anytime.
-        </Typography>
-      </Paper>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              p: 3,
+              bgcolor: 'white',
+              borderRadius: 2,
+              border: '2px dashed',
+              borderColor: 'warning.main',
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              fontFamily="monospace"
+              letterSpacing={2}
+              sx={{ color: 'warning.dark' }}
+            >
+              {order.trackingCode}
+            </Typography>
+            <Tooltip title={copied === 'tracking' ? 'Copied!' : 'Copy tracking code'}>
+              <IconButton
+                onClick={() => copyToClipboard(order.trackingCode!, 'tracking')}
+                color={copied === 'tracking' ? 'success' : 'default'}
+                sx={{
+                  bgcolor: copied === 'tracking' ? 'success.light' : 'grey.100',
+                  '&:hover': { bgcolor: copied === 'tracking' ? 'success.light' : 'grey.200' },
+                }}
+              >
+                <ContentCopy />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
+            💡 Tip: Take a screenshot or write this code down. You can use it to track your order anytime.
+          </Typography>
+        </Paper>
+      )}
 
       {/* Order Details */}
       <Paper sx={{ p: 4, mb: 3, borderRadius: 3 }}>
@@ -350,32 +353,44 @@ export default function OrderConfirmation() {
         direction={{ xs: 'column', sm: 'row' }} 
         spacing={2} 
         justifyContent="center"
+        flexWrap="wrap"
       >
+        {order.trackingCode && (
+          <>
+            <Button
+              component={RouterLink}
+              to={`/orders/track?trackingCode=${order.trackingCode}`}
+              variant="contained"
+              size="large"
+              startIcon={<TrackChanges />}
+              sx={{ minWidth: 200 }}
+            >
+              Track Order
+            </Button>
+            <Button
+              component="a"
+              href={`https://wa.me/${whatsappNumber.replace(/\+/g, '')}?text=Hi! I just placed an order. My tracking code is: ${order.trackingCode}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outlined"
+              size="large"
+              startIcon={<WhatsApp />}
+              color="success"
+              sx={{ minWidth: 200 }}
+            >
+              Contact Support
+            </Button>
+          </>
+        )}
         <Button
-          component={RouterLink}
-          to={`/orders/track?trackingCode=${order.trackingCode}`}
-          variant="contained"
-          size="large"
-          startIcon={<TrackChanges />}
-          sx={{ minWidth: 200 }}
-        >
-          Track Order
-        </Button>
-
-        <Button
-          component="a"
-          href={`https://wa.me/${whatsappNumber.replace(/\+/g, '')}?text=Hi! I just placed an order. My tracking code is: ${order.trackingCode}`}
-          target="_blank"
-          rel="noopener noreferrer"
           variant="outlined"
           size="large"
-          startIcon={<WhatsApp />}
-          color="success"
+          startIcon={<Print />}
+          onClick={() => window.print()}
           sx={{ minWidth: 200 }}
         >
-          Contact Support
+          Print
         </Button>
-
         <Button
           component={RouterLink}
           to="/"

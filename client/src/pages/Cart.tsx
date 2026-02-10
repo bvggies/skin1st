@@ -17,7 +17,7 @@ import useCart from '../store/cart'
 import api from '../api/axios'
 
 export default function Cart() {
-  const items = useCart((state) => state.items)
+  const items = useCart((state) => state.items) ?? []
   const update = useCart((state) => state.update)
   const remove = useCart((state) => state.remove)
   const clear = useCart((state) => state.clear)
@@ -77,7 +77,7 @@ export default function Cart() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="h6" component="div">
-                      {v ? `${v.product.name} — ${v.name}` : `Variant ${it.variantId}`}
+                      {v ? `${v.product?.name ?? 'Product'} — ${v.name}` : `Variant ${it.variantId}`}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
                       <Typography variant="body2" color="text.secondary">
