@@ -30,7 +30,7 @@ export default function Brands() {
   const [editingBrand, setEditingBrand] = useState<any>(null)
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ['admin:brands'],
     async () => {
       try {
@@ -43,7 +43,10 @@ export default function Brands() {
     },
     {
       refetchOnWindowFocus: false,
-      retry: 2,
+      retry: 1,
+      onError: (err: any) => {
+        console.error('Brands query error:', err)
+      }
     }
   )
 
@@ -84,6 +87,23 @@ export default function Brands() {
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress />
           </Box>
+        ) : error ? (
+          <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error" variant="h6" gutterBottom>
+              Failed to load brands
+            </Typography>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              {(() => {
+                const err = (error as any)?.response?.data?.error
+                if (typeof err === 'string') return err
+                if (err?.message) return err.message
+                return 'Please check your connection and try again'
+              })()}
+            </Typography>
+            <Button variant="contained" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </Paper>
         ) : (
           <TableContainer component={Paper}>
             <Table>
@@ -191,10 +211,17 @@ function BrandForm({
     {
       onSuccess: () => {
         toast.success('Brand created successfully')
+        // Reset form
+        setFormData({
+          name: '',
+          slug: '',
+        })
         onSuccess()
       },
       onError: (e: any) => {
-        const errorMsg = e.response?.data?.error || e.message || 'Failed to create brand'
+        const errorMsg = typeof e?.response?.data?.error === 'string'
+          ? e.response.data.error
+          : e?.message || 'Failed to create brand'
         toast.error(errorMsg)
         console.error('Create brand error:', e)
       },
@@ -212,7 +239,9 @@ function BrandForm({
         onSuccess()
       },
       onError: (e: any) => {
-        const errorMsg = e.response?.data?.error || e.message || 'Failed to update brand'
+        const errorMsg = typeof e?.response?.data?.error === 'string'
+          ? e.response.data.error
+          : e?.message || 'Failed to update brand'
         toast.error(errorMsg)
         console.error('Update brand error:', e)
       },

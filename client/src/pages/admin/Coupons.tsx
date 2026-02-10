@@ -33,10 +33,19 @@ export default function Coupons() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['admin:coupons'], async () => {
-    const res = await api.get('/admin/coupons')
-    return res.data.coupons || []
-  })
+  const { data, isLoading, error, refetch } = useQuery(
+    ['admin:coupons'], 
+    async () => {
+      const res = await api.get('/admin/coupons')
+      return res.data.coupons || []
+    },
+    {
+      retry: 1,
+      onError: (err: any) => {
+        console.error('Failed to load coupons:', err)
+      }
+    }
+  )
 
   const deleteMutation = useMutation(
     (id: string) => api.delete(`/admin/coupons/${id}`),
@@ -74,6 +83,23 @@ export default function Coupons() {
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress />
           </Box>
+        ) : error ? (
+          <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error" variant="h6" gutterBottom>
+              Failed to load coupons
+            </Typography>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              {(() => {
+                const err = (error as any)?.response?.data?.error
+                if (typeof err === 'string') return err
+                if (err?.message) return err.message
+                return 'Please check your connection and try again'
+              })()}
+            </Typography>
+            <Button variant="contained" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </Paper>
         ) : (
           <TableContainer component={Paper}>
             <Table>
@@ -140,7 +166,7 @@ export default function Coupons() {
           <CouponForm
             onClose={() => setShowCreateModal(false)}
             onSuccess={() => {
-              queryClient.invalidateQueries(['admin:coupons'])
+              queryClient.invalidateQueries({ queryKey: ['admin:coupons'] })
               setShowCreateModal(false)
             }}
           />
@@ -164,10 +190,23 @@ function CouponForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
     {
       onSuccess: () => {
         toast.success('Coupon created successfully')
+        // Reset form
+        setFormData({
+          code: '',
+          type: 'percentage',
+          value: '',
+          expiry: '',
+          maxUses: '',
+        })
+        // Call onSuccess callback (which will invalidate queries and close modal)
         onSuccess()
       },
       onError: (e: any) => {
-        toast.error(e.response?.data?.error || 'Failed to create coupon')
+        const errorMsg = typeof e?.response?.data?.error === 'string' 
+          ? e.response.data.error 
+          : e?.message || 'Failed to create coupon'
+        toast.error(errorMsg)
+        console.error('Create coupon error:', e)
       },
     }
   )

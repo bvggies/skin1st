@@ -64,7 +64,7 @@ export default function Products() {
   const pageSize = 15
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ['admin:products', page, search, categoryFilter, brandFilter],
     async () => {
       const params = new URLSearchParams()
@@ -76,7 +76,13 @@ export default function Products() {
       const res = await api.get(`/products?${params.toString()}`)
       return res.data
     },
-    { keepPreviousData: true }
+    { 
+      keepPreviousData: true,
+      retry: 1,
+      onError: (err: any) => {
+        console.error('Products query error:', err)
+      }
+    }
   )
 
   const { data: categories } = useQuery(['categories'], async () => {
@@ -95,12 +101,17 @@ export default function Products() {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['admin:products'])
+        queryClient.invalidateQueries({ queryKey: ['admin:products'] })
         toast.success('Product deleted successfully')
         setDeleteDialogOpen(false)
+        setSelectedProduct(null)
       },
-      onError: () => {
-        toast.error('Failed to delete product')
+      onError: (e: any) => {
+        const errorMsg = typeof e?.response?.data?.error === 'string'
+          ? e.response.data.error
+          : e?.message || 'Failed to delete product'
+        toast.error(errorMsg)
+        console.error('Delete product error:', e)
       },
     }
   )
@@ -292,6 +303,25 @@ export default function Products() {
                       ))}
                     </TableRow>
                   ))
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <Typography color="error" variant="h6" gutterBottom>
+                        Failed to load products
+                      </Typography>
+                      <Typography color="text.secondary" sx={{ mb: 2 }}>
+                        {(() => {
+                          const err = (error as any)?.response?.data?.error
+                          if (typeof err === 'string') return err
+                          if (err?.message) return err.message
+                          return 'Please check your connection and try again'
+                        })()}
+                      </Typography>
+                      <Button variant="contained" onClick={() => refetch()}>
+                        Retry
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ) : products.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 8 }}>

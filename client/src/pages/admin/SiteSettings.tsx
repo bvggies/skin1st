@@ -37,13 +37,14 @@ export default function SiteSettings() {
     homepageCategories: [] as string[],
   })
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ['admin:site-settings'],
     async () => {
       const res = await api.get('/admin/site-settings')
       return res.data
     },
     {
+      retry: 1,
       onSuccess: (data) => {
         setFormData({
           heroTitle: data.heroTitle || '',
@@ -55,6 +56,9 @@ export default function SiteSettings() {
           homepageCategories: data.homepageCategories || [],
         })
       },
+      onError: (err: any) => {
+        console.error('Site settings query error:', err)
+      }
     }
   )
 
@@ -72,12 +76,16 @@ export default function SiteSettings() {
     (data: typeof formData) => api.put('/admin/site-settings', data),
     {
       onSuccess: () => {
-        qc.invalidateQueries(['admin:site-settings'])
-        qc.invalidateQueries(['site-settings'])
+        qc.invalidateQueries({ queryKey: ['admin:site-settings'] })
+        qc.invalidateQueries({ queryKey: ['site-settings'] })
         toast.success('Site settings updated successfully!')
       },
       onError: (err: any) => {
-        toast.error(err.response?.data?.error || 'Failed to update settings')
+        const errorMsg = typeof err?.response?.data?.error === 'string'
+          ? err.response.data.error
+          : err?.message || 'Failed to update settings'
+        toast.error(errorMsg)
+        console.error('Update site settings error:', err)
       },
     }
   )
@@ -93,6 +101,29 @@ export default function SiteSettings() {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
           <CircularProgress />
         </Box>
+      </AdminLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="error" variant="h6" gutterBottom>
+            Failed to load site settings
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            {(() => {
+              const err = (error as any)?.response?.data?.error
+              if (typeof err === 'string') return err
+              if (err?.message) return err.message
+              return 'Please check your connection and try again'
+            })()}
+          </Typography>
+          <Button variant="contained" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </Paper>
       </AdminLayout>
     )
   }
