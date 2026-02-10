@@ -57,14 +57,26 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       const nodemailer = require('nodemailer')
       const isSecure = process.env.SMTP_SECURE === 'true'
       const port = parseInt(process.env.SMTP_PORT || '587')
+      const smtpUser = process.env.SMTP_USER || process.env.EMAIL_FROM
+      const smtpPass = process.env.SMTP_PASS
+      
+      // Check if SMTP credentials are configured
+      if (!smtpUser || !smtpPass) {
+        console.warn('⚠️ SMTP credentials not configured. Falling back to console mode.')
+        console.log('📧 Email would be sent:')
+        console.log('To:', options.to)
+        console.log('Subject:', options.subject)
+        console.log('Body:', options.text || options.html)
+        return
+      }
       
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.zoho.com',
         port: port,
         secure: isSecure, // true for 465, false for other ports
         auth: {
-          user: process.env.SMTP_USER || process.env.EMAIL_FROM,
-          pass: process.env.SMTP_PASS
+          user: smtpUser,
+          pass: smtpPass
         },
         // For Zoho and other services that require TLS
         ...(port === 587 && !isSecure && {
@@ -75,23 +87,49 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
         })
       })
       
-      // Verify connection configuration
+      // Verify connection configuration (non-blocking - log warning but continue)
       try {
         await transporter.verify()
-      } catch (error) {
-        console.error('SMTP connection verification failed:', error)
-        throw new Error('Email service configuration error. Please check SMTP settings.')
+      } catch (error: any) {
+        console.error('⚠️ SMTP connection verification failed:', error?.message || error)
+        console.error('SMTP Config:', {
+          host: process.env.SMTP_HOST || 'smtp.zoho.com',
+          port: port,
+          secure: isSecure,
+          user: smtpUser?.substring(0, 3) + '***' // Mask password
+        })
+        // Don't throw - allow sending to proceed (some servers don't support verify)
+        console.warn('⚠️ Continuing with email send despite verification failure...')
       }
       
-      await transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.SMTP_USER || 'info@skin1stbeauty.com',
-        to: options.to,
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-        replyTo: process.env.EMAIL_REPLY_TO || process.env.SUPPORT_EMAIL || 'info@skin1stbeauty.com'
-      })
-      return
+      // Attempt to send email
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_FROM || smtpUser || 'info@skin1stbeauty.com',
+          to: options.to,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+          replyTo: process.env.EMAIL_REPLY_TO || process.env.SUPPORT_EMAIL || 'info@skin1stbeauty.com'
+        })
+        console.log('✅ Email sent successfully to:', options.to)
+        return
+      } catch (sendError: any) {
+        console.error('❌ Failed to send email:', sendError?.message || sendError)
+        console.error('Email details:', {
+          to: options.to,
+          subject: options.subject,
+          errorCode: sendError?.code,
+          response: sendError?.response
+        })
+        // Don't throw - email failures shouldn't break the application
+        // Log to console as fallback
+        console.log('📧 Email would have been sent:')
+        console.log('To:', options.to)
+        console.log('Subject:', options.subject)
+        console.log('Body:', options.text || options.html)
+        return
+      }
 
     default:
       throw new Error(`Unknown email service: ${emailService}`)
