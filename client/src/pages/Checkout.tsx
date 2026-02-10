@@ -315,8 +315,8 @@ export default function Checkout() {
       }
 
       // Validate order structure before navigation
-      const orderData = res.data.order
-      if (!orderData || !orderData.id || !orderData.code) {
+      const orderResponse = res.data.order
+      if (!orderResponse || !orderResponse.id || !orderResponse.code) {
         console.error('Invalid order response:', res.data)
         toast.error('Order placed but confirmation data is invalid. Please contact support with order code.')
         setIsSubmitting(false)
@@ -330,21 +330,21 @@ export default function Checkout() {
       
       // Navigate to order confirmation page with order details
       console.log('Navigating to order confirmation with:', {
-        id: orderData.id,
-        code: orderData.code,
-        trackingCode: orderData.trackingCode,
-        status: orderData.status,
-        total: orderData.total,
+        id: orderResponse.id,
+        code: orderResponse.code,
+        trackingCode: orderResponse.trackingCode,
+        status: orderResponse.status,
+        total: orderResponse.total,
       })
       
       navigate('/order-confirmation', {
         state: {
           order: {
-            id: orderData.id,
-            code: orderData.code,
-            trackingCode: orderData.trackingCode || null,
-            status: orderData.status || 'PENDING_CONFIRMATION',
-            total: orderData.total || 0,
+            id: orderResponse.id,
+            code: orderResponse.code,
+            trackingCode: orderResponse.trackingCode || null,
+            status: orderResponse.status || 'PENDING_CONFIRMATION',
+            total: orderResponse.total || 0,
           },
           isGuestOrder: res.data.isGuestOrder
         },
