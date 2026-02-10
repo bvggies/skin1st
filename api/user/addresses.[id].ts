@@ -21,10 +21,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await authGuard(req, res)
   if (!user) return
 
-  const { id } = req.query
-  if (!id || typeof id !== 'string') {
+  const idParam = req.query.id
+  if (!idParam || typeof idParam !== 'string') {
     return res.status(400).json({ error: 'Address ID is required' })
   }
+  const id = idParam // Now TypeScript knows it's a string
 
   // Check if address belongs to user
   const existingAddress = await prisma.savedAddress.findFirst({
@@ -41,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // PUT - Update address
-  if (req.method === 'PUT') { (req.method === 'PUT') {
+  if (req.method === 'PUT') {
     const parse = AddressSchema.safeParse(req.body || {})
     if (!parse.success) {
       return res.status(400).json({ error: parse.error.errors })
@@ -90,4 +91,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
-
