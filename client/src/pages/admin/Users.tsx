@@ -195,7 +195,12 @@ export default function Users() {
             Failed to load users
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 2 }}>
-            {(error as any)?.response?.data?.error || 'Please check your connection and try again'}
+            {(() => {
+              const err = (error as any)?.response?.data?.error
+              if (typeof err === 'string') return err
+              if (err?.message) return err.message
+              return 'Please check your connection and try again'
+            })()}
           </Typography>
           <Button 
             variant="contained" 

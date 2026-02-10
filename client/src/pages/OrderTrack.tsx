@@ -189,7 +189,12 @@ export default function OrderTrack() {
 
       {error && searchCode && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {(error as any)?.response?.data?.error || 'Order not found. Please check your order code and try again.'}
+          {(() => {
+            const err = (error as any)?.response?.data?.error
+            if (typeof err === 'string') return err
+            if (err?.message) return err.message
+            return 'Order not found. Please check your order code and try again.'
+          })()}
         </Alert>
       )}
 

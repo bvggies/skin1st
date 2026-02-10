@@ -346,7 +346,12 @@ export default function Shop() {
             Error loading products
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {(error as any)?.response?.data?.error || 'Please try again later.'}
+            {(() => {
+              const err = (error as any)?.response?.data?.error
+              if (typeof err === 'string') return err
+              if (err?.message) return err.message
+              return 'Please try again later.'
+            })()}
           </Typography>
           <Button onClick={() => window.location.reload()} variant="contained" color="primary">
             Retry

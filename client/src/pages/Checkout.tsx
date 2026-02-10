@@ -213,7 +213,20 @@ export default function Checkout() {
       })
     } catch (e: any) {
       console.error('Order placement error:', e)
-      const errorMsg = e.response?.data?.error || 'Failed to place order. Please try again.'
+      // Extract error message safely (handle objects, arrays, strings)
+      let errorMsg = 'Failed to place order. Please try again.'
+      if (e?.response?.data?.error) {
+        const err = e.response.data.error
+        if (typeof err === 'string') {
+          errorMsg = err
+        } else if (err?.message) {
+          errorMsg = err.message
+        } else if (Array.isArray(err) && err.length > 0) {
+          errorMsg = typeof err[0] === 'string' ? err[0] : err[0]?.message || errorMsg
+        }
+      } else if (e?.message && typeof e.message === 'string') {
+        errorMsg = e.message
+      }
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)

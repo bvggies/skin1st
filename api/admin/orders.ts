@@ -5,6 +5,7 @@ import { setSecurityHeaders } from '../middleware/security'
 import { sanitizeOrder } from '../utils/responseSanitizer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
   const prisma = await getPrisma()
   setSecurityHeaders(req, res)
   
@@ -90,5 +91,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const sanitizedOrders = orders.map(o => sanitizeOrder(o, false, true))
 
   res.status(200).json({ orders: sanitizedOrders, meta: { page: p, pageSize: ps, total } })
+  } catch (err) {
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error' })
+  }
 }
 

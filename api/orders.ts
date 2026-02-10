@@ -29,6 +29,7 @@ function generateTrackingCode(): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
   const prisma = await getPrisma()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   
@@ -36,7 +37,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!orderRateLimit(req, res)) return
 
   const parse = OrderSchema.safeParse(req.body || {})
-  if (!parse.success) return res.status(400).json({ error: parse.error.errors })
+  if (!parse.success) {
+    const errors = parse.error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')
+    return res.status(400).json({ error: errors })
+  }
 
   const { name, phone, alternativePhone, region, city, area, landmark, deliveryAddr, deliveryNotes, guestEmail, items, coupon } = parse.data
 
@@ -114,35 +118,67 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    // Create order
-    const newOrder = await tx.order.create({ 
-      data: { 
-        code, 
-        trackingCode,
-        status: 'PENDING_CONFIRMATION', 
-        total, 
-        customerName: name, 
-        phone, 
-        alternativePhone: alternativePhone || null,
-        region: region || null,
-        city: city || null,
-        area: area || null,
-        landmark: landmark || null,
-        deliveryAddr, 
-        deliveryNotes,
-        guestEmail: guestEmail || null,
-        userId: userId || null,
-        items: { create: orderItemsData },
-        statusHistory: {
-          create: {
-            status: 'PENDING_CONFIRMATION',
-            note: 'Order placed successfully'
-          }
-        },
-        createdAt: new Date(), 
-        updatedAt: new Date() 
-      } 
-    })
+    // Create order - try with statusHistory first, fallback without if table missing
+    let newOrder
+    try {
+      // Try creating with statusHistory
+      newOrder = await tx.order.create({ 
+        data: { 
+          code, 
+          trackingCode,
+          status: 'PENDING_CONFIRMATION', 
+          total, 
+          customerName: name, 
+          phone, 
+          alternativePhone: alternativePhone || null,
+          region: region || null,
+          city: city || null,
+          area: area || null,
+          landmark: landmark || null,
+          deliveryAddr, 
+          deliveryNotes,
+          guestEmail: guestEmail || null,
+          userId: userId || null,
+          items: { create: orderItemsData },
+          statusHistory: {
+            create: {
+              status: 'PENDING_CONFIRMATION',
+              note: 'Order placed successfully'
+            }
+          },
+          createdAt: new Date(), 
+          updatedAt: new Date() 
+        } 
+      })
+    } catch (createError: any) {
+      // If OrderStatusHistory table doesn't exist, create without it
+      if (createError?.code === 'P2021' && createError?.meta?.table === 'public.OrderStatusHistory') {
+        newOrder = await tx.order.create({ 
+          data: { 
+            code, 
+            trackingCode,
+            status: 'PENDING_CONFIRMATION', 
+            total, 
+            customerName: name, 
+            phone, 
+            alternativePhone: alternativePhone || null,
+            region: region || null,
+            city: city || null,
+            area: area || null,
+            landmark: landmark || null,
+            deliveryAddr, 
+            deliveryNotes,
+            guestEmail: guestEmail || null,
+            userId: userId || null,
+            items: { create: orderItemsData },
+            createdAt: new Date(), 
+            updatedAt: new Date() 
+          } 
+        })
+      } else {
+        throw createError
+      }
+    }
 
     return newOrder
   })
@@ -206,5 +242,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     couponApplied: coupon ? true : false,
     discount: couponDiscount > 0 ? couponDiscount : 0
   })
+  } catch (err: any) {
+    console.error('Orders API error:', err)
+    if (!res.headersSent) {
+      const errorMsg = err?.message || err?.code || 'Failed to create order'
+      res.status(500).json({ error: typeof errorMsg === 'string' ? errorMsg : 'Internal server error' })
+    }
+  }
 }
 
