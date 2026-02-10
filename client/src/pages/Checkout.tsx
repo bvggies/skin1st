@@ -133,11 +133,11 @@ export default function Checkout() {
 
   // Auto-select default address if available
   useEffect(() => {
-    if (defaultAddress && selectedAddressId === 'new') {
+    if (defaultAddress && selectedAddressId === 'new' && savedAddresses.length > 0) {
       setSelectedAddressId(defaultAddress.id)
       loadAddressIntoForm(defaultAddress)
     }
-  }, [defaultAddress])
+  }, [defaultAddress, savedAddresses.length])
 
   // Load address into form
   const loadAddressIntoForm = (address: any) => {
@@ -448,7 +448,10 @@ export default function Checkout() {
                 </FormLabel>
                 <RadioGroup
                   value={selectedAddressId}
-                  onChange={(e) => handleAddressSelect(e.target.value)}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    handleAddressSelect(e.target.value)
+                  }}
                 >
                   {savedAddresses.map((address: any) => (
                     <Card
@@ -460,13 +463,20 @@ export default function Checkout() {
                         cursor: 'pointer',
                         '&:hover': { borderColor: 'primary.main' },
                       }}
-                      onClick={() => handleAddressSelect(address.id)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleAddressSelect(address.id)
+                      }}
                     >
-                      <CardContent>
+                      <CardContent sx={{ '&:last-child': { pb: 2 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                           <FormControlLabel
                             value={address.id}
                             control={<Radio />}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleAddressSelect(address.id)
+                            }}
                             label={
                               <Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
@@ -490,7 +500,7 @@ export default function Checkout() {
                                 )}
                               </Box>
                             }
-                            sx={{ m: 0, flex: 1 }}
+                            sx={{ m: 0, flex: 1, cursor: 'pointer' }}
                           />
                           <Button
                             size="small"
@@ -514,19 +524,26 @@ export default function Checkout() {
                       cursor: 'pointer',
                       '&:hover': { borderColor: 'primary.main' },
                     }}
-                    onClick={() => handleAddressSelect('new')}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleAddressSelect('new')
+                    }}
                   >
-                    <CardContent>
+                    <CardContent sx={{ '&:last-child': { pb: 2 } }}>
                       <FormControlLabel
                         value="new"
                         control={<Radio />}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleAddressSelect('new')
+                        }}
                         label={
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Add />
                             <Typography variant="subtitle1">Use New Address</Typography>
                           </Box>
                         }
-                        sx={{ m: 0 }}
+                        sx={{ m: 0, cursor: 'pointer' }}
                       />
                     </CardContent>
                   </Card>
