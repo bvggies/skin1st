@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // PUT - Update address
-  if (req.method === 'PUT') {
+  if (req.method === 'PUT') { (req.method === 'PUT') {
     const parse = AddressSchema.safeParse(req.body || {})
     if (!parse.success) {
       return res.status(400).json({ error: parse.error.errors })

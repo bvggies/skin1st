@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -16,13 +16,22 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel,
+  Card,
+  CardContent,
+  IconButton,
+  Chip,
 } from '@mui/material'
-import { Warning, LocalShipping, Payment } from '@mui/icons-material'
-import { useQuery } from '@tanstack/react-query'
+import { Warning, LocalShipping, Payment, LocationOn, Add, Edit } from '@mui/icons-material'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import useCart from '../store/cart'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
+import { useAuth } from '../context/AuthContext'
 
 // Ghana Regions
 const GHANA_REGIONS = [
@@ -62,7 +71,9 @@ export default function Checkout() {
   const cart = useCart()
   const navigate = useNavigate()
   const location = useLocation()
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<Form>({ 
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<Form>({ 
     resolver: zodResolver(Schema),
     defaultValues: {
       region: '',
@@ -72,6 +83,9 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
   const [couponError, setCouponError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('new')
+  const [saveAddress, setSaveAddress] = useState(false)
+  const [addressLabel, setAddressLabel] = useState('')
 
   // Ensure cart.items is always an array (avoid blank page if store state is wrong)
   const cartItems = Array.isArray(cart?.items) ? cart.items : []
@@ -96,6 +110,72 @@ export default function Checkout() {
     },
     { enabled: variantIds.length > 0, staleTime: 60 * 1000 } // API is cached
   )
+
+  // Fetch saved addresses for logged-in users
+  const { data: addressesData } = useQuery(
+    ['my-addresses'],
+    async () => {
+      const res = await api.get('/user/addresses')
+      return res.data
+    },
+    { 
+      enabled: !!user, 
+      staleTime: 60 * 1000,
+      retry: false, // Don't retry if user is not logged in
+      onError: () => {
+        // Silently handle errors (user might not be logged in)
+      }
+    }
+  )
+
+  const savedAddresses = addressesData?.addresses || []
+  const defaultAddress = savedAddresses.find((a: any) => a.isDefault)
+
+  // Auto-select default address if available
+  useEffect(() => {
+    if (defaultAddress && selectedAddressId === 'new') {
+      setSelectedAddressId(defaultAddress.id)
+      loadAddressIntoForm(defaultAddress)
+    }
+  }, [defaultAddress])
+
+  // Load address into form
+  const loadAddressIntoForm = (address: any) => {
+    setValue('name', address.recipientName)
+    setValue('phone', address.phone)
+    setValue('alternativePhone', address.alternativePhone || '')
+    setValue('region', address.region)
+    setValue('city', address.city)
+    setValue('area', address.area || '')
+    setValue('landmark', address.landmark || '')
+    // Extract email if available (not stored in SavedAddress, so leave empty)
+  }
+
+  // Handle address selection
+  const handleAddressSelect = (addressId: string) => {
+    setSelectedAddressId(addressId)
+    if (addressId === 'new') {
+      // Reset form for new address
+      reset({
+        name: '',
+        email: '',
+        phone: '',
+        alternativePhone: '',
+        region: '',
+        city: '',
+        area: '',
+        landmark: '',
+        deliveryNotes: '',
+      })
+      setSaveAddress(false)
+      setAddressLabel('')
+    } else {
+      const address = savedAddresses.find((a: any) => a.id === addressId)
+      if (address) {
+        loadAddressIntoForm(address)
+      }
+    }
+  }
 
   const variantsList = variantsData?.variants ?? []
   const subtotal = variantsList.reduce((s: number, v: any) => {
@@ -131,6 +211,20 @@ export default function Checkout() {
     setCouponError('')
   }
 
+  // Mutation to save address
+  const saveAddressMutation = useMutation(
+    (addressData: any) => api.post('/user/addresses', addressData),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['my-addresses'])
+      },
+      onError: (e: any) => {
+        console.error('Failed to save address:', e)
+        // Don't fail order if address save fails
+      },
+    }
+  )
+
   async function onSubmit(data: Form) {
     if (itemsToCheckout.length === 0) {
       toast.error('No items to checkout')
@@ -142,25 +236,70 @@ export default function Checkout() {
     try {
       const items = itemsToCheckout.map((i: any) => ({ variantId: i.variantId, quantity: i.quantity }))
       
-      // Combine address fields into full delivery address
-      const fullAddress = [
-        data.area,
-        data.city,
-        data.region,
-        data.landmark ? `Near: ${data.landmark}` : '',
-      ].filter(Boolean).join(', ')
+      // If using saved address, get data from saved address
+      let orderData: any = {}
+      if (selectedAddressId !== 'new' && user) {
+        const savedAddress = savedAddresses.find((a: any) => a.id === selectedAddressId)
+        if (savedAddress) {
+          orderData = {
+            name: savedAddress.recipientName,
+            phone: savedAddress.phone,
+            alternativePhone: savedAddress.alternativePhone || undefined,
+            region: savedAddress.region,
+            city: savedAddress.city,
+            area: savedAddress.area || '',
+            landmark: savedAddress.landmark || undefined,
+            deliveryAddr: savedAddress.fullAddress,
+            deliveryNotes: data.deliveryNotes || undefined,
+          }
+        }
+      } else {
+        // Use form data for new address
+        const fullAddress = [
+          data.area,
+          data.city,
+          data.region,
+          data.landmark ? `Near: ${data.landmark}` : '',
+        ].filter(Boolean).join(', ')
+
+        orderData = {
+          name: data.name,
+          phone: data.phone,
+          alternativePhone: data.alternativePhone || undefined,
+          guestEmail: data.email || undefined,
+          region: data.region,
+          city: data.city,
+          area: data.area,
+          landmark: data.landmark || undefined,
+          deliveryAddr: fullAddress,
+          deliveryNotes: data.deliveryNotes || undefined,
+        }
+
+        // Save address if user wants to
+        if (saveAddress && user && addressLabel.trim()) {
+          try {
+            await saveAddressMutation.mutateAsync({
+              label: addressLabel.trim(),
+              recipientName: data.name,
+              phone: data.phone,
+              alternativePhone: data.alternativePhone || undefined,
+              region: data.region,
+              city: data.city,
+              area: data.area || undefined,
+              landmark: data.landmark || undefined,
+              fullAddress: fullAddress,
+              isDefault: savedAddresses.length === 0, // Set as default if first address
+            })
+            toast.success('Address saved successfully!')
+          } catch (e) {
+            // Address save failed, but continue with order
+            console.error('Failed to save address:', e)
+          }
+        }
+      }
 
       const res = await api.post('/orders', {
-        name: data.name,
-        phone: data.phone,
-        alternativePhone: data.alternativePhone || undefined,
-        guestEmail: data.email || undefined,
-        region: data.region,
-        city: data.city,
-        area: data.area,
-        landmark: data.landmark || undefined,
-        deliveryAddr: fullAddress,
-        deliveryNotes: data.deliveryNotes || undefined,
+        ...orderData,
         items,
         coupon: appliedCoupon?.coupon?.code || undefined,
       })
@@ -299,6 +438,130 @@ export default function Checkout() {
               Delivery Information
             </Typography>
           </Box>
+
+          {/* Saved Addresses Selection (for logged-in users) */}
+          {user && savedAddresses.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+              <FormControl component="fieldset" fullWidth>
+                <FormLabel component="legend" sx={{ mb: 2, fontWeight: 600 }}>
+                  Select Delivery Address
+                </FormLabel>
+                <RadioGroup
+                  value={selectedAddressId}
+                  onChange={(e) => handleAddressSelect(e.target.value)}
+                >
+                  {savedAddresses.map((address: any) => (
+                    <Card
+                      key={address.id}
+                      sx={{
+                        mb: 2,
+                        border: selectedAddressId === address.id ? 2 : 1,
+                        borderColor: selectedAddressId === address.id ? 'primary.main' : 'divider',
+                        cursor: 'pointer',
+                        '&:hover': { borderColor: 'primary.main' },
+                      }}
+                      onClick={() => handleAddressSelect(address.id)}
+                    >
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                          <FormControlLabel
+                            value={address.id}
+                            control={<Radio />}
+                            label={
+                              <Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="subtitle1" fontWeight={600}>
+                                    {address.label}
+                                  </Typography>
+                                  {address.isDefault && (
+                                    <Chip label="Default" size="small" color="primary" />
+                                  )}
+                                </Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  {address.recipientName} • {address.phone}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {address.fullAddress}
+                                </Typography>
+                                {address.area && (
+                                  <Typography variant="caption" color="text.secondary">
+                                    {address.area}, {address.city}, {address.region}
+                                  </Typography>
+                                )}
+                              </Box>
+                            }
+                            sx={{ m: 0, flex: 1 }}
+                          />
+                          <Button
+                            size="small"
+                            startIcon={<Edit />}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigate('/dashboard?tab=addresses')
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Card
+                    sx={{
+                      mb: 2,
+                      border: selectedAddressId === 'new' ? 2 : 1,
+                      borderColor: selectedAddressId === 'new' ? 'primary.main' : 'divider',
+                      cursor: 'pointer',
+                      '&:hover': { borderColor: 'primary.main' },
+                    }}
+                    onClick={() => handleAddressSelect('new')}
+                  >
+                    <CardContent>
+                      <FormControlLabel
+                        value="new"
+                        control={<Radio />}
+                        label={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Add />
+                            <Typography variant="subtitle1">Use New Address</Typography>
+                          </Box>
+                        }
+                        sx={{ m: 0 }}
+                      />
+                    </CardContent>
+                  </Card>
+                </RadioGroup>
+              </FormControl>
+            </Box>
+          )}
+
+          {/* Option to save address (for logged-in users using new address) */}
+          {user && selectedAddressId === 'new' && (
+            <Box sx={{ mb: 3 }}>
+              <FormControlLabel
+                control={
+                  <input
+                    type="checkbox"
+                    checked={saveAddress}
+                    onChange={(e) => setSaveAddress(e.target.checked)}
+                    style={{ marginRight: 8 }}
+                  />
+                }
+                label="Save this address for future orders"
+              />
+              {saveAddress && (
+                <TextField
+                  label="Address Label (e.g., Home, Office)"
+                  value={addressLabel}
+                  onChange={(e) => setAddressLabel(e.target.value)}
+                  placeholder="Home"
+                  size="small"
+                  sx={{ mt: 1, width: '100%', maxWidth: 300 }}
+                  helperText="Give this address a name for easy identification"
+                />
+              )}
+            </Box>
+          )}
 
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={3}>
