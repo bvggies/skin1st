@@ -14,6 +14,7 @@ SMTP_SECURE=false
 SMTP_USER=info@skin1stbeauty.com
 SMTP_PASS=KCcwxEj1LAux
 EMAIL_FROM=info@skin1stbeauty.com
+EMAIL_FROM_NAME=Skin1st Beauty Therapy
 EMAIL_REPLY_TO=info@skin1stbeauty.com
 SUPPORT_EMAIL=info@skin1stbeauty.com
 COMPANY_EMAIL=info@skin1stbeauty.com

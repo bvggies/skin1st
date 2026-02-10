@@ -24,9 +24,11 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       // SendGrid implementation
       const sgMail = require('@sendgrid/mail')
       sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+      const sgFromEmail = process.env.EMAIL_FROM || 'noreply@skin1st.com'
+      const sgFromName = process.env.EMAIL_FROM_NAME || 'Skin1st Beauty Therapy'
       await sgMail.send({
         to: options.to,
-        from: process.env.EMAIL_FROM || 'noreply@skin1st.com',
+        from: { email: sgFromEmail, name: sgFromName },
         subject: options.subject,
         text: options.text,
         html: options.html
@@ -42,8 +44,10 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
         username: 'api',
         key: process.env.MAILGUN_API_KEY || ''
       })
+      const mgFromEmail = process.env.EMAIL_FROM || 'noreply@skin1st.com'
+      const mgFromName = process.env.EMAIL_FROM_NAME || 'Skin1st Beauty Therapy'
       await mg.messages.create(process.env.MAILGUN_DOMAIN || '', {
-        from: process.env.EMAIL_FROM || 'noreply@skin1st.com',
+        from: `${mgFromName} <${mgFromEmail}>`,
         to: options.to,
         subject: options.subject,
         text: options.text,
@@ -104,13 +108,17 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       
       // Attempt to send email
       try {
+        const fromEmail = process.env.EMAIL_FROM || smtpUser || 'info@skin1stbeauty.com'
+        const fromName = process.env.EMAIL_FROM_NAME || 'Skin1st Beauty Therapy'
+        const fromAddress = `${fromName} <${fromEmail}>`
+        
         await transporter.sendMail({
-          from: process.env.EMAIL_FROM || smtpUser || 'info@skin1stbeauty.com',
+          from: fromAddress,
           to: options.to,
           subject: options.subject,
           text: options.text,
           html: options.html,
-          replyTo: process.env.EMAIL_REPLY_TO || process.env.SUPPORT_EMAIL || 'info@skin1stbeauty.com'
+          replyTo: process.env.EMAIL_REPLY_TO || process.env.SUPPORT_EMAIL || fromEmail
         })
         console.log('✅ Email sent successfully to:', options.to)
         return
